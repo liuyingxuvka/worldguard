@@ -1,0 +1,11 @@
+.flowpilot/
+evidence/
+tools/check_wg13_repair_*.py
+__pycache__/
+.pytest_cache/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+venv/

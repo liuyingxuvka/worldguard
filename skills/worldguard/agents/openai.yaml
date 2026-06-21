@@ -1,0 +1,4 @@
+interface:
+  display_name: "WorldGuard"
+  short_description: "Model-first world-claim guard checks"
+  default_prompt: "Use $worldguard to check whether this world claim is supported, contradicted, missing inputs, or outside the model boundary."
