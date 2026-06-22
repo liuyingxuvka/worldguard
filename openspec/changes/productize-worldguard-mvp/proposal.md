@@ -26,5 +26,5 @@ WorldGuard currently exists as a technical specification plus route evidence, bu
 - Adds package files under `worldguard/`.
 - Adds fixtures and tests under `tests/` and `examples/`.
 - Adds OpenSpec artifacts under `openspec/`.
-- Adds a local installable skill under `C:\Users\liu_y\.codex\skills\worldguard`.
+- Adds a local installable skill under the Codex skill directory, such as `$CODEX_HOME/skills/worldguard`.
 - Adds packaging and Git hygiene files such as `pyproject.toml`, `README.md`, and `.gitignore`.

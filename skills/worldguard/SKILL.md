@@ -15,13 +15,13 @@ Use this skill to keep world-claim analysis contract-first, mesh-aware, and evid
 2. For a unit check, build or inspect a structured `GuardContract`, select only the Guards named by `claim.target_guards`, then run the local package when a contract file or packaged example is available:
 
    ```powershell
-   python C:\Users\liu_y\.codex\skills\worldguard\scripts\run_worldguard_check.py --example fuel_cell
+   python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard_check.py" --example fuel_cell
    ```
 
    or:
 
    ```powershell
-   python C:\Users\liu_y\.codex\skills\worldguard\scripts\run_worldguard_check.py --contract <path>
+   python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard_check.py" --contract <path>
    ```
 
 3. For a mesh check, build or inspect a structured `ModelMeshContract`, then inspect:
@@ -34,7 +34,7 @@ Use this skill to keep world-claim analysis contract-first, mesh-aware, and evid
 4. Run the local package when a mesh file is available:
 
    ```powershell
-   python C:\Users\liu_y\.codex\skills\worldguard\scripts\run_worldguard_check.py --mesh <path>
+   python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard_check.py" --mesh <path>
    ```
 
 5. Report `PASS`, `FAIL`, `GAP`, or `BOUNDARY_EXCEEDED` without collapsing non-pass statuses.

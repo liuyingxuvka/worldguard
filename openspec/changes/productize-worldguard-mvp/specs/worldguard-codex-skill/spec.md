@@ -5,7 +5,7 @@ The system SHALL install a local Codex skill named `worldguard` under the user s
 
 #### Scenario: Skill files exist
 - **WHEN** the local skill directory is inspected
-- **THEN** `SKILL.md`, references, and a runnable helper script exist under `C:\Users\liu_y\.codex\skills\worldguard`.
+- **THEN** `SKILL.md`, references, and a runnable helper script exist under the local Codex skill directory, such as `$CODEX_HOME/skills/worldguard`.
 
 ### Requirement: Contract-first Prompt Contract
 The WorldGuard skill SHALL instruct Codex to build or inspect a structured `GuardContract` before giving a PASS/FAIL/GAP/BOUNDARY_EXCEEDED conclusion.

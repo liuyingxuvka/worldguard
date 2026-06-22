@@ -10,6 +10,11 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["PyYAML>=6.0"]
 
+[project.urls]
+Homepage = "https://github.com/liuyingxuvka/worldguard"
+Repository = "https://github.com/liuyingxuvka/worldguard"
+Issues = "https://github.com/liuyingxuvka/worldguard/issues"
+
 [project.scripts]
 worldguard = "worldguard.cli:main"
 

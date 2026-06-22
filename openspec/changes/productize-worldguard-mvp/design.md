@@ -33,7 +33,7 @@ The current workspace contains `WorldGuard_TECHNICAL_SPEC.md`, productization au
    - Rationale: the productization audit says fuel-cell evidence is sample-only and must not become a hidden core requirement.
    - Alternative considered: keeping root `evidence/` as public data. Rejected because it mixes route evidence with product surface.
 
-5. Install the Codex skill under `C:\Users\liu_y\.codex\skills\worldguard`.
+5. Install the Codex skill under the local Codex skill directory, such as `$CODEX_HOME/skills/worldguard`.
    - Rationale: this makes the skill discoverable in local Codex sessions.
    - Alternative considered: keep skill docs only inside the repo. Rejected because the user asked to synchronize the local installed version.
 

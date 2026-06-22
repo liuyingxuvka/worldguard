@@ -25,7 +25,7 @@
 
 ## 5. Codex Skill Installation
 
-- [x] 5.1 Create local `C:\Users\liu_y\.codex\skills\worldguard` with `SKILL.md`, references, `agents/openai.yaml`, and helper script.
+- [x] 5.1 Create local Codex skill copy under `$CODEX_HOME/skills/worldguard` with `SKILL.md`, references, `agents/openai.yaml`, and helper script.
 - [x] 5.2 Validate skill metadata and run the helper script against the installed package.
 
 ## 6. Validation, Install, And Local Git Sync

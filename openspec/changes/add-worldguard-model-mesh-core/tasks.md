@@ -25,7 +25,7 @@
 ## 5. Documentation And Skill Sync
 
 - [x] 5.1 Update README and relevant docs to describe WorldGuard as unit-contract plus model-mesh core.
-- [x] 5.2 Sync repository skill changes to `C:\Users\liu_y\.codex\skills\worldguard`.
+- [x] 5.2 Sync repository skill changes to the local Codex skill installation under `$CODEX_HOME/skills/worldguard`.
 - [x] 5.3 Validate repository and installed skill copies plus helper commands.
 
 ## 6. Local Git Sync And Completion Audit
