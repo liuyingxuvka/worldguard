@@ -14,10 +14,11 @@
 5. [统一 Ledger 模型](#统一-ledger-模型)
 6. [七个 Guard 规格](#七个-guard-规格)
 7. [跨 Guard Kernel 集成规则](#跨-guard-kernel-集成规则)
-8. [燃料电池 toy demo 端到端示例](#燃料电池-toy-demo-端到端示例)
-9. [测试设计](#测试设计)
-10. [GitHub 仓库蓝图与 MVP 实施路线](#github-仓库蓝图与-mvp-实施路线)
-11. [禁止做法、常见错误与最终接受标准](#禁止做法常见错误与最终接受标准)
+8. [ModelMesh 通用模型网格](#modelmesh-通用模型网格)
+9. [燃料电池 toy demo 端到端示例](#燃料电池-toy-demo-端到端示例)
+10. [测试设计](#测试设计)
+11. [GitHub 仓库蓝图与 MVP 实施路线](#github-仓库蓝图与-mvp-实施路线)
+12. [禁止做法、常见错误与最终接受标准](#禁止做法常见错误与最终接受标准)
 
 ## 装配覆盖清单
 
@@ -667,6 +668,32 @@ def run_worldguard(contract):
 - SpaceGuard 输出可阻止空间安全 claim，但不能生成 metric geometry。
 - CausalGuard 输出可解释因果 claim，但不能从 EventGuard 的时间顺序自动获得结构方程。
 - ConflictGuard 输出可描述策略/收益冲突，但不能生成 Deontic Logic 权限。
+
+## ModelMesh 通用模型网格
+
+ModelMesh 是 WorldGuard core 的多模型检查层。它不引入小说、论文、游戏等领域结构字段，而是用通用模型节点和边描述多个世界模型之间的连接。
+
+```text
+GuardContract      -> 单个声明、单个模型、七个 Guard 检查
+ModelMeshContract  -> 多个模型节点、模型边、权威范围、交接、版本/新鲜度、闭环报告
+```
+
+ModelMesh 的核心目标：
+
+- 保留 `GuardContract` 作为 unit-level check，不把单声明合同变重。
+- 检查 parent/child、depends_on、refines、replaces、conflicts_with、consumes_output_of、same_world_version、supersedes 等模型关系。
+- 记录每个 `ModelNode` 的 `ModelAuthority`：它能判断什么、不能判断什么、作用边界是什么。
+- 记录每条 `ModelEdge` 的 handoff contract：谁把什么输出交给谁、允许怎么用、禁止怎么用、是否要求当前证据。
+- 检查 stale source、forbidden downstream use、mutable handoff、missing node、dependency cycle 和 authority overreach。
+- 生成 `MeshReport`，保留 child `GuardedReport`、child ledgers 和 mesh-level findings。
+
+ModelMesh 不允许的做法：
+
+- 用一个 child model 的 `PASS` 代替 whole-mesh `PASS`。
+- 让下游模型补上游模型的 `GAP`。
+- 用 stale model 支持 current downstream claim。
+- 让一个模型越过自己的 authority 解释别的语义。
+- 把 chapter、scene、paragraph、quest 等领域 adapter 字段写入 WorldGuard core schema。
 
 ## 燃料电池 toy demo 端到端示例
 

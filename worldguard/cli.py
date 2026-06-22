@@ -7,6 +7,7 @@ from .contracts import GuardContract
 from .examples.fuel_cell import run_check as run_fuel_cell_check
 from .io import dump_json, load_mapping
 from .kernel import run_worldguard
+from .mesh import ModelMeshContract, run_model_mesh
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -15,6 +16,8 @@ def main(argv: list[str] | None = None) -> int:
     check = subparsers.add_parser("check")
     check.add_argument("--contract", default="")
     check.add_argument("--example", choices=["fuel_cell"], default="")
+    mesh_check = subparsers.add_parser("mesh-check")
+    mesh_check.add_argument("--mesh", required=True)
 
     args = parser.parse_args(argv)
     if args.command == "check":
@@ -25,6 +28,10 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("check requires --contract or --example fuel_cell")
         contract = GuardContract.from_dict(load_mapping(args.contract))
         print(dump_json(run_worldguard(contract).to_dict()))
+        return 0
+    if args.command == "mesh-check":
+        mesh = ModelMeshContract.from_dict(load_mapping(args.mesh))
+        print(dump_json(run_model_mesh(mesh).to_dict()))
         return 0
     return 2
 

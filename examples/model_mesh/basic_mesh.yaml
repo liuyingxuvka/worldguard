@@ -1,0 +1,70 @@
+mesh_id: basic-model-mesh
+schema_version: worldguard.model_mesh.v1
+run_id: basic-mesh-run
+nodes:
+  - model_id: event-source
+    model_version: v1
+    model_kind: event_model
+    freshness_status: current
+    authority:
+      owns: [event]
+      excludes: [norm, resource, causal]
+      scope_limits: [toy mesh fixture only]
+    contract:
+      contract_id: mesh:event-source
+      schema_version: worldguard.contract.v1
+      run_id: basic-mesh-run
+      claim:
+        claim_id: c_event_ready
+        text: operator starts the process after precheck
+        target_guards: [EventGuard]
+        requested_semantics: [event]
+      world_model:
+        model_id: event-source
+        model_version: v1
+        scope_limits: [toy mesh fixture only]
+      inputs:
+        events:
+          - event_id: e_precheck
+            at: t0
+            initiates: precheck_complete
+  - model_id: norm-target
+    model_version: v1
+    model_kind: norm_model
+    freshness_status: current
+    authority:
+      owns: [norm]
+      excludes: [resource, causal]
+      scope_limits: [toy mesh fixture only]
+    contract:
+      contract_id: mesh:norm-target
+      schema_version: worldguard.contract.v1
+      run_id: basic-mesh-run
+      claim:
+        claim_id: c_norm_start
+        text: operator may start
+        target_guards: [NormGuard]
+        requested_semantics: [norm]
+      world_model:
+        model_id: norm-target
+        model_version: v1
+        scope_limits: [toy mesh fixture only]
+      inputs:
+        norms:
+          - modality: permitted
+            action: start
+edges:
+  - edge_id: e_event_to_norm
+    source_model_id: event-source
+    target_model_id: norm-target
+    relation: consumes_output_of
+    output_refs: [precheck_complete]
+    allowed_use: [precheck_complete]
+    forbidden_use: []
+    read_only: true
+    requires_current_source: true
+snapshots:
+  - snapshot_id: s_current
+    model_ids: [event-source, norm-target]
+    status: current
+    notes: [basic pass mesh fixture]

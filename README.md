@@ -11,6 +11,11 @@ This repository is now organized as a runnable MVP:
 - `openspec/` contains the change record for this productization pass.
 - `skills/worldguard/` contains the repository copy of the local Codex skill installed at `C:\Users\liu_y\.codex\skills\worldguard`.
 
+WorldGuard now has two core check shapes:
+
+- `GuardContract`: a unit-level check for one claim against one explicit world model.
+- `ModelMeshContract`: a generic mesh-level check for multiple model nodes, model authority boundaries, read-only handoffs, source freshness, dependency cycles, and child ledger preservation.
+
 The fuel-cell material is only a toy fixture. It does not validate real fuel-cell physics, law, safety, compliance, deployment readiness, market truth, or strategy.
 
 ## Quick Check
@@ -20,6 +25,7 @@ python -m pip install -e .
 python -m pytest
 python -m worldguard.examples.fuel_cell --check
 python -m worldguard.cli check --example fuel_cell
+python -m worldguard.cli mesh-check --mesh examples/model_mesh/basic_mesh.yaml
 ```
 
 If your Python user scripts directory is on `PATH`, the console command `worldguard check --example fuel_cell` is also available.
@@ -31,3 +37,4 @@ If your Python user scripts directory is on `PATH`, the console command `worldgu
 - Non-pass results must carry missing slots, errors, boundary traces, or counterexamples.
 - Kernel handoff is read-only: downstream Guards may read upstream results but may not repair or relabel them.
 - Aggregate ledgers must preserve child Guard evidence.
+- Mesh checks must not report whole-mesh `PASS` from child-local `PASS` alone; authority, handoff, freshness, cycle, and ledger-preservation checks must also pass.

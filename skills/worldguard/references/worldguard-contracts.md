@@ -1,5 +1,11 @@
 # WorldGuard Contracts
 
+## Contract Layers
+
+`GuardContract` is the unit-level check surface for one claim against one explicit model.
+
+`ModelMeshContract` is the topology-level check surface for multiple model nodes, model edges, authority boundaries, freshness requirements, and handoff closure. It must not replace or bloat `GuardContract`.
+
 ## GuardContract
 
 Required canonical fields:
@@ -69,3 +75,9 @@ Required canonical fields:
 - `created_at_step`
 
 Every downstream-facing ledger entry must be read-only.
+
+## ModelMeshContract
+
+Read `model-mesh.md` for the canonical mesh fields.
+
+Core rule: child `GuardContract` success is not whole-mesh success. Mesh closure must also preserve child reports and validate model authority, handoffs, freshness, and cycles.

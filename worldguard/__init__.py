@@ -2,6 +2,7 @@
 
 from .contracts import GuardContract
 from .kernel import run_worldguard
+from .mesh import ModelMeshContract, MeshReport, run_model_mesh
 from .reports import GuardResult, GuardedReport
 from .status import GuardStatus
 
@@ -13,5 +14,8 @@ __all__ = [
     "GuardResult",
     "GuardStatus",
     "GuardedReport",
+    "MeshReport",
+    "ModelMeshContract",
+    "run_model_mesh",
     "run_worldguard",
 ]

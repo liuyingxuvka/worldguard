@@ -7,6 +7,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--example", choices=["fuel_cell"], default="")
     parser.add_argument("--contract", default="")
+    parser.add_argument("--mesh", default="")
     args = parser.parse_args()
 
     try:
@@ -20,8 +21,13 @@ def main() -> int:
             from worldguard.kernel import run_worldguard
 
             result = run_worldguard(GuardContract.from_dict(load_mapping(args.contract))).to_dict()
+        elif args.mesh:
+            from worldguard.io import load_mapping
+            from worldguard.mesh import ModelMeshContract, run_model_mesh
+
+            result = run_model_mesh(ModelMeshContract.from_dict(load_mapping(args.mesh))).to_dict()
         else:
-            parser.error("provide --example fuel_cell or --contract <path>")
+            parser.error("provide --example fuel_cell, --contract <path>, or --mesh <path>")
             return 2
     except Exception as exc:  # pragma: no cover - helper script surface
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False, indent=2))

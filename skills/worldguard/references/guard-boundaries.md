@@ -1,5 +1,13 @@
 # Guard Boundaries
 
+## Guard Boundary vs Mesh Boundary
+
+Guard boundary decides which formal Guard owns a claim part.
+
+Mesh boundary decides whether one model node may support another model node through declared authority, freshness, and handoff contracts.
+
+These are different checks. A Guard may return `PASS` inside one node while the overall mesh remains `GAP`, `FAIL`, or `BOUNDARY_EXCEEDED`.
+
 ## EventGuard
 
 Owns event, timepoint, fluent persistence, initiation, termination, clipping, and exclusive fluent conflicts.
