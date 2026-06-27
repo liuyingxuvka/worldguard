@@ -29,7 +29,7 @@ Route: `model_test_alignment`
 - `openspec validate add-worldguard-model-mesh-core --strict`: valid.
 - `python -m worldguard.examples.fuel_cell --check`: `ok=true`; expected aggregate status remains `FAIL`; claim statuses remain `PASS,PASS,FAIL`.
 - `python -m worldguard.cli mesh-check --mesh examples\model_mesh\basic_mesh.yaml`: status `PASS`; findings empty.
-- `python C:\Users\liu_y\.codex\skills\worldguard\scripts\run_worldguard_check.py --example fuel_cell`: `ok=true`.
-- `python C:\Users\liu_y\.codex\skills\worldguard\scripts\run_worldguard_check.py --mesh examples\model_mesh\basic_mesh.yaml`: status `PASS`; findings empty.
+- `python <codex-home>\skills\worldguard\scripts\run_worldguard_check.py --example fuel_cell`: `ok=true`.
+- `python <codex-home>\skills\worldguard\scripts\run_worldguard_check.py --mesh examples\model_mesh\basic_mesh.yaml`: status `PASS`; findings empty.
 - Repository/installed skill sync: `SKILL.md`, helper script, and six reference files have matching SHA256 hashes.
 - Public API import: `worldguard.__version__ == 0.1.0`; `ModelMeshContract`, `MeshReport`, and `run_model_mesh` import from `worldguard`.

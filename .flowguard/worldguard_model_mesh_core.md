@@ -60,7 +60,7 @@ flowchart TD
   - `openspec validate add-worldguard-model-mesh-core --strict`
   - `python -m pytest`
   - `python -m worldguard.cli mesh-check --mesh examples/model_mesh/basic_mesh.yaml`
-  - `python C:\Users\liu_y\.codex\skills\worldguard\scripts\run_worldguard_check.py --example fuel_cell`
+  - `python <codex-home>\skills\worldguard\scripts\run_worldguard_check.py --example fuel_cell`
   - repository/installed skill hash comparison
 
 ## Final Validation Snapshot
