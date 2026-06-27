@@ -10,7 +10,7 @@
 </p>
 <!-- README HERO END -->
 
-**Current release:** `v0.1.0`<br>
+**Current release:** `v0.1.1`<br>
 **Package:** `worldguard`<br>
 **Release type:** source-only Python package and Codex skill workflow
 
@@ -127,7 +127,7 @@ No license file is included yet. Treat this repository as source-visible but not
 
 # WorldGuard 中文说明
 
-**当前版本：** `v0.1.0`<br>
+**当前版本：** `v0.1.1`<br>
 **包名：** `worldguard`<br>
 **发布类型：** 源码版 Python 包 + Codex 技能工作流
 

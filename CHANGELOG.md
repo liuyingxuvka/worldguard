@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.1 - 2026-06-27
+
+- Added SkillGuard runtime-contract governance for the installed WorldGuard Codex skill materials.
+- Synchronized installed skill copies with accepted source material and local git evidence.
+- Recorded release-scope validation so route selection, evidence gates, quality floors, and closure boundaries remain visible before completion claims.
+
 ## v0.1.0 - 2026-06-22
 
 First source-only release.

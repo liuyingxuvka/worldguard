@@ -6,7 +6,7 @@ from .mesh import ModelMeshContract, MeshReport, run_model_mesh
 from .reports import GuardResult, GuardedReport
 from .status import GuardStatus
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "__version__",
