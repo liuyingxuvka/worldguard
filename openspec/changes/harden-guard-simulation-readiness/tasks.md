@@ -17,7 +17,7 @@
 ## 4. Release
 
 - [x] Run package tests and model smoke checks.
-- [ ] Commit, tag, push, and publish the release.
+- [x] Commit, tag, push, and publish the release.
 
 ## Verification Evidence
 

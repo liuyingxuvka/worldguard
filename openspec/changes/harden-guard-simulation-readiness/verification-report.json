@@ -1,0 +1,199 @@
+{
+  "version": 1,
+  "change": "harden-guard-simulation-readiness",
+  "status": "pass",
+  "generatedAt": "2026-07-07T05:47:26.332Z",
+  "contractPath": "openspec/changes/harden-guard-simulation-readiness/verification-contract.yaml",
+  "reportPath": "openspec/changes/harden-guard-simulation-readiness/verification-report.json",
+  "contractHash": "357017e0915ae40284ae9eb5e806ae05cb4592c26a46c367266f20aed162c849",
+  "sourceHashes": {
+    ".flowguard/project.toml": "78e192710b9272710177643b734249fa4fea0fdb7894b6b3e90d716fe7672da2",
+    "openspec/changes/harden-guard-simulation-readiness/design.md": "35b9be457ef30c48124b83fd442cf96175acb67ca52c6fdf7fb7a25d4d2fc648",
+    "openspec/changes/harden-guard-simulation-readiness/proposal.md": "4889c8f79f2c63c9516f2b582cd5c5bd2550b4617cfa1fc903c1dc4fe4f1d08b",
+    "openspec/changes/harden-guard-simulation-readiness/specs/guard-simulation-readiness/spec.md": "81388910f01a0a700b65b23102bb961187e5577fbf85af5f5e14d66d9be492b6",
+    "openspec/changes/harden-guard-simulation-readiness/tasks.md": "925407c484014c38560adb45b77d8dc86892f9d36d1bdc571a91566beeacbe02",
+    "openspec/changes/harden-guard-simulation-readiness/verification-contract.yaml": "357017e0915ae40284ae9eb5e806ae05cb4592c26a46c367266f20aed162c849",
+    "pyproject.toml": "5e413362cb6ab8304310d6a85f6a4e67c13fabea8acfa32750e71cd027f7dd7f",
+    "scripts/verify_guard_simulation_readiness.py": "0df417e27d6176ee2f4a3ae5f2edf7a42b257651e78dc5c8fbd7a91619010300",
+    "skills/worldguard/.skillguard/ai_judgments/current_ai_judgment.json": "e1360e56003a97ae89abb004c296d77baee85dbd55037c4eedc952ccfde862b9",
+    "skills/worldguard/.skillguard/check_manifest.json": "2d7592487e6f1fd17dbd86180c9839909cabc0a833ae23db7981606bd721c111",
+    "skills/worldguard/.skillguard/checks/check_closure.py": "41a0c1260180e93957888c80eed0df094d0e129b71ab4f6d2214318ae092c013",
+    "skills/worldguard/.skillguard/checks/check_evidence.py": "9e290e91a9fb58ba26b60cb78cbb8dbc6077a7005908d30af2215a5d48eb9f47",
+    "skills/worldguard/.skillguard/checks/check_phase_order.py": "41c56cd3aa29e3b7480bcdc3ce1f9d18b70c33039c97d8dee68e027ee91e3596",
+    "skills/worldguard/.skillguard/checks/check_quality_floor.py": "7ca9206202ff52ccb4d5c46ffe2677d1cbba34b1409c931863b2cd58405bd7e2",
+    "skills/worldguard/.skillguard/checks/check_route.py": "264f3b1696526de3ca85015fe6f3ec30aa4eaf10d7875a186bce1c1137ad6f1a",
+    "skills/worldguard/.skillguard/evidence/current_evidence_manifest.json": "54396746cd4ec2cde8a167139a0fc2d07815f6e9c4acb64376d485e3baaf6c4d",
+    "skills/worldguard/.skillguard/reports/current_check_report.json": "9a49adcb35b2517711ec65ae68e95d972a6b74ccf7a71e02782990be72259f12",
+    "skills/worldguard/.skillguard/reports/current_closure.json": "bff2e1b6869e644df8d00c06e818aed8b480511e3bc80bb88f88420797774daa",
+    "skills/worldguard/.skillguard/skillguard_closure_policy.json": "feb047fa9b1f60ddb06f65ec34c7beb9d4a6a207e6b1aaf037ad90394da88847",
+    "skills/worldguard/.skillguard/skillguard_evidence_rules.json": "85945c9ce5e13671c70fa3464f76d2d745ee51b10b5ae1cc001286eb4b1504c7",
+    "skills/worldguard/.skillguard/skillguard_manifest.json": "2a60b4609048ca03d12f13c4b8072ea7530809a25bb8d140db92069635d15139",
+    "skills/worldguard/.skillguard/skillguard_profile.json": "79197dcdc4f703dcbd41819d04c83613f248f5d0ec2e537d1a65dda1141951d6",
+    "skills/worldguard/.skillguard/skillguard_skill_contract.json": "5e7ec14b956d9c814378bc8800d45bc356877b11e97e33a3055eccfeb3ddfe4d",
+    "skills/worldguard/.skillguard/work-contract.json": "6b1b823283fdd1c7ef7ec5a03cb5264301b12142f7cda1c9537fe35d6bd76ca3",
+    "skills/worldguard/SKILL.md": "a435f6be818f60a0f2c10f2f8723105c004a87cc46e06dc24dc7ba8f5d0b1e15",
+    "skills/worldguard/references/closure-report.md": "5332cb8e60779c1ce3cb0e6907bebe590d39beb1e351cca708575d545cdbe629",
+    "skills/worldguard/references/guard-boundaries.md": "2201a55ff313ba72298839ba939ff08023d89feba75f6b23f4df8f5d464ea618",
+    "skills/worldguard/references/handoff-contracts.md": "5bdd915724050e4d0d67e9dd032718d865757092dfbef2c0d12b49e94d117d2d",
+    "skills/worldguard/references/model-authority.md": "e5d94c2217f748a4413d7b0f375c9dc144363b12e50671f3f2125a02db17156d",
+    "skills/worldguard/references/model-mesh.md": "ad23e825b6b40aa1931e37e0d91f2c24af20593d377295773a9d03116500a681",
+    "skills/worldguard/references/worldguard-contracts.md": "26d8181c063936987aea8991c6c7b61b8a3d06b10db9c10f3966e9223cedc08c",
+    "tests/__init__.py": "52e71ca1ffd05657fb4bc4778f0325cc8bcb6bbb888badbbf83faf148773acfb",
+    "tests/guards/test_status_matrix.py": "f436e85a954ac77179e97f57e2afd223a0644a42a49599378e81346d43ff792b",
+    "tests/helpers.py": "878a38ba28761250e73efb1cf689afd511818b97034d459e841464d9dd7b83d3",
+    "tests/test_cli_module.py": "9fa3686ac88d424083ca12c332adf0bf4ea1e85b97cd45d1ac90a902c661a496",
+    "tests/test_contracts.py": "4137c4c3dd2701dc46ada9b536b2d3195adce5a115834b46a054618076c020ce",
+    "tests/test_fuel_cell_demo.py": "dea413a38bb8f03de9c46ab8c1b89b010618494aeab90a080f67907bf1f1e8aa",
+    "tests/test_kernel_handoff.py": "49075b09f08cd7425409b9d8e0cfc77b66d5b56810bd568a724ea5903ac982ad",
+    "tests/test_ledgers.py": "4efcfbb44aef2f2a9d709e8286b7495f95c0d92758d7709fe5b2b2076e4bd5c6",
+    "tests/test_model_mesh.py": "fe292468d7d42cc597f8cf081efd5b783b3e3beb63ec808eada0617ca9838356",
+    "worldguard/__init__.py": "deebae6157484630e68147e6e32541b8ff61c38fd36977e381898e6626c73691",
+    "worldguard/__main__.py": "dc8e5ea86b65828bfe613530fdc899fceffd1a7457a5e9d15e35ef9146410412",
+    "worldguard/cli.py": "1de013fd6f12b7fac1b57e721bca4a68be08eef5781cf7f2343c5a212d4be40f",
+    "worldguard/contracts.py": "01c66ca70692c15260a79f3433a8c1d280a7858ad3ee5aa2cc86e6536145f10b",
+    "worldguard/examples/__init__.py": "45c9ad539ce1ca8b3ed495de3ed807a6d4c80001323fadd3907a4a32f74d9d4f",
+    "worldguard/examples/fuel_cell.py": "3bde8dcd73fa637f7cc507055445288c41ab9fc7513db9c7df4d460f6f36f55b",
+    "worldguard/guards/__init__.py": "737f917b31397d263818b93a164d5de3518d3bda02654449a982ab9c46d3187e",
+    "worldguard/guards/_helpers.py": "c4049f570e58b7ad09019f9ff0ed4283b0453ce2a4118c9f255bacbb18c3ee8a",
+    "worldguard/guards/agent_guard.py": "af232dfb836c3f4a975c85a85b0da5dc6512675360eb9b45ea7c694a8b882907",
+    "worldguard/guards/causal_guard.py": "b6be4cd6d292924df4708d11bd0720c1562600c01f67f2d7f8ad86918f52cd00",
+    "worldguard/guards/conflict_guard.py": "4dd7872562650b7fbea1be43ca95cdc01b0500a6d1b8f3dae0ff85760a3e098f",
+    "worldguard/guards/event_guard.py": "76438414381b6fe96b37b51a170d9bd8d30928371cc6a41e5d909d09424042af",
+    "worldguard/guards/norm_guard.py": "ba595fcd6db491ec4266b4ec116a503aa69aa9a79a99a8ebe3f8047c64ba8a22",
+    "worldguard/guards/resource_guard.py": "7b833cbd3f8a22868839cf3d7dac3cd0d454e7a4704cf1651de715066e8f3b63",
+    "worldguard/guards/space_guard.py": "b8fe015d777e994dcdda49d7c2a80acc985315b7ede079e6ba5e150b865bdaeb",
+    "worldguard/io.py": "da65a5a7e05b74b886fa2b37127a339026c4939bb7ecdec18c8cd673112f129e",
+    "worldguard/kernel.py": "3bf6633265e8fffa9153b655a0d646146dca9340b0283193bead296f314439d8",
+    "worldguard/ledgers.py": "f7948c27c2faf92852c2308fa8e2f7470c3beb7cc2966c53251cf7add9457c5f",
+    "worldguard/mesh.py": "2821a91a602035e74d5ec9d58d38d8e2e5a268488fb3854d952e180a497f433d",
+    "worldguard/reports.py": "a8334f553b8942fb380b85c37dc9e2467c388b47fa4579f8b131769a1cc929de",
+    "worldguard/status.py": "11ba88c0f9b88a407c42b6d465794e8ece7598bc04d295c602210ce782900805"
+  },
+  "issues": [],
+  "checks": [
+    {
+      "id": "check.tests",
+      "kind": "command",
+      "required": true,
+      "covers": [
+        "req.worldguard.module-cli"
+      ],
+      "status": "passed",
+      "command": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "tests",
+        "-q"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "durationMs": 1883,
+      "stdout": ".........................                                                [100%]\r\n25 passed in 0.61s\r\n",
+      "stderr": ""
+    },
+    {
+      "id": "check.cli.help",
+      "kind": "command",
+      "required": true,
+      "covers": [
+        "req.worldguard.module-cli"
+      ],
+      "status": "passed",
+      "command": "python",
+      "args": [
+        "-m",
+        "worldguard",
+        "--help"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "durationMs": 384,
+      "stdout": "usage: worldguard [-h] {check,mesh-check} ...\r\n\r\npositional arguments:\r\n  {check,mesh-check}\r\n\r\noptions:\r\n  -h, --help          show this help message and exit\r\n",
+      "stderr": ""
+    },
+    {
+      "id": "check.cli.example",
+      "kind": "command",
+      "required": true,
+      "covers": [
+        "req.worldguard.module-cli"
+      ],
+      "status": "passed",
+      "command": "python",
+      "args": [
+        "-m",
+        "worldguard",
+        "check",
+        "--example",
+        "fuel_cell"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "durationMs": 462,
+      "stdout": "{\r\n  \"claim_statuses\": [\r\n    \"PASS\",\r\n    \"PASS\",\r\n    \"FAIL\"\r\n  ],\r\n  \"example\": \"fuel_cell\",\r\n  \"expected_aggregate_status\": \"FAIL\",\r\n  \"guards_verified\": [\r\n    \"AgentGuard\",\r\n    \"CausalGuard\",\r\n    \"ConflictGuard\",\r\n    \"EventGuard\",\r\n    \"NormGuard\",\r\n    \"ResourceGuard\",\r\n    \"SpaceGuard\"\r\n  ],\r\n  \"ok\": true,\r\n  \"reports\": [\r\n    {\r\n      \"aggregate_ledger\": [\r\n        {\r\n          \"channel\": \"event\",\r\n          \"claim_id\": \"c_run_demo\",\r\n          \"created_at_step\": \"EventGuard\",\r\n          \"guard\": \"EventGuard\",\r\n          \"ledger_entry_id\": \"fuel-cell-toy:c_run_demo:EventGuard:event:EventGuard\",\r\n          \"payload\": {\r\n            \"events_observed\": 5\r\n          },\r\n          \"read_only_for_downstream\": true,\r\n          \"run_id\": \"fuel-cell-toy\",\r\n          \"source_refs\": [],\r\n          \"status_impact\": \"supports_pass\"\r\n        },\r\n        {\r\n          \"channel\": \"agent\",\r\n          \"claim_id\": \"c_run_demo\",\r\n          \"created_at_step\": \"AgentGuard\",\r\n          \"guard\": \"AgentGuard\",\r\n          \"ledger_entry_id\": \"fuel-cell-toy:c_run_demo:AgentGuard:agent:AgentGuard\",\r\n          \"payload\": {\r\n            \"agent_count\": 3\r\n          },\r\n          \"read_only_for_downstream\": true,\r\n          \"run_id\": \"fuel-cell-toy\",\r\n          \"source_refs\": [],\r\n          \"status_impact\": \"supports_pass\"\r\n        },\r\n        {\r\n          \"channel\": \"space\",\r\n          \"claim_id\": \"c_run_demo\",\r\n          \"created_at_step\": \"SpaceGuard\",\r\n          \"guard\": \"SpaceGuard\",\r\n          \"ledger_entry_id\": \"fuel-cell-toy:c_run_demo:SpaceGuard:space:SpaceGuard\",\r\n          \"payload\": {\r\n            \"relation_count\": 4\r\n          },\r\n          \"read_only_for_downstream\": true,\r\n          \"run_id\": \"fuel-cell-toy\",\r\n          \"source_refs\": [],\r\n          \"status_impact\": \"supports_pass\"\r\n        },\r\n        {\r\n          \"channel\": \"resource\",\r\n          \"claim_id\": \"c_run_demo\",\r\n          \"created_at_step\": \"ResourceGuard\",\r\n          \"guard\": \"ResourceGuard\",\r\n          \"ledger_entry_id\": \"fuel-cell-toy:c_run_demo:ResourceGuard:resource:ResourceGuard\",\r\n          \"payload\": {\r\n            \"transition_count\": 1\r\n          },\r\n          \"read_only_for_downstream\": true,\r\n          \"run_id\": \"fuel-cell-toy\",\r\n          \"source_refs\": [],\r\n          \"status_impact\": \"supports_pass\"\r\n        },\r\n        {\r\n          \"channel\": \"norm\",\r\n          \"claim_id\": \"c_run_demo\",\r\n          \"created_at_step\": \"NormGuard\",\r\n          \"guard\": \"NormGuard\",\r\n          \"ledger_entry_id\": \"fuel-cell-toy:c_run_demo:NormGuard:norm:NormGuard\",\r\n          \"payload\": {\r\n            \"norm_count\": 3\r\n          },\r\n          \"read_only_for_downstream\": true,\r\n          \"run_id\": \"fuel-cell-toy\",\r\n          \"source_refs\": [],\r\n          \"status_impact\": \"supports_pass\"\r\n        }\r\n      ],\r\n      \"child_results\": [\r\n        {\r\n          \"assumptions_used\": [],\r\n          \"boundary_exceeded\": {},\r\n          \"consumed_inputs\": {\r\n            \"event_model\": {},\r\n            \"events\": [\r\n              {\r\n                \"actor\": \"CompanyC.safety_auditor\",\r\n                \"at\": \"t0\",\r\n                \"event_id\": \"e_c_precheck\",\r\n                \"initiates\": \"c_precheck_complete\"\r\n              },\r\n              {\r\n                \"actor\": \"CompanyA.lead_engineer\",\r\n                \"at\": \"t1\",\r\n                \"event_id\": \"e_a_install_stack\",\r\n                \"initiates\": \"stack_installed_on_bench\"\r\n              },\r\n              {\r\n                \"actor\": \"CompanyA.lead_engineer\",\r\n                \"at\": \"t2\",\r\n                \"event_id\": \"e_a_start_demo\",\r\n                \"initiates\": \"cell_running\"\r\n              },\r\n              {\r\n                \"actor\": \"bench_sensor\",\r\n                \"at\": \"t3\",\r\n                \"event_id\": \"e_voltage_trace\",\r\n                \"initiates\": \"voltage_output_available\"\r\n              },\r\n              {\r\n                \"actor\": \"CompanyA.lead_engineer\",\r\n                \"at\": \"t4\",\r\n                \"event_id\": \"e_a_share_full_l\n...[truncated]",
+      "stderr": ""
+    },
+    {
+      "id": "check.guard-readiness",
+      "kind": "command",
+      "required": true,
+      "covers": [
+        "req.worldguard.skill-contract",
+        "req.worldguard.release-sync"
+      ],
+      "status": "passed",
+      "command": "python",
+      "args": [
+        "scripts/verify_guard_simulation_readiness.py"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "durationMs": 1322,
+      "stdout": "{\r\n  \"ok\": true,\r\n  \"checks\": [\r\n    {\r\n      \"check\": \"version_import_path\",\r\n      \"ok\": true,\r\n      \"metadata_version\": \"0.1.2\",\r\n      \"module_version\": \"0.1.2\",\r\n      \"module_path\": \"C:\\\\Users\\\\liu_y\\\\Documents\\\\WorldGurd_20260613\\\\worldguard\\\\__init__.py\"\r\n    },\r\n    {\r\n      \"check\": \"source_skillguard\",\r\n      \"ok\": true,\r\n      \"runs\": [\r\n        {\r\n          \"args\": [\r\n            \"C:\\\\Users\\\\liu_y\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\\\python.exe\",\r\n            \".skillguard/checks/check_route.py\"\r\n          ],\r\n          \"cwd\": \"C:\\\\Users\\\\liu_y\\\\Documents\\\\WorldGurd_20260613\\\\skills\\\\worldguard\",\r\n          \"exit_code\": 0,\r\n          \"stdout\": \"{\\\"check_id\\\": \\\"check_route\\\", \\\"decision\\\": \\\"pass\\\", \\\"route_count\\\": 4, \\\"failures\\\": []}\\n\",\r\n          \"stderr\": \"\"\r\n        },\r\n        {\r\n          \"args\": [\r\n            \"C:\\\\Users\\\\liu_y\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\\\python.exe\",\r\n            \".skillguard/checks/check_phase_order.py\"\r\n          ],\r\n          \"cwd\": \"C:\\\\Users\\\\liu_y\\\\Documents\\\\WorldGurd_20260613\\\\skills\\\\worldguard\",\r\n          \"exit_code\": 0,\r\n          \"stdout\": \"{\\\"check_id\\\": \\\"check_phase_order\\\", \\\"decision\\\": \\\"pass\\\", \\\"phase_count\\\": 5}\\n\",\r\n          \"stderr\": \"\"\r\n        },\r\n        {\r\n          \"args\": [\r\n            \"C:\\\\Users\\\\liu_y\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\\\python.exe\",\r\n            \".skillguard/checks/check_evidence.py\"\r\n          ],\r\n          \"cwd\": \"C:\\\\Users\\\\liu_y\\\\Documents\\\\WorldGurd_20260613\\\\skills\\\\worldguard\",\r\n          \"exit_code\": 0,\r\n          \"stdout\": \"{\\\"check_id\\\": \\\"check_evidence\\\", \\\"decision\\\": \\\"pass\\\", \\\"required_evidence_count\\\": 5}\\n\",\r\n          \"stderr\": \"\"\r\n        },\r\n        {\r\n          \"args\": [\r\n            \"C:\\\\Users\\\\liu_y\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\\\python.exe\",\r\n            \".skillguard/checks/check_quality_floor.py\"\r\n          ],\r\n          \"cwd\": \"C:\\\\Users\\\\liu_y\\\\Documents\\\\WorldGurd_20260613\\\\skills\\\\worldguard\",\r\n          \"exit_code\": 0,\r\n          \"stdout\": \"{\\\"check_id\\\": \\\"check_quality_floor\\\", \\\"decision\\\": \\\"pass\\\", \\\"quality_floor_count\\\": 2}\\n\",\r\n          \"stderr\": \"\"\r\n        },\r\n        {\r\n          \"args\": [\r\n            \"C:\\\\Users\\\\liu_y\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\\\python.exe\",\r\n            \".skillguard/checks/check_closure.py\"\r\n          ],\r\n          \"cwd\": \"C:\\\\Users\\\\liu_y\\\\Documents\\\\WorldGurd_20260613\\\\skills\\\\worldguard\",\r\n          \"exit_code\": 0,\r\n          \"stdout\": \"{\\\"check_id\\\": \\\"check_closure\\\", \\\"decision\\\": \\\"pass\\\", \\\"closure_rule_count\\\": 1}\\n\",\r\n          \"stderr\": \"\"\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"check\": \"installed_skill_sync\",\r\n      \"ok\": true,\r\n      \"rows\": [\r\n        {\r\n          \"source\": \"C:\\\\Users\\\\liu_y\\\\Documents\\\\WorldGurd_20260613\\\\skills\\\\worldguard\\\\SKILL.md\",\r\n          \"installed\": \"C:\\\\Users\\\\liu_y\\\\.codex\\\\skills\\\\worldguard\\\\SKILL.md\",\r\n          \"ok\": true\r\n        },\r\n        {\r\n          \"source\": \"C:\\\\Users\\\\liu_y\\\\Documents\\\\WorldGurd_20260613\\\\skills\\\\worldguard\\\\.skillguard\\\\work-contract.json\",\r\n          \"installed\": \"C:\\\\Users\\\\liu_y\\\\.codex\\\\skills\\\\worldguard\\\\.skillguard\\\\work-contract.json\",\r\n          \"ok\": true\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "id": "check.flowguard.audit",
+      "kind": "command",
+      "required": true,
+      "covers": [
+        "req.worldguard.release-sync"
+      ],
+      "status": "passed",
+      "command": "python",
+      "args": [
+        "-m",
+        "flowguard",
+        "project-audit",
+        "--root",
+        "."
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "durationMs": 1427,
+      "stdout": "=== flowguard project adoption ===\r\naction: audit\r\nstatus: pass\r\nrepository: https://github.com/liuyingxuvka/FlowGuard\r\ninstalled_package_version: 0.52.6\r\nschema_version: 1.0\r\nmanifest_package_version: 0.52.6\r\n",
+      "stderr": ""
+    },
+    {
+      "id": "check.openspec.strict",
+      "kind": "command",
+      "required": true,
+      "covers": [
+        "req.worldguard.release-sync"
+      ],
+      "status": "passed",
+      "command": "openspec",
+      "args": [
+        "validate",
+        "harden-guard-simulation-readiness",
+        "--strict"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "durationMs": 2095,
+      "stdout": "Change 'harden-guard-simulation-readiness' is valid\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+contract_version: 1
+change: harden-guard-simulation-readiness
+obligations:
+  - id: req.worldguard.module-cli
+    source: "specs/guard-simulation-readiness/spec.md#Requirement: Module CLI Must Match Installed CLI"
+    claim: "python -m worldguard delegates to the installed CLI implementation and the example check still runs."
+    required: true
+    evidence:
+      - check.tests
+      - check.cli.help
+      - check.cli.example
+  - id: req.worldguard.skill-contract
+    source: "specs/guard-simulation-readiness/spec.md#Requirement: Skill Contract Must Block Parallel SkillGuard Paths"
+    claim: "WorldGuard source skill contracts reject duplicate SkillGuard-owned execution paths."
+    required: true
+    evidence:
+      - check.guard-readiness
+  - id: req.worldguard.release-sync
+    source: "specs/guard-simulation-readiness/spec.md#Requirement: Release Metadata Must Be Synchronized"
+    claim: "WorldGuard version metadata, editable import path, OpenSpec change shape, and FlowGuard adoption record are synchronized."
+    required: true
+    evidence:
+      - check.guard-readiness
+      - check.openspec.strict
+      - check.flowguard.audit
+checks:
+  - id: check.tests
+    kind: command
+    command: python
+    args:
+      - -m
+      - pytest
+      - tests
+      - -q
+    required: true
+    covers:
+      - req.worldguard.module-cli
+    expected:
+      exit_code: 0
+  - id: check.cli.help
+    kind: command
+    command: python
+    args:
+      - -m
+      - worldguard
+      - --help
+    required: true
+    covers:
+      - req.worldguard.module-cli
+    expected:
+      exit_code: 0
+  - id: check.cli.example
+    kind: command
+    command: python
+    args:
+      - -m
+      - worldguard
+      - check
+      - --example
+      - fuel_cell
+    required: true
+    covers:
+      - req.worldguard.module-cli
+    expected:
+      exit_code: 0
+  - id: check.guard-readiness
+    kind: command
+    command: python
+    args:
+      - scripts/verify_guard_simulation_readiness.py
+    required: true
+    covers:
+      - req.worldguard.skill-contract
+      - req.worldguard.release-sync
+    expected:
+      exit_code: 0
+  - id: check.flowguard.audit
+    kind: command
+    command: python
+    args:
+      - -m
+      - flowguard
+      - project-audit
+      - --root
+      - .
+    required: true
+    covers:
+      - req.worldguard.release-sync
+    expected:
+      exit_code: 0
+  - id: check.openspec.strict
+    kind: command
+    command: openspec
+    args:
+      - validate
+      - harden-guard-simulation-readiness
+      - --strict
+    required: true
+    covers:
+      - req.worldguard.release-sync
+    expected:
+      exit_code: 0
+freshness:
+  watch:
+    - openspec/changes/harden-guard-simulation-readiness/proposal.md
+    - openspec/changes/harden-guard-simulation-readiness/design.md
+    - openspec/changes/harden-guard-simulation-readiness/tasks.md
+    - openspec/changes/harden-guard-simulation-readiness/specs/**/*.md
+    - openspec/changes/harden-guard-simulation-readiness/verification-contract.yaml
+    - pyproject.toml
+    - worldguard/**/*.py
+    - scripts/verify_guard_simulation_readiness.py
+    - tests/**/*.py
+    - skills/worldguard/**/*.md
+    - skills/worldguard/.skillguard/**/*.json
+    - skills/worldguard/.skillguard/**/*.py
+    - .flowguard/**/*.toml
