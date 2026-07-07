@@ -48,7 +48,7 @@
   "skillguard_role": "hybrid_contract_executor",
   "may_define_parallel_execution_route": false,
   "may_define_skillguard_runtime_route": false,
-  "integration_claim_boundary": "SkillGuard executes missing contract gates around the native workflow owned by Guard-family investigation workflow declared by the target skill only where evidence, freshness, quality-floor, or closure gates are missing. It must not replace native route/check ownership or create a parallel route map.",
+  "integration_claim_boundary": "SkillGuard executes missing contract gates around the native workflow owned by Guard-family investigation workflow declared by the target skill only where evidence, freshness, quality-floor, or closure gates are missing. Duplicate SkillGuard-owned execution paths are invalid; it must not replace native route/check ownership or create a parallel route map.",
   "routes": [
     {
       "route_id": "claim_or_source_intake",

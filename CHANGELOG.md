@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2 - 2026-07-07
+
+- Added `python -m worldguard` as a thin wrapper around the existing CLI.
+- Hardened the WorldGuard SkillGuard contract boundary so duplicate SkillGuard-owned execution paths are invalid.
+- Added OpenSpec/FlowGuard release tracking for simulation readiness and local install synchronization.
+
 ## v0.1.1 - 2026-06-27
 
 - Added SkillGuard runtime-contract governance for the installed WorldGuard Codex skill materials.
