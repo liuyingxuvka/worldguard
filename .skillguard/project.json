@@ -1,0 +1,21 @@
+{
+  "claim_boundary": "Project adoption makes SkillGuard maintenance instructions portable and auditable. It does not prove that target-owned domain routes or depth checks have run.",
+  "maintenance_default": "skillguard-required-for-nontrivial-skill-work",
+  "managed_block_hash": "66D0D29B81FA2CF48419B24AC4AD80CA6342F181A4BD970FA5644204D47E15A2",
+  "managed_skills": [
+    {
+      "integration_mode": "native-integrated",
+      "native_owner_id": "worldguard",
+      "native_route_evidence_path": "skills/worldguard/SKILL.md",
+      "native_route_status": "present",
+      "skill_id": "worldguard",
+      "skill_path": "skills/worldguard"
+    }
+  ],
+  "manifest_hash": "AF5C0A3BC9D8F3341D45F4F409800B9C5BFD7894DF0FC89ADF163EB054E46C6B",
+  "project_id": "worldguard",
+  "project_prompt_path": "AGENTS.md",
+  "schema_version": "skillguard.project_adoption.v1",
+  "skillguard_repository": "https://github.com/liuyingxuvka/SkillGuard",
+  "skillguard_version": "unknown"
+}

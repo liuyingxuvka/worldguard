@@ -9,3 +9,10 @@ build/
 dist/
 .venv/
 venv/
+/work/
+openspec/**/run-artifacts/
+openspec/**/verification-receipts/
+openspec/**/verification-reports/
+openspec/**/provenance/
+docs/flowguard_adoption_log.md
+.flowguard/adoption_log.jsonl

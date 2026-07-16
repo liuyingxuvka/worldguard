@@ -42,6 +42,12 @@ Boundary: new runtime dataclass/dict fields, CLI payload fields, reference promp
 | `edges.*.read_only` | `worldguard.mesh` | handoff checks | mesh loader | new | mutation guard |
 | `edges.*.requires_current_source` | `worldguard.mesh` | freshness check | mesh loader | new | stale-source gate |
 | `snapshots.*.snapshot_id` | `worldguard.mesh` | reports | mesh loader | new | optional state identity |
+| `semantic_coverage.*` | `worldguard.mesh.SemanticCoverageContract` | coverage audit, native executors, receipt | mesh loader | new | expected node/child/scenario/horizon/depth denominator |
+| `semantic_status` | `worldguard.semantic` | report, aggregate projection | semantic executors | preserved | local supported-subset result |
+| `rollout_status` | `worldguard.mesh` | report, aggregate projection | coverage/predictive assessment | changed | fail-closed expected-coverage projection |
+| `depth_receipt.coverage_fingerprint` | `worldguard.mesh` | SkillGuard, closure report | native receipt builder | new | current coverage-universe freshness |
+| `depth_receipt.predictive_claim_licensed` | `worldguard.mesh` | SkillGuard, closure report | predictive assessment | new | predictive claim gate |
+| `depth_receipt.predictive_gaps` | `worldguard.mesh` | report, closure | predictive assessment | new | explicit missing executed depth |
 | `findings.*` | `worldguard.mesh` | CLI, tests | mesh runner | new | non-pass evidence |
 | `node_reports.*` | `worldguard.mesh` | CLI, tests | mesh runner | new | child report preservation |
 | `aggregate_ledger` | `worldguard.mesh` | CLI, tests | mesh runner | new | ledger preservation |
@@ -55,3 +61,5 @@ Boundary: new runtime dataclass/dict fields, CLI payload fields, reference promp
 ## Contract Exhaustion Handoff
 
 Missing, empty, wrong-type, unknown relation, missing source node, missing target node, stale source, forbidden output, mutable edge, duplicate node id, and dependency cycle cases must be covered by runtime checks and tests before broad confidence.
+
+Claim-derived missing Guards, contractless expected nodes, expected skipped semantic children, single-timepoint rollouts, single-equation probes, missing holdouts, missing branches/perturbations, and missing interventions/counterfactuals are additional fail-closed coverage cases. The old bounded semantic `PASS` remains visible and is not redefined as prediction.

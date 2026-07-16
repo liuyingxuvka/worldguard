@@ -5,10 +5,11 @@ import yaml
 from worldguard import ModelMeshContract, MeshReport, run_model_mesh
 from worldguard.cli import main
 from worldguard.status import GuardStatus
+from tests.helpers import attach_task_purpose_declarations
 
 
 def pass_mesh():
-    return {
+    mesh = {
         "mesh_id": "mesh-pass",
         "run_id": "mesh-test",
         "nodes": [
@@ -27,7 +28,11 @@ def pass_mesh():
                         "requested_semantics": ["event"],
                     },
                     "world_model": {"model_id": "event-model", "model_version": "v1"},
-                    "inputs": {"events": [{"event_id": "e1", "initiates": "ready"}]},
+                    "inputs": {
+                        "events": [
+                            {"event_id": "e1", "at": "t0", "initiates": "ready"}
+                        ]
+                    },
                 },
             },
             {
@@ -45,7 +50,16 @@ def pass_mesh():
                         "requested_semantics": ["norm"],
                     },
                     "world_model": {"model_id": "norm-model", "model_version": "v1"},
-                    "inputs": {"norms": [{"modality": "permitted", "action": "start"}]},
+                    "inputs": {
+                        "norms": [
+                            {
+                                "modality": "permitted",
+                                "action": "start",
+                                "condition": "precheck_complete",
+                            }
+                        ],
+                        "facts": ["precheck_complete"],
+                    },
                 },
             },
         ],
@@ -63,6 +77,13 @@ def pass_mesh():
             }
         ],
     }
+    attach_task_purpose_declarations(
+        mesh["nodes"][0]["contract"], guards=["EventGuard"]
+    )
+    attach_task_purpose_declarations(
+        mesh["nodes"][1]["contract"], guards=["NormGuard"]
+    )
+    return mesh
 
 
 def test_model_mesh_pass_preserves_child_ledgers():

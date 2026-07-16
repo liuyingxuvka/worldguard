@@ -1,0 +1,23 @@
+{
+  "claim_boundary": "This TestMesh freezes and aggregates only the current WorldGuard declared-check owner receipts for the final family gate.",
+  "mesh_id": "worldguard-guard-family-final.current",
+  "profiles": [
+    {
+      "closure_profile_id": "enforced",
+      "full_admission_required": false,
+      "profile_id": "fast"
+    },
+    {
+      "closure_profile_id": "enforced",
+      "full_admission_required": false,
+      "profile_id": "focused"
+    },
+    {
+      "closure_profile_id": "enforced",
+      "full_admission_required": true,
+      "profile_id": "full"
+    }
+  ],
+  "schema_version": "skillguard.test_mesh_manifest.current",
+  "source_model_id": "worldguard.dynamic-model-purpose.current"
+}

@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.2.0 - 2026-07-15
+
+Purpose-declared world-claim and model-mesh release.
+
+- Required each WorldGuard model to declare the concrete impossible,
+  inconsistent, underspecified, conflicting, or unsupported world state it is
+  intended to block for the current task.
+- Added purpose, boundary, witness, counterexample, safe-claim, and closure
+  evidence across unit contracts and model meshes while preserving the
+  existing Event, Agent, Space, Resource, Causal, Conflict, and Norm families.
+- Strengthened mesh ownership, handoff, freshness, cycle, field lifecycle,
+  sibling impact, and ledger-preservation checks for multi-model claims.
+- Replaced former SkillGuard authorities with target-owned declared checks
+  under generic immutable-receipt supervision and fixed enforced closure.
+- Updated package code, examples, tests, OpenSpec records, FlowGuard evidence,
+  and the maintained WorldGuard skill.
+
 ## v0.1.2 - 2026-07-07
 
 - Added `python -m worldguard` as a thin wrapper around the existing CLI.

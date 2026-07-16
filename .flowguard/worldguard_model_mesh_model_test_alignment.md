@@ -15,6 +15,10 @@ Route: `model_test_alignment`
 | `mesh_cycle_detection` | `worldguard.mesh.run_model_mesh` | dependency cycle returns `FAIL` |
 | `mesh_cli_json` | `worldguard.cli.main` | `mesh-check --mesh` emits report JSON |
 | `mesh_skill_sync` | `skills/worldguard` + installed copy | repository/installed hash and helper command checks |
+| `claim_derived_routes` | `worldguard.contracts.derive_required_guards` + `worldguard.mesh._coverage_route_state` | omitted required Guard returns `GAP` and typed skip |
+| `expected_semantic_universe` | `worldguard.mesh.SemanticCoverageContract` | contractless expected node reduces coverage and blocks pass |
+| `bounded_vs_predictive` | `worldguard.mesh._predictive_assessment` | single event/equation remain bounded; complete fixture licenses only current coverage |
+| `native_event_causal_depth` | `worldguard.semantic._event` + `_causal` | scenario/holdout/state/transition/branch/perturbation/intervention/counterfactual ids come from executed outputs |
 
 ## Alignment Expectations
 

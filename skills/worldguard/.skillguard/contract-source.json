@@ -1,0 +1,446 @@
+{
+  "schema_version": "skillguard.contract_source.v2",
+  "skill_id": "worldguard",
+  "model_id": "worldguard-skillguard-declared-checks-current",
+  "model_path": ".skillguard/contract_model.py",
+  "confirmed": true,
+  "integration_mode": "native-integrated",
+  "native_route_owner": "worldguard",
+  "default_route_id": "route:worldguard-claim-derived-depth",
+  "may_define_parallel_execution_route": false,
+  "may_define_skillguard_runtime_route": false,
+  "content_impact_policy": {
+    "policy_id": "skillguard.content_impact_policy.current",
+    "owner_receipt_root_ref": {
+      "path_token": "owner_evidence_root",
+      "relative_path": "check-executions"
+    },
+    "unknown_mapping_disposition": "block",
+    "full_admission_reason_codes": [
+      "explicit_final_gate",
+      "explicit_release_gate",
+      "impact_policy_or_compiler_changed",
+      "shared_validation_runtime_changed",
+      "all_owner_component_changed"
+    ]
+  },
+  "step_bindings": [
+    {
+      "step_id": "step:derive-world-coverage-universe",
+      "action": {
+        "kind": "flowguard_model",
+        "summary": "Load the target-owned WorldGuard FlowGuard export."
+      },
+      "check_ids": [
+        "check:worldguard:flowguard-contract-model"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:verify-world-guard-model-contract",
+      "action": {
+        "kind": "verifier",
+        "summary": "Verify declared Guard purposes, the finite protected-failure universe, exact good/bad cardinality, and native reactions."
+      },
+      "check_ids": [
+        "check:worldguard:guard-model-contract"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:freeze-world-guard-purpose-contract",
+      "action": {
+        "kind": "native",
+        "summary": "Freeze the current target-owned Guard family purpose contract before candidate construction."
+      },
+      "check_ids": [
+        "check:worldguard:guard-model-contract"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:construct-world-guard-candidates",
+      "action": {
+        "kind": "native",
+        "summary": "Construct each formal Guard child candidate with its exact frozen purpose binding."
+      },
+      "check_ids": [
+        "check:worldguard:guard-model-contract"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:verify-world-guard-candidate-purpose-bindings",
+      "action": {
+        "kind": "verifier",
+        "summary": "Reject missing, stale, out-of-order, or universe-shrunken candidate purpose bindings before proof."
+      },
+      "check_ids": [
+        "check:worldguard:guard-model-contract"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:execute-world-semantic-depth",
+      "action": {
+        "kind": "native",
+        "summary": "Run WorldGuard's target-native predictive evaluator against the exact current mesh."
+      },
+      "check_ids": [
+        "check:worldguard:native-depth"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:verify-world-depth-receipt",
+      "action": {
+        "kind": "verifier",
+        "summary": "Require the target-owned native predictive-depth check to succeed."
+      },
+      "check_ids": [
+        "check:worldguard:native-depth"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:guard-investigation-claim-or-source-intake:execute",
+      "action": {
+        "kind": "native",
+        "summary": "Preserve the existing claim/source intake route."
+      },
+      "check_ids": [
+        "check:worldguard:flowguard-contract-model"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:guard-investigation-evidence-model:execute",
+      "action": {
+        "kind": "native",
+        "summary": "Preserve the existing evidence-model route."
+      },
+      "check_ids": [
+        "check:worldguard:flowguard-contract-model"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:guard-investigation-gap-review:execute",
+      "action": {
+        "kind": "native",
+        "summary": "Preserve the existing gap-review route."
+      },
+      "check_ids": [
+        "check:worldguard:flowguard-contract-model"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:guard-investigation-closure:execute",
+      "action": {
+        "kind": "native",
+        "summary": "Preserve the existing native closure route."
+      },
+      "check_ids": [
+        "check:worldguard:flowguard-contract-model"
+      ],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:worldguard-semantic-rollout:execute",
+      "action": {
+        "kind": "native",
+        "summary": "Preserve the existing semantic-rollout route."
+      },
+      "check_ids": [
+        "check:worldguard:flowguard-contract-model"
+      ],
+      "output_artifact_ids": []
+    }
+  ],
+  "checks": [
+    {
+      "evidence_class": "hard",
+      "timeout_seconds": 180,
+      "coverage_scope": "suite",
+      "evidence_domain_id": "worldguard:native-validation",
+      "check_id": "check:worldguard:flowguard-contract-model",
+      "kind": "command",
+      "command": "python",
+      "args": [
+        ".skillguard/contract_model.py"
+      ],
+      "cwd_token": "repository_root",
+      "covers_obligation_ids": [
+        "obligation:worldguard-claim-routes"
+      ],
+      "depends_on_check_ids": [],
+      "execution_owner_id": "owner:worldguard:flowguard-contract-model",
+      "semantic_check_id": "semantic:worldguard:flowguard-contract-model",
+      "input_selectors": [
+        {
+          "kind": "path",
+          "path": ".skillguard/contract_model.py"
+        }
+      ],
+      "expected": {
+        "exit_code": 0
+      },
+      "coverage_rationale": "Loads the exact target-owned FlowGuard export that binds WorldGuard routes, steps, and obligations."
+    },
+    {
+      "evidence_class": "hard",
+      "timeout_seconds": 180,
+      "coverage_scope": "suite",
+      "evidence_domain_id": "worldguard:native-validation",
+      "check_id": "check:worldguard:guard-model-contract",
+      "kind": "command",
+      "command": "python",
+      "args": [
+        ".skillguard/checks/check_guard_model_contract.py"
+      ],
+      "cwd_token": "repository_root",
+      "covers_obligation_ids": [
+        "obligation:worldguard-guard-model-purpose",
+        "obligation:worldguard-protected-failure-universe",
+        "obligation:worldguard-native-failure-oracle",
+        "obligation:worldguard-guard-candidate-purpose-binding"
+      ],
+      "depends_on_check_ids": [
+        "check:worldguard:flowguard-contract-model"
+      ],
+      "execution_owner_id": "owner:worldguard:guard-model-contract",
+      "semantic_check_id": "semantic:worldguard:guard-model-contract",
+      "native_route_id": "route:worldguard-claim-derived-depth",
+      "input_selectors": [
+        {
+          "kind": "path",
+          "path": ".skillguard/checks/check_guard_model_contract.py"
+        },
+        {
+          "kind": "path",
+          "path": ".skillguard/runtime/worldguard/guard_model_contract.py"
+        },
+        {
+          "kind": "subtree",
+          "path": ".skillguard/runtime/worldguard/guards"
+        },
+        {
+          "kind": "path",
+          "path": ".skillguard/runtime/worldguard/semantic.py"
+        },
+        {
+          "kind": "path",
+          "path": ".skillguard/runtime/worldguard/contracts.py"
+        },
+        {
+          "kind": "path",
+          "path": ".skillguard/runtime/worldguard/kernel.py"
+        },
+        {
+          "kind": "path",
+          "path": ".skillguard/runtime/worldguard/status.py"
+        },
+        {
+          "kind": "path",
+          "path": "references/guard-model-contract.md"
+        },
+        {
+          "kind": "path",
+          "path": "references/worldguard-contracts.md"
+        }
+      ],
+      "expected": {
+        "exit_code": 0
+      },
+      "coverage_rationale": "Runs WorldGuard's bundled target-native purpose, finite failure inventory, good/bad cardinality, exact reaction oracle, formal candidate binding, and pre-proof verifier."
+    },
+    {
+      "evidence_class": "hard",
+      "timeout_seconds": 180,
+      "coverage_scope": "suite",
+      "evidence_domain_id": "worldguard:native-validation",
+      "check_id": "check:worldguard:native-depth",
+      "kind": "command",
+      "command": "python",
+      "args": [
+        ".skillguard/checks/emit_native_depth_evidence.py",
+        "--run-root",
+        "{{run_root}}",
+        "--repository-root",
+        "{{repository_root}}",
+        "--target-root",
+        "{{target_root}}",
+        "--output",
+        "depth-evidence/worldguard-native-depth.json",
+        "--check-id",
+        "check:worldguard:native-depth"
+      ],
+      "cwd_token": "repository_root",
+      "covers_obligation_ids": [
+        "obligation:worldguard-claim-routes",
+        "obligation:worldguard-semantic-universe",
+        "obligation:worldguard-timepoint-strata-depth",
+        "obligation:worldguard-scenario-holdout-depth",
+        "obligation:worldguard-predictive-axes",
+        "obligation:worldguard-receipt-freshness"
+      ],
+      "depends_on_check_ids": [
+        "check:worldguard:guard-model-contract"
+      ],
+      "execution_owner_id": "owner:worldguard:native-depth",
+      "semantic_check_id": "semantic:worldguard:native-depth",
+      "native_route_id": "route:worldguard-claim-derived-depth",
+      "input_selectors": [
+        {
+          "kind": "path",
+          "path": ".skillguard/checks/emit_native_depth_evidence.py"
+        },
+        {
+          "kind": "path",
+          "path": ".skillguard/contract_model.py"
+        },
+        {
+          "kind": "subtree",
+          "path": ".skillguard/runtime/worldguard"
+        }
+      ],
+      "expected": {
+        "exit_code": 0
+      },
+      "coverage_rationale": "Runs WorldGuard's existing target-native predictive depth evaluator against its exact bundled runtime and current mesh input."
+    }
+  ],
+  "artifacts": [],
+  "closure_profiles": [
+    {
+      "profile_id": "enforced",
+      "required_obligation_ids": [
+        "obligation:worldguard-claim-routes",
+        "obligation:worldguard-semantic-universe",
+        "obligation:worldguard-timepoint-strata-depth",
+        "obligation:worldguard-scenario-holdout-depth",
+        "obligation:worldguard-predictive-axes",
+        "obligation:worldguard-receipt-freshness",
+        "obligation:worldguard-guard-model-purpose",
+        "obligation:worldguard-protected-failure-universe",
+        "obligation:worldguard-native-failure-oracle",
+        "obligation:worldguard-guard-candidate-purpose-binding"
+      ]
+    }
+  ],
+  "implementation_paths": [
+    ".skillguard/checks/check_guard_model_contract.py",
+    ".skillguard/checks/emit_native_depth_evidence.py",
+    ".skillguard/contract_model.py",
+    ".skillguard/runtime/worldguard",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "references/guard-model-contract.md",
+    "references/worldguard-contracts.md",
+    "references/closure-report.md"
+  ],
+  "native_route_bindings": [
+    {
+      "binding_id": "native:worldguard-claim-derived-depth",
+      "native_route_id": "route:worldguard-claim-derived-depth",
+      "required_before_closure": true,
+      "source": ".skillguard/contract_model.py"
+    },
+    {
+      "binding_id": "native:worldguard-claim-or-source-intake",
+      "native_route_id": "guard_investigation.claim_or_source_intake",
+      "required_before_closure": true,
+      "source": "SKILL.md"
+    },
+    {
+      "binding_id": "native:worldguard-evidence-model",
+      "native_route_id": "guard_investigation.evidence_model",
+      "required_before_closure": true,
+      "source": "SKILL.md"
+    },
+    {
+      "binding_id": "native:worldguard-gap-review",
+      "native_route_id": "guard_investigation.gap_review",
+      "required_before_closure": true,
+      "source": "SKILL.md"
+    },
+    {
+      "binding_id": "native:worldguard-closure",
+      "native_route_id": "guard_investigation.closure",
+      "required_before_closure": true,
+      "source": "SKILL.md"
+    },
+    {
+      "binding_id": "native:worldguard-semantic-rollout",
+      "native_route_id": "worldguard.semantic_rollout",
+      "required_before_closure": true,
+      "source": ".skillguard/runtime/worldguard/mesh.py"
+    }
+  ],
+  "native_check_bindings": [
+    {
+      "binding_id": "native-check:worldguard-flowguard-contract-model",
+      "native_check_id": "check:worldguard:flowguard-contract-model",
+      "evidence_source": ".skillguard/contract_model.py",
+      "required": true
+    },
+    {
+      "binding_id": "native-check:worldguard-guard-model-contract",
+      "native_check_id": "check:worldguard:guard-model-contract",
+      "evidence_source": ".skillguard/checks/check_guard_model_contract.py",
+      "required": true
+    },
+    {
+      "binding_id": "native-check:worldguard-native-depth",
+      "native_check_id": "check:worldguard:native-depth",
+      "evidence_source": ".skillguard/checks/emit_native_depth_evidence.py",
+      "required": true
+    }
+  ],
+  "depth_profile": {
+    "schema_version": "skillguard.depth_profile.v2",
+    "profile_id": "worldguard-declared-check-supervision-current",
+    "target_skill_id": "worldguard",
+    "integration_mode": "native-integrated",
+    "native_owner_id": "worldguard",
+    "native_route_ids": [
+      "route:worldguard-claim-derived-depth",
+      "guard_investigation.claim_or_source_intake",
+      "guard_investigation.evidence_model",
+      "guard_investigation.gap_review",
+      "guard_investigation.closure",
+      "worldguard.semantic_rollout"
+    ],
+    "native_check_ids": [
+      "check:worldguard:flowguard-contract-model",
+      "check:worldguard:guard-model-contract",
+      "check:worldguard:native-depth"
+    ],
+    "native_route_absent_confirmed": false,
+    "skillguard_adds_domain_route": false,
+    "enforcement_level": "enforced",
+    "required_closure_profiles": [
+      "enforced"
+    ],
+    "provider_runtime": {
+      "provider_id": "skillguard-local-provider",
+      "required_runtime_contract_id": "skillguard-declared-check-supervision-current",
+      "required_capability_ids": [
+        "declared-check-inventory.v1",
+        "declared-check-receipt-reconciliation.v1",
+        "provider-runtime-enrollment.v1",
+        "single-flight-check-execution.v1",
+        "installation-receipt-binding.v1",
+        "installation-currentness-replay.v1"
+      ],
+      "required_enrollment_status": "enrolled",
+      "readiness_check_ids": [
+        "check:worldguard:guard-model-contract",
+        "check:worldguard:native-depth"
+      ]
+    },
+    "claim_boundary": "SkillGuard freezes and reconciles WorldGuard's declared target-native checks. WorldGuard alone owns each Guard purpose, protected failure class, fixture, oracle, and predictive-depth meaning."
+  },
+  "claim_boundary": "WorldGuard owns Guard purposes, the complete finite Guard-owned failure inventory, native good/bad fixtures and reactions, claim routing, semantic execution, and predictive judgment. SkillGuard only supervises the exact declared checks and cannot add a domain route or reinterpret a WorldGuard result."
+}
