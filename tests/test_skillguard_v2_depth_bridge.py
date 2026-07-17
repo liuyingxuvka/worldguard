@@ -289,9 +289,14 @@ def test_current_generic_emitter_binds_each_obligation_to_target_native_receipt(
             encoding="utf-8"
         )
     )
+    manifest = json.loads(
+        (ROOT / "skills/worldguard/.skillguard/check-manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
     check = next(
         row
-        for row in contract["checks"]
+        for row in manifest["checks"]
         if row["check_id"] == "check:worldguard:native-depth"
     )
     run_root = tmp_path / "run"

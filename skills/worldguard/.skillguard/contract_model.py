@@ -222,6 +222,19 @@ def export_contract_model() -> dict[str, object]:
         routes.append(route)
         steps.extend(route_steps)
 
+    template_function, template_route, template_steps = _native_route(
+        "worldguard.template_pack_builder",
+        function_id="worldguard_template_pack_builder",
+        owner_id="worldguard.template_packs",
+        business_intent=(
+            "select, compose, and validate WorldGuard-owned GuardContract or "
+            "ModelMeshContract scaffolding without deciding Guard semantics"
+        ),
+    )
+    functions.append(template_function)
+    routes.append(template_route)
+    steps.extend(template_steps)
+
     invariant_ids = [
         "worldguard_claim_routes_are_derived",
         "worldguard_discovered_node_scope_and_exclusions_are_reconciled",
@@ -233,6 +246,12 @@ def export_contract_model() -> dict[str, object]:
         "worldguard_guard_owned_failure_universe_is_complete",
         "worldguard_native_failure_oracle_is_exact",
         "worldguard_formal_guard_candidates_bind_current_purpose_before_proof",
+        "worldguard_template_selection_is_zero_one_many_deterministic",
+        "worldguard_template_fields_have_exact_disjoint_ownership",
+        "worldguard_template_instances_use_native_validators_without_semantic_takeover",
+        "worldguard_target_template_projection_has_exact_unsealed_neutral_shape",
+        "worldguard_target_template_projection_equals_native_candidate_inventory",
+        "worldguard_target_template_projection_binds_current_route_registry_builder_and_validators",
     ]
     obligations = [
         ("obligation:worldguard-claim-routes", invariant_ids[0], ["step:execute-world-semantic-depth", "step:verify-world-depth-receipt"]),
@@ -245,6 +264,12 @@ def export_contract_model() -> dict[str, object]:
         ("obligation:worldguard-protected-failure-universe", invariant_ids[7], ["step:verify-world-guard-model-contract"]),
         ("obligation:worldguard-native-failure-oracle", invariant_ids[8], ["step:verify-world-guard-model-contract"]),
         ("obligation:worldguard-guard-candidate-purpose-binding", invariant_ids[9], ["step:freeze-world-guard-purpose-contract", "step:construct-world-guard-candidates", "step:verify-world-guard-candidate-purpose-bindings"]),
+        ("obligation:worldguard-template-selection", invariant_ids[10], ["step:worldguard-template-pack-builder:execute"]),
+        ("obligation:worldguard-template-field-ownership", invariant_ids[11], ["step:worldguard-template-pack-builder:execute"]),
+        ("obligation:worldguard-template-native-validation", invariant_ids[12], ["step:worldguard-template-pack-builder:execute"]),
+        ("obligation:worldguard-template-neutral-projection", invariant_ids[13], ["step:worldguard-template-pack-builder:execute"]),
+        ("obligation:worldguard-template-native-candidate-inventory", invariant_ids[14], ["step:worldguard-template-pack-builder:execute"]),
+        ("obligation:worldguard-template-projection-freshness", invariant_ids[15], ["step:worldguard-template-pack-builder:execute"]),
     ]
     return {
         "schema_version": "skillguard.flowguard_model_export.v2",
@@ -268,7 +293,9 @@ def export_contract_model() -> dict[str, object]:
             "WorldGuard owns Guard purposes, the finite protected-failure inventory, native "
             "good/bad fixtures and reactions, claim routing, model execution, simulation, and judgment. "
             "This export preserves the existing Guard-investigation and semantic-rollout "
-            "routes and adds only supervised target-native Guard-contract and predictive-depth checks."
+            "routes and adds only supervised target-native Guard-contract, template-construction, "
+            "target-owned neutral-projection, and predictive-depth checks. SkillGuard validates "
+            "and seals neutral projection shape only; template mechanics never transfer Guard semantics."
         ),
     }
 

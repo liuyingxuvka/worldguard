@@ -506,10 +506,12 @@ def test_current_generic_skill_contract_supervises_target_checks_without_domain_
     assert "check:worldguard:native-depth" in native_ids & manifest_ids
     assert "check:worldguard:guard-model-contract" in native_ids & manifest_ids
     assert "check:worldguard:flowguard-contract-model" in native_ids & manifest_ids
+    assert "check:worldguard:template-packs" in native_ids & manifest_ids
     assert native_ids == {
         "check:worldguard:flowguard-contract-model",
         "check:worldguard:guard-model-contract",
         "check:worldguard:native-depth",
+        "check:worldguard:template-packs",
     }
     assert set(checks) == native_ids
     assert source["depth_profile"]["target_skill_id"] == "worldguard"

@@ -1,4 +1,4 @@
 interface:
   display_name: "WorldGuard"
-  short_description: "World claims with explicit semantic rollout"
-  default_prompt: "Use $worldguard to make the AI declare what each current task/model Guard candidate is intended to prevent, selecting one or more concrete failures before construction. Prove every selected failure with task-local native good/bad cases and a WorldGuard oracle; treat the family inventory only as an oracle/regression catalog. Reject missing, empty, unproved, stale, wrong-instance, or out-of-order bindings before Guard evaluation. Then derive required Guards from structured claim atoms, check or simulate the current world model, and separate bounded semantic pass from predictive readiness. For predictive conclusions require per-object horizon/phase depth, the exact current native receipt, and current generic SkillGuard supervision of WorldGuard's declared checks."
+  short_description: "World claims with validated template packs"
+  default_prompt: "Use $worldguard to select a WorldGuard-owned validating template pack from explicit facts, fill task-owned slots, run native validators, and then evaluate the resulting GuardContract or ModelMeshContract without letting templates or SkillGuard decide Guard semantics."

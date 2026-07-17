@@ -1,6 +1,6 @@
 ---
 name: worldguard
-description: Model-first world-claim, what-if, prediction-boundary, and model-mesh checks for WorldGuard. Use when Codex needs to simulate or assess whether a claim about events, agents, spaces, resources, causality, conflicts, or norms is supported by an explicit model, contradicted by it, missing required inputs, or outside the modeled boundary; also use when creating or auditing GuardContract, ModelMeshContract, GuardResult, MeshReport, semantic rollout status, native depth receipt, ledger, counterexample, handoff, authority, freshness, or toy-fixture replay artifacts.
+description: Model-first world-claim, what-if, prediction-boundary, model-mesh, and validating template-pack checks for WorldGuard. Use when Codex needs to construct, simulate, or assess whether a claim about events, agents, spaces, resources, causality, conflicts, or norms is supported by an explicit model, contradicted by it, missing required inputs, or outside the modeled boundary; also use when creating or auditing GuardContract, ModelMeshContract, template-pack manifests, deterministic 0/1/many template selection, field composition, instance fingerprints, GuardResult, MeshReport, semantic rollout status, native depth receipt, ledger, counterexample, handoff, authority, freshness, or toy-fixture replay artifacts.
 ---
 
 # WorldGuard
@@ -12,8 +12,9 @@ Use this skill to keep world-claim analysis contract-first, mesh-aware, and evid
 1. Decide the check shape before giving a conclusion:
    - Use `GuardContract` for one claim checked against one explicit world model.
    - Use `ModelMeshContract` when multiple models, versions, parent/child boundaries, handoffs, or downstream consumers are involved.
-2. Before trusting a Guard model, inspect `references/guard-model-contract.md`. First use the family baseline only to learn which WorldGuard-native oracle reactions are available. Then, before constructing each real Guard child, make the AI write a fresh task-model-instance declaration: exact task/run/model/Guard identity, the plain-language failure this particular model is intended to prevent, its unsupported boundary, and a non-empty one-or-many set of selected failure ids. Provide one task-local native known-good and exactly one task-local native known-bad for every selected failure. `GuardContract.for_guard` proves that declaration before construction; unit and semantic runtime verifiers rerun and fingerprint the exact proof. Missing, empty, unknown-oracle, incomplete, wrong-instance, post-construction, or stale declarations block. Run `python -m worldguard.guard_model_contract` to verify the family catalog itself; a family pass never substitutes for the fresh task declaration.
-3. For a unit check, build or inspect a structured `GuardContract`. Decompose non-trivial or predictive claims into `claim.atoms` with stable ids, requested semantics, and `predictive_intent`. Let WorldGuard derive the required Guards from those atoms and compare them with `claim.target_guards`; a caller-selected subset is not authority to omit a required route. Then run the local package when a contract file or packaged example is available:
+2. When constructing a new contract, read `references/template-packs.md` and use the WorldGuard-owned template registry before assembling a dictionary from scratch. Feed only explicit WorldGuard/caller facts into selection. Zero matching candidates uses the unique base template and remains construction-only; one selects that exact candidate; many is `ambiguous` and blocks. Fill every task-owned slot, retain the selection and instance fingerprints, and run the bound WorldGuard-native validators. When SkillGuard needs a neutral template catalog, call WorldGuard's target-owned projection adapter with the exact current registry fingerprint; emit one applicability row per native family manifest and leave central digests unsealed. Do not let a template or SkillGuard infer Guard routes, purpose, applicability, selected failures, fixtures, oracles, semantic PASS, or predictive readiness.
+3. Before trusting a Guard model, inspect `references/guard-model-contract.md`. First use the family baseline only to learn which WorldGuard-native oracle reactions are available. Then, before constructing each real Guard child, make the AI write a fresh task-model-instance declaration: exact task/run/model/Guard identity, the plain-language failure this particular model is intended to prevent, its unsupported boundary, and a non-empty one-or-many set of selected failure ids. Provide one task-local native known-good and exactly one task-local native known-bad for every selected failure. `GuardContract.for_guard` proves that declaration before construction; unit and semantic runtime verifiers rerun and fingerprint the exact proof. Missing, empty, unknown-oracle, incomplete, wrong-instance, post-construction, or stale declarations block. Run `python -m worldguard.guard_model_contract` to verify the family catalog itself; a family pass never substitutes for the fresh task declaration.
+4. For a unit check, build or inspect a structured `GuardContract`. Decompose non-trivial or predictive claims into `claim.atoms` with stable ids, requested semantics, and `predictive_intent`. Let WorldGuard derive the required Guards from those atoms and compare them with `claim.target_guards`; a caller-selected subset is not authority to omit a required route. Then run the local package when a contract file or packaged example is available:
 
    ```powershell
    python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard_check.py" --example fuel_cell
@@ -25,7 +26,7 @@ Use this skill to keep world-claim analysis contract-first, mesh-aware, and evid
    python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard_check.py" --contract <path>
    ```
 
-4. For a mesh check, build or inspect a structured `ModelMeshContract`, then inspect:
+5. For a mesh check, build or inspect a structured `ModelMeshContract`, then inspect:
    - model nodes and their authority boundaries;
    - model edges and handoff contracts;
    - stale/current source status;
@@ -36,19 +37,23 @@ Use this skill to keep world-claim analysis contract-first, mesh-aware, and evid
    - every semantic executor's typed binding and unsupported boundary;
    - `semantic_coverage`: expected nodes and children, bounded/predictive profile, scenarios, holdouts, horizon, representative `timepoint_ids`, optional stricter target-authored `time_strata`, minimum timepoint count/coverage, optional `per_model_node` policies, states, transitions, branches, perturbations, interventions, and counterfactuals;
    - the native `depth_receipt`, including the mesh and coverage fingerprints, claim-derived required/missing Guards, quantitative executed/skipped coverage, predictive gaps, `predictive_claim_licensed`, and the aggregate claim boundary.
-5. Run the local package when a mesh file is available:
+6. Run the local package when a mesh file is available:
 
    ```powershell
    python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard_check.py" --mesh <path>
    ```
 
-6. Report `PASS`, `FAIL`, `GAP`, or `BOUNDARY_EXCEEDED` without collapsing non-pass statuses.
-7. WorldGuard has one current closure behavior: semantic execution is required. The retired `closure_profile` field and `--closure-profile` selector are invalid; a caller cannot choose a shape-only path that skips required semantic checks.
-8. Preserve ledgers, semantic receipts, missing slots, boundary traces, counterexamples, handoff findings, stale-source findings, authority findings, cycle findings, and the native depth receipt in the answer.
+7. Report `PASS`, `FAIL`, `GAP`, or `BOUNDARY_EXCEEDED` without collapsing non-pass statuses.
+8. WorldGuard has one current closure behavior: semantic execution is required. The retired `closure_profile` field and `--closure-profile` selector are invalid; a caller cannot choose a shape-only path that skips required semantic checks.
+9. Preserve template selection/instance receipts when used, plus ledgers, semantic receipts, missing slots, boundary traces, counterexamples, handoff findings, stale-source findings, authority findings, cycle findings, and the native depth receipt in the answer.
 
 ## Hard Rules
 
 - Do not give a narrative-only PASS.
+- Prefer a current WorldGuard-owned template pack over rebuilding a known contract scaffold. Selection must use explicit facts and expose the exact zero/one/many outcome; never rank or silently choose among multiple matches.
+- Template fragments may compose only with exact disjoint leaf-field ownership. Reject stale manifests, undeclared writes, overlapping or ancestor/descendant fields, unresolved or unused slots, unknown validators, and last-writer-wins replacement.
+- A template instance receipt proves construction integrity only. It never supplies a task purpose, protected failure, native good/bad evidence, semantic result, predictive license, installation identity, or SkillGuard closure.
+- A target template projection must contain only the exact current neutral root/catalog/template/result fields, bind the current WorldGuard route and native identities, and preserve native candidate equality. Unknown root fields, wrong routes, stale registry identities, and incomplete candidate rows block; SkillGuard may seal the neutral records but cannot change applicability.
 - Do not use a general prompt checklist in place of EventGuard, AgentGuard, SpaceGuard, ResourceGuard, CausalGuard, ConflictGuard, or NormGuard.
 - Merely connecting a shallow model is not Guard adequacy. The family baseline must still exhaust every Guard-owned runtime failure code, but a real child must independently declare the one or more failures relevant to this task. The entire family catalog is not automatically the child's purpose, and a Guard type is not permanently limited to one fixed failure. New failure semantics require a real WorldGuard-native code/oracle and family regression before a task may select them.
 - A fixture-only family check cannot authorize a real Guard run. `GuardContract.for_guard` is the formal candidate constructor: it consumes exactly one explicit parent-task declaration for the selected Guard, proves its task-local known-good and per-failure known-bad reactions, freezes the declaration/proof fingerprints, and only then constructs the child. Missing, duplicate, empty, unknown-oracle, incomplete-proof, stale, post-construction, wrong-task, wrong-model, or wrong-Guard bindings are hard rejections. It never synthesizes a declaration from `GUARD_MODEL_PURPOSES`.
@@ -81,6 +86,7 @@ Use this skill to keep world-claim analysis contract-first, mesh-aware, and evid
 ## References
 
 - Read `references/worldguard-contracts.md` when constructing or validating contract/result/ledger fields.
+- Read `references/template-packs.md` before constructing a GuardContract or ModelMeshContract from reusable scaffolding.
 - Read `references/guard-model-contract.md` before accepting that any Guard model is meaningful or complete.
 - Read `references/guard-boundaries.md` when deciding which Guard owns a claim part.
 - Read `references/model-mesh.md` when constructing or validating mesh nodes, edges, snapshots, and mesh reports.
@@ -94,6 +100,7 @@ Return:
 
 - conclusion status;
 - `GuardContract` or `ModelMeshContract` summary;
+- template selection outcome and instance fingerprint/claim boundary, when a template pack was used;
 - per-Guard results;
 - per-node mesh results, when applicable;
 - non-pass evidence;
@@ -133,7 +140,7 @@ Do not skip phases, do not replace required evidence with prose, do not treat st
 ## Output Requirements
 Report evidence, failures, blockers, skipped_checks with reasons, residual_risk, and claim_boundary; distinguish checked, unchecked, blocked, and uncertain.
 ## SkillGuard Maintenance
-Keep only the current generic SkillGuard declared-check authority (`contract-source.json`, `compiled-contract.json`, and `check-manifest.json`); former authorities, optional closure profiles, calibration/depth policy fields owned by SkillGuard, ledgers, generic domain checkers, aliases, migration readers, and fallback success paths are invalid. The contract has exactly one `enforced` closure profile and `integration_mode: native-integrated`. WorldGuard alone defines Guard purposes, the finite failure universe, good/bad fixtures, reaction oracles, and predictive-depth policy.
+Keep only the current generic SkillGuard declared-check authority (`.skillguard/contract-source.json`, `.skillguard/compiled-contract.json`, and `.skillguard/check-manifest.json`); former authorities, optional closure profiles, calibration/depth policy fields owned by SkillGuard, ledgers, generic domain checkers, aliases, migration readers, and fallback success paths are invalid. The contract has exactly one `enforced` closure profile and `integration_mode: native-integrated`. WorldGuard alone defines Guard purposes, the finite failure universe, good/bad fixtures, reaction oracles, and predictive-depth policy.
 Before validation, freeze the exact affected checks and assign each check one execution owner. Reuse only a current immutable terminal-success receipt whose governed inputs still match. A consumer must verify and project that receipt; it must not rerun the owner command or use `--resume` as a read-only audit. Run a full gate once only after source and tool identities freeze, never through a scheduled task, background resume, or unattended retry. After timeout or interruption, require confirmed descendant-process count zero before accepting evidence or starting another owner.
 
 ## Scheduled-production evidence boundary
@@ -143,3 +150,19 @@ The formal depth check is a `scheduled_production` target-native check over exac
 Formal supervision loads WorldGuard from the skill's bundled `.skillguard/runtime` tree. Every Python source in that tree is part of the current implementation authority, declared checks fingerprint their exact target inputs, and the installed bridge loads the bundled runtime before considering any editable checkout. A global import or external source checkout may help local development but cannot satisfy scheduled-production closure.
 
 <!-- END SKILLGUARD CONTRACT LAYER -->
+
+<!-- BEGIN MANAGED VALIDATED TEMPLATE PACK -->
+## Validated Template Pack Routing
+
+- Target families: `worldguard.guard_contract_templates`, `worldguard.model_mesh_contract_templates`; native owner: `worldguard.template_packs`.
+- Current catalogs: `worldguard.template_catalog.guard_contract` revision `81d7d21959a7f26f304bc8a4de4a451facbd4f944e0a542e7b264b1014284040`, `worldguard.template_catalog.model_mesh_contract` revision `81d7d21959a7f26f304bc8a4de4a451facbd4f944e0a542e7b264b1014284040`.
+- Resolve the task through this Guard's native router first, then ask the target-owned adapter for a current neutral projection; never infer a template from wording or a skill name.
+- Preserve the adapter's complete candidate and rejection accounting. Zero candidates may use only the declared validated base; one candidate gets a read-only preview; many candidates require complete dependencies, pairwise compatibility, one field owner, and target-authored dominance or must block as ambiguous.
+- Recompute the projection immediately before applying a preview. A stale request, catalog, route, builder, validator, or content identity blocks all writes.
+- Hand the selected preview to the target-declared builder and consume every target-native validator receipt. Template structure is not domain validity, completion, installation, release, or publication evidence.
+- Record a harvest disposition after creating or materially deepening a reusable model, and keep no-match evidence visible.
+- Declared validated bases: `worldguard.guard-contract.base`, `worldguard.model-mesh.base`.
+- Template inventory: `worldguard.guard-contract.agent`, `worldguard.guard-contract.base`, `worldguard.guard-contract.causal`, `worldguard.guard-contract.conflict`, `worldguard.guard-contract.event`, `worldguard.guard-contract.norm`, `worldguard.guard-contract.resource`, `worldguard.guard-contract.space`, `worldguard.model-mesh.base`, `worldguard.model-mesh.bounded`, `worldguard.model-mesh.predictive`.
+- Native validator inventory: `worldguard.guard_contract.shape.v1`, `worldguard.guard_contract.task-purpose.v1`, `worldguard.model_mesh_contract.embedded-purpose.v1`, `worldguard.model_mesh_contract.shape.v1`.
+- Claim boundaries: Unsealed WorldGuard-owned neutral catalog for one exact contract kind; central digests and selection receipts remain downstream SkillGuard plumbing. Unsealed WorldGuard-owned neutral catalog for one exact contract kind; central digests and selection receipts remain downstream SkillGuard plumbing.
+<!-- END MANAGED VALIDATED TEMPLATE PACK -->
