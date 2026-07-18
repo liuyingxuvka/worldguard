@@ -42,3 +42,15 @@ FlowGuard alignment SHALL bind native depth obligations directly to `worldguard/
 #### Scenario: Retired validation path remains
 - **WHEN** a current FlowGuard alignment file still names `worldguard/skillguard_depth.py`
 - **THEN** the topology checker SHALL fail visibly instead of resolving or retrying through that retired path
+
+### Requirement: The contracted entry topology has one version identity
+The public child-entrypoint contraction SHALL be frozen as pre-1.0 source
+version `0.3.0`. Root `VERSION`, package metadata, README source labels,
+changelog, authoritative runtime `__version__`, and bundled consumer runtime
+`__version__` SHALL agree before the candidate is published.
+
+#### Scenario: Candidate is checked before installation
+- **WHEN** the `0.3.0` candidate topology is validated on its review branch
+- **THEN** the target-native version/topology check and recompiled SkillGuard
+  contract SHALL pass on the exact candidate tree
+- **AND** no installed projection, tag, or GitHub Release SHALL be claimed

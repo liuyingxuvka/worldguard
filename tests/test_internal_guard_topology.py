@@ -39,7 +39,19 @@ def test_current_worldguard_has_one_entry_and_seven_internal_routes():
     assert report["ok"], report["findings"]
     assert report["public_skill_ids"] == ["worldguard"]
     assert report["project_console_ids"] == ["worldguard"]
+    assert report["source_version"] == "0.3.0"
     assert len(report["internal_guard_ids"]) == 7
+
+
+def test_source_version_identity_drift_is_rejected(monkeypatch):
+    monkeypatch.setattr(MODULE, "EXPECTED_VERSION", "9.9.9")
+
+    report = MODULE.check(ROOT)
+
+    assert not report["ok"]
+    assert "source_version_file_mismatch" in {
+        finding["code"] for finding in report["findings"]
+    }
 
 
 def test_missing_internal_route_is_rejected(tmp_path: Path):

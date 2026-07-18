@@ -21,6 +21,7 @@ EXPECTED_GUARDS = (
     "ConflictGuard",
     "NormGuard",
 )
+EXPECTED_VERSION = "0.3.0"
 PREDICTIVE_GUARDS = {"EventGuard", "CausalGuard"}
 TERMINAL_STATUSES = ("PASS", "FAIL", "GAP", "BOUNDARY_EXCEEDED")
 REQUIRED_ROW_FIELDS = {
@@ -104,6 +105,49 @@ def check(
     pyproject = tomllib.loads(
         (repository_root / "pyproject.toml").read_text(encoding="utf-8")
     )
+    project_version = str(pyproject.get("project", {}).get("version", ""))
+    if project_version != EXPECTED_VERSION:
+        findings.append(
+            {
+                "code": "project_version_mismatch",
+                "expected": EXPECTED_VERSION,
+                "observed": project_version,
+            }
+        )
+    version_path = repository_root / "VERSION"
+    source_version = (
+        version_path.read_text(encoding="utf-8").strip()
+        if version_path.is_file()
+        else ""
+    )
+    if source_version != EXPECTED_VERSION:
+        findings.append(
+            {
+                "code": "source_version_file_mismatch",
+                "expected": EXPECTED_VERSION,
+                "observed": source_version,
+            }
+        )
+    readme = (repository_root / "README.md").read_text(encoding="utf-8")
+    for marker in (
+        f"**Source version:** `v{EXPECTED_VERSION}`",
+        f"**源码版本：** `v{EXPECTED_VERSION}`",
+    ):
+        if marker not in readme:
+            findings.append(
+                {
+                    "code": "readme_source_version_mismatch",
+                    "expected": marker,
+                }
+            )
+    changelog = (repository_root / "CHANGELOG.md").read_text(encoding="utf-8")
+    if f"## v{EXPECTED_VERSION} " not in changelog:
+        findings.append(
+            {
+                "code": "changelog_source_version_missing",
+                "expected": EXPECTED_VERSION,
+            }
+        )
     scripts = pyproject.get("project", {}).get("scripts", {})
     if scripts != {"worldguard": "worldguard.cli:main"}:
         findings.append(
@@ -167,6 +211,7 @@ def check(
         sys.path.insert(0, root_text)
         added = True
     try:
+        import worldguard as worldguard_package
         from worldguard.guard_model_contract import GUARD_MODEL_PURPOSES
         from worldguard.guards import GUARD_RUNNERS
         from worldguard.semantic import EXECUTOR_REGISTRY
@@ -176,6 +221,14 @@ def check(
         semantic_guards = tuple(EXECUTOR_REGISTRY)
         purpose_guards = tuple(item.guard for item in GUARD_MODEL_PURPOSES)
         status_values = tuple(item.value for item in GuardStatus)
+        if worldguard_package.__version__ != EXPECTED_VERSION:
+            findings.append(
+                {
+                    "code": "runtime_version_mismatch",
+                    "expected": EXPECTED_VERSION,
+                    "observed": worldguard_package.__version__,
+                }
+            )
         for inventory_name, observed in (
             ("runner", runtime_guards),
             ("semantic", semantic_guards),
@@ -258,6 +311,7 @@ def check(
         "schema_version": "worldguard.internal_guard_topology_check.v1",
         "status": "pass" if not findings else "fail",
         "ok": not findings,
+        "source_version": source_version,
         "public_skill_ids": installed_skill_ids,
         "project_console_ids": sorted(scripts),
         "internal_guard_ids": list(EXPECTED_GUARDS),

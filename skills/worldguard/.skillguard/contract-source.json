@@ -413,7 +413,8 @@
       "covers_obligation_ids": [
         "obligation:worldguard-internal-guard-topology",
         "obligation:worldguard-internal-guard-completeness",
-        "obligation:worldguard-internal-guard-semantics"
+        "obligation:worldguard-internal-guard-semantics",
+        "obligation:worldguard-source-version-identity"
       ],
       "depends_on_check_ids": [
         "check:worldguard:flowguard-contract-model"
@@ -425,6 +426,18 @@
         {
           "kind": "path",
           "path": "pyproject.toml"
+        },
+        {
+          "kind": "path",
+          "path": "VERSION"
+        },
+        {
+          "kind": "path",
+          "path": "README.md"
+        },
+        {
+          "kind": "path",
+          "path": "CHANGELOG.md"
         },
         {
           "kind": "path",
@@ -454,7 +467,7 @@
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Proves one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
+      "coverage_rationale": "Proves source version 0.3.0, one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
       "maintenance_unit_id": "unit:worldguard",
       "member_skill_id": "worldguard",
       "evidence_subject_id": "subject:check:worldguard:internal-guard-topology"
@@ -608,7 +621,11 @@
         "obligation:worldguard-template-native-validation",
         "obligation:worldguard-template-neutral-projection",
         "obligation:worldguard-template-native-candidate-inventory",
-        "obligation:worldguard-template-projection-freshness"
+        "obligation:worldguard-template-projection-freshness",
+        "obligation:worldguard-internal-guard-topology",
+        "obligation:worldguard-internal-guard-completeness",
+        "obligation:worldguard-internal-guard-semantics",
+        "obligation:worldguard-source-version-identity"
       ]
     }
   ],

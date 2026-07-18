@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.0 - 2026-07-18
+
+Single-entry internal-Guard source candidate. This source heading does not by
+itself assert a Git tag, hosted GitHub Release, or installed projection.
+
+- Kept `worldguard` as the sole public Codex skill and package console.
+- Formalized EventGuard, AgentGuard, SpaceGuard, ResourceGuard, CausalGuard,
+  ConflictGuard, and NormGuard as seven complete internal routes with their own
+  expectation/prediction boundary, native response, semantic validation, and
+  visible terminal behavior.
+- Added exact root/bundled runtime parity and source-version identity checks.
+- Removed current authority from the retired `worldguard/skillguard_depth.py`
+  validation path without adding an alias, fallback, or compatibility reader.
+- Treats the public child-entrypoint contraction as the breaking minor step
+  appropriate for the pre-1.0 package line.
+
 ## v0.2.0 - 2026-07-15
 
 Purpose-declared world-claim and model-mesh release.

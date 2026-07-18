@@ -19,7 +19,19 @@
 
 - [x] 4.1 Run the topology checker, target-native Guard checks, FlowGuard checks, and OpenSpec strict validation.
 - [x] 4.2 Run the full WorldGuard test suite and root/bundled runtime parity checks.
-- [x] 4.3 Confirm no child skill/console, compatibility path, installation, global routing, Git publication, release, or FlowPilot change occurred.
+- [x] 4.3 Confirm no child skill/console, compatibility path, installation,
+  global routing, default-branch publication, tag, GitHub Release, or FlowPilot
+  change occurred.
+
+## 5. Version Freeze
+
+- [x] 5.1 Freeze root `VERSION`, package metadata, README source labels,
+  changelog, authoritative runtime, bundled consumer runtime, and current
+  OpenSpec requirements at `0.3.0`.
+- [x] 5.2 Extend the topology/SkillGuard installation-identity inputs,
+  recompile SkillGuard, and rerun affected repository checks.
+- [x] 5.3 Commit and push the exact candidate to the existing PR branch
+  without installing, tagging, or creating a GitHub Release.
 
 ## Verification Boundary
 

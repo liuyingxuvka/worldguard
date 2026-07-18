@@ -10,9 +10,12 @@
 </p>
 <!-- README HERO END -->
 
-**Current release:** `v0.2.0`<br>
+**Source version:** `v0.3.0`<br>
 **Package:** `worldguard`<br>
 **Release type:** source-only Python package and Codex skill workflow
+
+The source version does not by itself assert a tag, hosted GitHub Release, or
+installed-consumer identity; those require separate current evidence.
 
 WorldGuard checks whether a claim about a modeled world is supported, contradicted, missing required inputs, or outside the declared model boundary. It is built for workflows where an AI assistant, developer, or reviewer needs structured evidence instead of a narrative-only answer.
 
@@ -117,7 +120,8 @@ assets/readme-hero/          README visual assets
 
 ## Release Notes
 
-See [CHANGELOG.md](./CHANGELOG.md). The first source-only release is `v0.1.0`.
+See [CHANGELOG.md](./CHANGELOG.md). The current source candidate is `v0.3.0`;
+the first source-only release was `v0.1.0`.
 
 ## License
 
@@ -127,9 +131,12 @@ No license file is included yet. Treat this repository as source-visible but not
 
 # WorldGuard 中文说明
 
-**当前版本：** `v0.2.0`<br>
+**源码版本：** `v0.3.0`<br>
 **包名：** `worldguard`<br>
 **发布类型：** 源码版 Python 包 + Codex 技能工作流
+
+这个源码版本号本身不代表 Git tag、GitHub Release 或已安装消费者身份；
+这些结论都需要各自当前的验证证据。
 
 WorldGuard 用来检查一个“世界声明”是否被显式模型支持、是否被模型反驳、是否缺少必要输入，或者是否超出了模型边界。它的目标不是给一个凭感觉的自然语言结论，而是保留结构化证据、缺口、反例和边界。
 

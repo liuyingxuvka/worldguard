@@ -370,6 +370,7 @@ def export_contract_model() -> dict[str, object]:
         "worldguard_single_direct_entry",
         "worldguard_internal_guard_routes_are_complete",
         "worldguard_internal_guard_prediction_response_validation_terminal_semantics_are_preserved",
+        "worldguard_source_version_and_consumer_runtime_identity_are_frozen",
     ]
     obligations = [
         ("obligation:worldguard-claim-routes", invariant_ids[0], ["step:execute-world-semantic-depth", "step:verify-world-depth-receipt"]),
@@ -401,6 +402,11 @@ def export_contract_model() -> dict[str, object]:
         (
             "obligation:worldguard-internal-guard-semantics",
             invariant_ids[18],
+            internal_guard_validate_steps,
+        ),
+        (
+            "obligation:worldguard-source-version-identity",
+            invariant_ids[19],
             internal_guard_validate_steps,
         ),
     ]

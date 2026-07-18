@@ -1,6 +1,6 @@
 ## Context
 
-WorldGuard currently publishes one `worldguard` console and one `skills/worldguard` consumer skill. Its runtime has exactly seven Guard runners and seven semantic executors, but the public skill and SkillGuard contract do not encode that topology as one verifiable authority. The change formalizes the existing architecture without creating new child entrypoints.
+WorldGuard currently publishes one `worldguard` console and one `skills/worldguard` consumer skill. Its runtime has exactly seven Guard runners and seven semantic executors, but the public skill and SkillGuard contract do not encode that topology as one verifiable authority. The change formalizes the existing architecture without creating new child entrypoints. Because removing public child-entrypoint authority is breaking before 1.0, the frozen candidate source version is the minor release `0.3.0`.
 
 ## Goals / Non-Goals
 
@@ -11,12 +11,16 @@ WorldGuard currently publishes one `worldguard` console and one `skills/worldgua
 - Bind each internal route to expectation/prediction boundaries, native response, semantic validation, and visible terminal states.
 - Prove root runtime and bundled consumer runtime parity.
 - Reject child skill directories, child consoles, aliases, and compatibility paths.
+- Bind source metadata and installed-consumer runtime version inputs to one
+  `0.3.0` candidate tree.
 
 **Non-Goals:**
 
 - Changing Guard algorithms or broadening their factual boundaries.
 - Claiming every Guard independently performs future prediction.
-- Installing, publishing, tagging, releasing, or changing global routing.
+- Installing, publishing the default branch, tagging, creating a GitHub
+  Release, or changing global routing. Pushing the existing candidate PR
+  branch is allowed.
 - Touching FlowPilot.
 
 ## Decisions
@@ -45,7 +49,19 @@ EventGuard and CausalGuard participate in claim-derived predictive coverage when
 
 ### Internal routes do not enter the global route registry
 
-The SkillGuard contract will add one topology obligation and one target-native topology check. The seven internal routes may appear in the portable model as child functions, but `native_route_bindings` will continue to advertise only WorldGuard-owned public/current workflow routes. This prevents the global router from treating child Guards as installable skills.
+The SkillGuard contract adds target-local native route bindings and one
+target-native topology check for the seven internal routes so maintenance can
+prove each route is complete. Those bindings remain inside the WorldGuard
+maintenance unit; they do not create child `SKILL.md` files, console scripts,
+or global-router entries.
+
+### Version and installation identity move together
+
+Root `VERSION`, package metadata, README source labels, changelog,
+`worldguard.__version__`, and the byte-identical bundled consumer runtime all
+identify `0.3.0`. The topology check consumes that exact list, and SkillGuard
+is recompiled after the list is frozen. No installed projection is activated
+in this change.
 
 ## Risks / Trade-offs
 
@@ -60,7 +76,10 @@ The SkillGuard contract will add one topology obligation and one target-native t
 2. Extend skill/reference text and FlowGuard model with exact internal route phases.
 3. Add focused topology and negative tests.
 4. Add one SkillGuard obligation/check and compile current contracts.
-5. Run root/bundled parity, OpenSpec, FlowGuard, target-native, and full tests.
+5. Freeze the `0.3.0` source and installation-identity inputs.
+6. Run root/bundled parity, OpenSpec, FlowGuard, target-native, and full tests.
+7. Commit and push the candidate to the existing review branch without
+   installing, tagging, or creating a GitHub Release.
 
 No compatibility route is created. Rollback is a source-level revert before any later installation.
 
