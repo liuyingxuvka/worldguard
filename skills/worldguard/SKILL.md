@@ -5,9 +5,66 @@ description: Model-first world-claim, what-if, prediction-boundary, model-mesh, 
 
 # WorldGuard
 
+## Purpose
+
 Use this skill to keep world-claim analysis contract-first, mesh-aware, and evidence-preserving.
 
-## Workflow
+## Entrypoint Scope
+
+Use `worldguard` as the sole installed skill and `worldguard` as the sole
+console. EventGuard, AgentGuard, SpaceGuard, ResourceGuard, CausalGuard,
+ConflictGuard, and NormGuard are seven complete internal routes. Do not install
+or invoke them as child skills, aliases, alternate consoles, or fallbacks.
+
+Each internal route preserves one claim-derived expectation boundary, its
+native Guard runner, a `GuardResult` response, purpose-contract verification, a
+WorldGuard semantic executor, and the visible terminal statuses `PASS`, `FAIL`,
+`GAP`, and `BOUNDARY_EXCEEDED`. EventGuard and CausalGuard participate in
+predictive closure only through the current predictive-depth gates. The other
+five Guards provide bounded expectation and constraint evidence; their `PASS`
+does not independently license a future forecast.
+
+Read
+[references/internal-guard-routes.json](references/internal-guard-routes.json)
+when auditing route ownership or entrypoint topology. Do not use an internal
+route failure as a trigger to try another Guard.
+
+## Local Material Routing
+
+Read `references/worldguard-contracts.md` for contract/result/ledger fields,
+`references/guard-boundaries.md` for Guard ownership,
+`references/model-mesh.md` and `references/handoff-contracts.md` for multi-model
+work, and `references/template-packs.md` before creating reusable scaffolding.
+Load only the reference needed for the current route.
+
+## Entrypoint Acceptance Map
+
+The public `worldguard` entry accepts a unit `GuardContract`, a
+`ModelMeshContract`, a task-local prediction/observation/revision contract, or
+an explicit template-pack construction request. It returns the selected
+WorldGuard route with typed status and evidence. Missing required input,
+unsupported semantics, or an incomplete predictive boundary remains a visible
+non-pass result; it never triggers another Guard as a replacement route.
+
+## Use When
+
+- A claim about events, agents, space, resources, causality, conflict, or norms
+  needs an explicit WorldGuard model and bounded result.
+- A what-if or prediction request needs claim-derived Guard coverage, temporal
+  depth, scenarios, holdouts, interventions, or counterfactual checks.
+- A WorldGuard contract, model mesh, template pack, handoff, authority, receipt,
+  ledger, or task-local revision needs construction or audit.
+
+## Do Not Use When
+
+- The task asks only for unmodeled narrative judgment with no WorldGuard
+  contract or evidence boundary.
+- A different Guard or downstream writer is expected to repair missing
+  WorldGuard inputs or reinterpret a WorldGuard result.
+- The request would treat a toy fixture, structural pass, or repository test as
+  proof of factual truth or predictive accuracy.
+
+## Required Workflow
 
 1. Decide the check shape before giving a conclusion:
    - Use `GuardContract` for one claim checked against one explicit world model.
@@ -70,7 +127,7 @@ Use this skill to keep world-claim analysis contract-first, mesh-aware, and evid
 9. WorldGuard has one current closure behavior: semantic execution is required. The retired `closure_profile` field and `--closure-profile` selector are invalid; a caller cannot choose a shape-only path that skips required semantic checks.
 10. Preserve template selection/instance receipts when used, plus ledgers, semantic receipts, task-local prediction/observation/revision receipts, missing slots, boundary traces, counterexamples, handoff findings, stale-source findings, authority findings, cycle findings, and the native depth receipt in the answer.
 
-## Hard Rules
+## Hard Gates
 
 - Do not give a narrative-only PASS.
 - Prefer a current WorldGuard-owned template pack over rebuilding a known contract scaffold. Selection must use explicit facts and expose the exact zero/one/many outcome; never rank or silently choose among multiple matches.
@@ -129,7 +186,7 @@ Use this skill to keep world-claim analysis contract-first, mesh-aware, and evid
 - Read `references/handoff-contracts.md` when deciding whether one model may consume another model's output.
 - Read `references/closure-report.md` before claiming a multi-model check is complete.
 
-## Output Shape
+## Output Requirements
 
 Return:
 
@@ -142,4 +199,7 @@ Return:
 - ledger evidence;
 - mesh findings, when applicable;
 - missing model fields, if any;
-- commands run or reason local runtime was not run.
+- commands run or reason local runtime was not run;
+- `blockers` that prevent the requested conclusion;
+- `skipped_checks` with a concrete reason for each check not run;
+- `residual_risk` that remains inside the stated claim boundary.

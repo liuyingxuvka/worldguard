@@ -167,6 +167,132 @@
         "check:worldguard:template-packs"
       ],
       "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-event:prediction-boundary",
+      "action": {"kind": "native", "summary": "Freeze EventGuard's claim-derived prediction boundary."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-event:response",
+      "action": {"kind": "native", "summary": "Preserve the EventGuard GuardResult response."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-event:validate",
+      "action": {"kind": "verifier", "summary": "Validate the EventGuard purpose and semantic executor binding."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-agent:prediction-boundary",
+      "action": {"kind": "native", "summary": "Freeze AgentGuard's bounded expectation boundary."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-agent:response",
+      "action": {"kind": "native", "summary": "Preserve the AgentGuard GuardResult response."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-agent:validate",
+      "action": {"kind": "verifier", "summary": "Validate the AgentGuard purpose and semantic executor binding."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-space:prediction-boundary",
+      "action": {"kind": "native", "summary": "Freeze SpaceGuard's bounded expectation boundary."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-space:response",
+      "action": {"kind": "native", "summary": "Preserve the SpaceGuard GuardResult response."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-space:validate",
+      "action": {"kind": "verifier", "summary": "Validate the SpaceGuard purpose and semantic executor binding."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-resource:prediction-boundary",
+      "action": {"kind": "native", "summary": "Freeze ResourceGuard's bounded expectation boundary."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-resource:response",
+      "action": {"kind": "native", "summary": "Preserve the ResourceGuard GuardResult response."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-resource:validate",
+      "action": {"kind": "verifier", "summary": "Validate the ResourceGuard purpose and semantic executor binding."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-causal:prediction-boundary",
+      "action": {"kind": "native", "summary": "Freeze CausalGuard's claim-derived prediction boundary."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-causal:response",
+      "action": {"kind": "native", "summary": "Preserve the CausalGuard GuardResult response."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-causal:validate",
+      "action": {"kind": "verifier", "summary": "Validate the CausalGuard purpose and semantic executor binding."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-conflict:prediction-boundary",
+      "action": {"kind": "native", "summary": "Freeze ConflictGuard's bounded expectation boundary."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-conflict:response",
+      "action": {"kind": "native", "summary": "Preserve the ConflictGuard GuardResult response."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-conflict:validate",
+      "action": {"kind": "verifier", "summary": "Validate the ConflictGuard purpose and semantic executor binding."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-norm:prediction-boundary",
+      "action": {"kind": "native", "summary": "Freeze NormGuard's bounded expectation boundary."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-norm:response",
+      "action": {"kind": "native", "summary": "Preserve the NormGuard GuardResult response."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:internal-worldguard-norm:validate",
+      "action": {"kind": "verifier", "summary": "Validate the NormGuard purpose and semantic executor binding."},
+      "check_ids": ["check:worldguard:internal-guard-topology"],
+      "output_artifact_ids": []
     }
   ],
   "checks": [
@@ -188,7 +314,10 @@
         "obligation:worldguard-template-native-validation",
         "obligation:worldguard-template-neutral-projection",
         "obligation:worldguard-template-native-candidate-inventory",
-        "obligation:worldguard-template-projection-freshness"
+        "obligation:worldguard-template-projection-freshness",
+        "obligation:worldguard-internal-guard-topology",
+        "obligation:worldguard-internal-guard-completeness",
+        "obligation:worldguard-internal-guard-semantics"
       ],
       "depends_on_check_ids": [
         "check:worldguard:guard-model-contract"
@@ -270,6 +399,70 @@
       "evidence_class": "hard",
       "timeout_seconds": 180,
       "coverage_scope": "suite",
+      "evidence_domain_id": "worldguard:entry-topology",
+      "check_id": "check:worldguard:internal-guard-topology",
+      "kind": "command",
+      "command": "python",
+      "args": [
+        "skills/worldguard/scripts/check_internal_guard_topology.py",
+        "--repository-root",
+        ".",
+        "--json"
+      ],
+      "cwd_token": "repository_root",
+      "covers_obligation_ids": [
+        "obligation:worldguard-internal-guard-topology",
+        "obligation:worldguard-internal-guard-completeness",
+        "obligation:worldguard-internal-guard-semantics"
+      ],
+      "depends_on_check_ids": [
+        "check:worldguard:flowguard-contract-model"
+      ],
+      "execution_owner_id": "owner:worldguard:internal-guard-topology",
+      "semantic_check_id": "semantic:worldguard:internal-guard-topology",
+      "native_route_id": "route:worldguard-claim-derived-depth",
+      "input_selectors": [
+        {
+          "kind": "path",
+          "path": "pyproject.toml"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/SKILL.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/internal-guard-routes.json"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/scripts/check_internal_guard_topology.py"
+        },
+        {
+          "kind": "path",
+          "path": ".flowguard/run_claim_derived_coverage_checks.py"
+        },
+        {
+          "kind": "subtree",
+          "path": "worldguard"
+        },
+        {
+          "kind": "subtree",
+          "path": "skills/worldguard/runtime/worldguard"
+        }
+      ],
+      "expected": {
+        "exit_code": 0
+      },
+      "coverage_rationale": "Proves one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "evidence_subject_id": "subject:check:worldguard:internal-guard-topology"
+    },
+    {
+      "evidence_class": "hard",
+      "timeout_seconds": 180,
+      "coverage_scope": "suite",
       "evidence_domain_id": "worldguard:native-validation",
       "check_id": "check:worldguard:guard-model-contract",
       "kind": "command",
@@ -285,7 +478,7 @@
         "obligation:worldguard-guard-candidate-purpose-binding"
       ],
       "depends_on_check_ids": [
-        "check:worldguard:flowguard-contract-model"
+        "check:worldguard:internal-guard-topology"
       ],
       "execution_owner_id": "owner:worldguard:guard-model-contract",
       "semantic_check_id": "semantic:worldguard:guard-model-contract",
@@ -430,6 +623,8 @@
     "skills/worldguard/references/guard-model-contract.md",
     "skills/worldguard/references/template-packs.md",
     "skills/worldguard/references/worldguard-contracts.md",
+    "skills/worldguard/references/internal-guard-routes.json",
+    "skills/worldguard/scripts/check_internal_guard_topology.py",
     "skills/worldguard/references/closure-report.md"
   ],
   "native_route_bindings": [
@@ -474,6 +669,48 @@
       "native_route_id": "worldguard.template_pack_builder",
       "required_before_closure": true,
       "source": "skills/worldguard/runtime/worldguard/template_packs.py"
+    },
+    {
+      "binding_id": "native:worldguard-internal-event",
+      "native_route_id": "internal:worldguard:event",
+      "required_before_closure": true,
+      "source": "skills/worldguard/references/internal-guard-routes.json"
+    },
+    {
+      "binding_id": "native:worldguard-internal-agent",
+      "native_route_id": "internal:worldguard:agent",
+      "required_before_closure": true,
+      "source": "skills/worldguard/references/internal-guard-routes.json"
+    },
+    {
+      "binding_id": "native:worldguard-internal-space",
+      "native_route_id": "internal:worldguard:space",
+      "required_before_closure": true,
+      "source": "skills/worldguard/references/internal-guard-routes.json"
+    },
+    {
+      "binding_id": "native:worldguard-internal-resource",
+      "native_route_id": "internal:worldguard:resource",
+      "required_before_closure": true,
+      "source": "skills/worldguard/references/internal-guard-routes.json"
+    },
+    {
+      "binding_id": "native:worldguard-internal-causal",
+      "native_route_id": "internal:worldguard:causal",
+      "required_before_closure": true,
+      "source": "skills/worldguard/references/internal-guard-routes.json"
+    },
+    {
+      "binding_id": "native:worldguard-internal-conflict",
+      "native_route_id": "internal:worldguard:conflict",
+      "required_before_closure": true,
+      "source": "skills/worldguard/references/internal-guard-routes.json"
+    },
+    {
+      "binding_id": "native:worldguard-internal-norm",
+      "native_route_id": "internal:worldguard:norm",
+      "required_before_closure": true,
+      "source": "skills/worldguard/references/internal-guard-routes.json"
     }
   ],
   "native_check_bindings": [
@@ -500,6 +737,12 @@
       "native_check_id": "check:worldguard:template-packs",
       "evidence_source": "skills/worldguard/.skillguard/checks/check_template_packs.py",
       "required": true
+    },
+    {
+      "binding_id": "native-check:worldguard-internal-guard-topology",
+      "native_check_id": "check:worldguard:internal-guard-topology",
+      "evidence_source": "skills/worldguard/scripts/check_internal_guard_topology.py",
+      "required": true
     }
   ],
   "depth_profile": {
@@ -515,13 +758,21 @@
       "guard_investigation.gap_review",
       "guard_investigation.closure",
       "worldguard.semantic_rollout",
-      "worldguard.template_pack_builder"
+      "worldguard.template_pack_builder",
+      "internal:worldguard:event",
+      "internal:worldguard:agent",
+      "internal:worldguard:space",
+      "internal:worldguard:resource",
+      "internal:worldguard:causal",
+      "internal:worldguard:conflict",
+      "internal:worldguard:norm"
     ],
     "native_check_ids": [
       "check:worldguard:flowguard-contract-model",
       "check:worldguard:guard-model-contract",
       "check:worldguard:native-depth",
-      "check:worldguard:template-packs"
+      "check:worldguard:template-packs",
+      "check:worldguard:internal-guard-topology"
     ],
     "native_route_absent_confirmed": false,
     "skillguard_adds_domain_route": false,
@@ -544,7 +795,8 @@
       "readiness_check_ids": [
         "check:worldguard:guard-model-contract",
         "check:worldguard:native-depth",
-        "check:worldguard:template-packs"
+        "check:worldguard:template-packs",
+        "check:worldguard:internal-guard-topology"
       ]
     },
     "claim_boundary": "SkillGuard freezes and reconciles WorldGuard's declared target-native checks. WorldGuard alone owns template applicability, field composition, the exact unsealed neutral projection, native candidate inventory, native construction validators, each Guard purpose, protected failure class, fixture, oracle, and predictive-depth meaning."

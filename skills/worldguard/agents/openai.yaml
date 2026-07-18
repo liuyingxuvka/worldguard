@@ -1,4 +1,4 @@
 interface:
   display_name: "WorldGuard"
-  short_description: "World claims with validated template packs"
-  default_prompt: "Use $worldguard to select a WorldGuard-owned validating template pack from explicit facts, fill task-owned slots, run native validators, and evaluate the resulting GuardContract or ModelMeshContract without letting templates or downstream tools decide Guard semantics."
+  short_description: "One entry for seven complete world-model Guards"
+  default_prompt: "Use $worldguard as the single entrypoint, derive the required internal Guards from the claim, preserve each Guard's bounded prediction, response, validation, and terminal semantics, and do not turn a child Guard into a separate skill or fallback."

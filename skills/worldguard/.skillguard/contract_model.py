@@ -76,6 +76,94 @@ def _native_route(
     )
 
 
+def _internal_guard_route(
+    guard_id: str,
+    *,
+    prediction_mode: str,
+) -> tuple[dict[str, object], dict[str, object], list[dict[str, object]]]:
+    """Model one complete internal Guard route without publishing a child skill."""
+
+    guard_slug = guard_id.removesuffix("Guard").lower()
+    route_id = f"internal:worldguard:{guard_slug}"
+    owner_id = f"worldguard.internal.{guard_id}"
+    expectation = f"step:internal-worldguard-{guard_slug}:prediction-boundary"
+    response = f"step:internal-worldguard-{guard_slug}:response"
+    validate = f"step:internal-worldguard-{guard_slug}:validate"
+    passed = f"terminal:internal-worldguard-{guard_slug}:pass"
+    blocked = f"terminal:internal-worldguard-{guard_slug}:blocked"
+    steps: list[dict[str, object]] = [
+        {
+            "step_id": expectation,
+            "route_id": route_id,
+            "owner_id": owner_id,
+            "action_kind": "native",
+            "prerequisite_step_ids": [],
+            "required": True,
+            "terminal_kind": "",
+        },
+        {
+            "step_id": response,
+            "route_id": route_id,
+            "owner_id": owner_id,
+            "action_kind": "native",
+            "prerequisite_step_ids": [expectation],
+            "required": True,
+            "terminal_kind": "",
+        },
+        {
+            "step_id": validate,
+            "route_id": route_id,
+            "owner_id": owner_id,
+            "action_kind": "verifier",
+            "prerequisite_step_ids": [response],
+            "required": True,
+            "terminal_kind": "",
+        },
+        {
+            "step_id": passed,
+            "route_id": route_id,
+            "owner_id": owner_id,
+            "action_kind": "terminal",
+            "prerequisite_step_ids": [validate],
+            "required": True,
+            "terminal_kind": "success",
+        },
+        {
+            "step_id": blocked,
+            "route_id": route_id,
+            "owner_id": owner_id,
+            "action_kind": "terminal",
+            "prerequisite_step_ids": [],
+            "required": True,
+            "terminal_kind": "blocked",
+        },
+    ]
+    function_id = f"worldguard_internal_{guard_slug}_guard"
+    return (
+        {
+            "function_id": function_id,
+            "business_intent": (
+                f"preserve {guard_id} prediction boundary, response, "
+                f"validation, and terminal semantics ({prediction_mode})"
+            ),
+            "owner_id": owner_id,
+            "route_ids": [route_id],
+            "composable_with": [],
+        },
+        {
+            "route_id": route_id,
+            "function_id": function_id,
+            "owner_id": owner_id,
+            "start_step_id": expectation,
+            "step_ids": [row["step_id"] for row in steps],
+            "success_terminal_step_id": passed,
+            "blocked_terminal_step_id": blocked,
+            "handoffs": [],
+        },
+        steps,
+    )
+
+
 def export_contract_model() -> dict[str, object]:
     owner_id = "worldguard.mesh.predictive_coverage"
     route_id = "route:worldguard-claim-derived-depth"
@@ -222,6 +310,33 @@ def export_contract_model() -> dict[str, object]:
         routes.append(route)
         steps.extend(route_steps)
 
+    internal_guard_validate_steps: list[str] = []
+    for guard_id in (
+        "EventGuard",
+        "AgentGuard",
+        "SpaceGuard",
+        "ResourceGuard",
+        "CausalGuard",
+        "ConflictGuard",
+        "NormGuard",
+    ):
+        prediction_mode = (
+            "claim_derived_predictive_participant"
+            if guard_id in {"EventGuard", "CausalGuard"}
+            else "bounded_expectation_only"
+        )
+        function, route, route_steps = _internal_guard_route(
+            guard_id,
+            prediction_mode=prediction_mode,
+        )
+        functions.append(function)
+        routes.append(route)
+        steps.extend(route_steps)
+        internal_guard_validate_steps.append(
+            f"step:internal-worldguard-"
+            f"{guard_id.removesuffix('Guard').lower()}:validate"
+        )
+
     template_function, template_route, template_steps = _native_route(
         "worldguard.template_pack_builder",
         function_id="worldguard_template_pack_builder",
@@ -252,6 +367,9 @@ def export_contract_model() -> dict[str, object]:
         "worldguard_target_template_projection_has_exact_unsealed_neutral_shape",
         "worldguard_target_template_projection_equals_native_candidate_inventory",
         "worldguard_target_template_projection_binds_current_route_registry_builder_and_validators",
+        "worldguard_single_direct_entry",
+        "worldguard_internal_guard_routes_are_complete",
+        "worldguard_internal_guard_prediction_response_validation_terminal_semantics_are_preserved",
     ]
     obligations = [
         ("obligation:worldguard-claim-routes", invariant_ids[0], ["step:execute-world-semantic-depth", "step:verify-world-depth-receipt"]),
@@ -270,6 +388,21 @@ def export_contract_model() -> dict[str, object]:
         ("obligation:worldguard-template-neutral-projection", invariant_ids[13], ["step:worldguard-template-pack-builder:execute"]),
         ("obligation:worldguard-template-native-candidate-inventory", invariant_ids[14], ["step:worldguard-template-pack-builder:execute"]),
         ("obligation:worldguard-template-projection-freshness", invariant_ids[15], ["step:worldguard-template-pack-builder:execute"]),
+        (
+            "obligation:worldguard-internal-guard-topology",
+            invariant_ids[16],
+            internal_guard_validate_steps,
+        ),
+        (
+            "obligation:worldguard-internal-guard-completeness",
+            invariant_ids[17],
+            internal_guard_validate_steps,
+        ),
+        (
+            "obligation:worldguard-internal-guard-semantics",
+            invariant_ids[18],
+            internal_guard_validate_steps,
+        ),
     ]
     return {
         "schema_version": "skillguard.flowguard_model_export.v2",

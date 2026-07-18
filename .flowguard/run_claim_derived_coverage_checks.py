@@ -84,12 +84,12 @@ ALIGNMENT = {
         "test_ten_thousand_step_horizon_raises_native_floor_per_series",
     ),
     "skillguard_native_floor_receipt": (
-        "worldguard/skillguard_depth.py",
+        "worldguard/execution_depth.py",
         "worldguard.native-sqrt-phase-gap-floor.v1",
         "test_ten_thousand_step_envelope_carries_native_hundred_point_floor",
     ),
     "native_observation_integrity": (
-        "worldguard/skillguard_depth.py",
+        "worldguard/execution_depth.py",
         "Never manufacture a bridge-health witness",
         "test_shallow_dynamic_bridge_never_invents_transport_health_evidence",
     ),
@@ -99,7 +99,7 @@ ALIGNMENT = {
         "test_native_obligation_hash_tracks_exact_semantic_input",
     ),
     "exact_obligation_bridge_projection": (
-        "worldguard/skillguard_depth.py",
+        "worldguard/execution_depth.py",
         '"native_obligation_evidence"',
         "test_current_generic_emitter_binds_each_obligation_to_target_native_receipt",
     ),
