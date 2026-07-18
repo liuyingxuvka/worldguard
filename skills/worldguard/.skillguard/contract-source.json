@@ -2,7 +2,7 @@
   "schema_version": "skillguard.contract_source.v2",
   "skill_id": "worldguard",
   "model_id": "worldguard-skillguard-declared-checks-current",
-  "model_path": ".skillguard/contract_model.py",
+  "model_path": "skills/worldguard/.skillguard/contract_model.py",
   "confirmed": true,
   "integration_mode": "native-integrated",
   "native_route_owner": "worldguard",
@@ -179,7 +179,7 @@
       "kind": "command",
       "command": "python",
       "args": [
-        ".skillguard/checks/check_template_packs.py"
+        "skills/worldguard/.skillguard/checks/check_template_packs.py"
       ],
       "cwd_token": "repository_root",
       "covers_obligation_ids": [
@@ -199,37 +199,40 @@
       "input_selectors": [
         {
           "kind": "path",
-          "path": ".skillguard/checks/check_template_packs.py"
+          "path": "skills/worldguard/.skillguard/checks/check_template_packs.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/template_packs.py"
+          "path": "skills/worldguard/runtime/worldguard/template_packs.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/contracts.py"
+          "path": "skills/worldguard/runtime/worldguard/contracts.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/guard_model_contract.py"
+          "path": "skills/worldguard/runtime/worldguard/guard_model_contract.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/mesh.py"
+          "path": "skills/worldguard/runtime/worldguard/mesh.py"
         },
         {
           "kind": "path",
-          "path": "references/template-packs.md"
+          "path": "skills/worldguard/references/template-packs.md"
         },
         {
           "kind": "path",
-          "path": "SKILL.md"
+          "path": "skills/worldguard/SKILL.md"
         }
       ],
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Runs WorldGuard's bundled target-native template manifest, deterministic selection/applicability, exact field ownership, target-owned neutral projection, native candidate equality, unknown-root/wrong-route/stale-identity counterexamples, and native construction-validator oracle."
+      "coverage_rationale": "Runs WorldGuard's bundled target-native template manifest, deterministic selection/applicability, exact field ownership, target-owned neutral projection, native candidate equality, unknown-root/wrong-route/stale-identity counterexamples, and native construction-validator oracle.",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "evidence_subject_id": "subject:check:worldguard:template-packs"
     },
     {
       "evidence_class": "hard",
@@ -240,7 +243,7 @@
       "kind": "command",
       "command": "python",
       "args": [
-        ".skillguard/contract_model.py"
+        "skills/worldguard/.skillguard/contract_model.py"
       ],
       "cwd_token": "repository_root",
       "covers_obligation_ids": [
@@ -252,13 +255,16 @@
       "input_selectors": [
         {
           "kind": "path",
-          "path": ".skillguard/contract_model.py"
+          "path": "skills/worldguard/.skillguard/contract_model.py"
         }
       ],
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Loads the exact target-owned FlowGuard export that binds WorldGuard routes, steps, and obligations."
+      "coverage_rationale": "Loads the exact target-owned FlowGuard export that binds WorldGuard routes, steps, and obligations.",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "evidence_subject_id": "subject:check:worldguard:flowguard-contract-model"
     },
     {
       "evidence_class": "hard",
@@ -269,7 +275,7 @@
       "kind": "command",
       "command": "python",
       "args": [
-        ".skillguard/checks/check_guard_model_contract.py"
+        "skills/worldguard/.skillguard/checks/check_guard_model_contract.py"
       ],
       "cwd_token": "repository_root",
       "covers_obligation_ids": [
@@ -287,45 +293,48 @@
       "input_selectors": [
         {
           "kind": "path",
-          "path": ".skillguard/checks/check_guard_model_contract.py"
+          "path": "skills/worldguard/.skillguard/checks/check_guard_model_contract.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/guard_model_contract.py"
+          "path": "skills/worldguard/runtime/worldguard/guard_model_contract.py"
         },
         {
           "kind": "subtree",
-          "path": ".skillguard/runtime/worldguard/guards"
+          "path": "skills/worldguard/runtime/worldguard/guards"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/semantic.py"
+          "path": "skills/worldguard/runtime/worldguard/semantic.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/contracts.py"
+          "path": "skills/worldguard/runtime/worldguard/contracts.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/kernel.py"
+          "path": "skills/worldguard/runtime/worldguard/kernel.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/runtime/worldguard/status.py"
+          "path": "skills/worldguard/runtime/worldguard/status.py"
         },
         {
           "kind": "path",
-          "path": "references/guard-model-contract.md"
+          "path": "skills/worldguard/references/guard-model-contract.md"
         },
         {
           "kind": "path",
-          "path": "references/worldguard-contracts.md"
+          "path": "skills/worldguard/references/worldguard-contracts.md"
         }
       ],
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Runs WorldGuard's bundled target-native purpose, finite failure inventory, good/bad cardinality, exact reaction oracle, formal candidate binding, and pre-proof verifier."
+      "coverage_rationale": "Runs WorldGuard's bundled target-native purpose, finite failure inventory, good/bad cardinality, exact reaction oracle, formal candidate binding, and pre-proof verifier.",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "evidence_subject_id": "subject:check:worldguard:guard-model-contract"
     },
     {
       "evidence_class": "hard",
@@ -336,7 +345,7 @@
       "kind": "command",
       "command": "python",
       "args": [
-        ".skillguard/checks/emit_native_depth_evidence.py",
+        "skills/worldguard/.skillguard/checks/emit_native_depth_evidence.py",
         "--run-root",
         "{{run_root}}",
         "--repository-root",
@@ -366,21 +375,24 @@
       "input_selectors": [
         {
           "kind": "path",
-          "path": ".skillguard/checks/emit_native_depth_evidence.py"
+          "path": "skills/worldguard/.skillguard/checks/emit_native_depth_evidence.py"
         },
         {
           "kind": "path",
-          "path": ".skillguard/contract_model.py"
+          "path": "skills/worldguard/.skillguard/contract_model.py"
         },
         {
           "kind": "subtree",
-          "path": ".skillguard/runtime/worldguard"
+          "path": "skills/worldguard/runtime/worldguard"
         }
       ],
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Runs WorldGuard's existing target-native predictive depth evaluator against its exact bundled runtime and current mesh input."
+      "coverage_rationale": "Runs WorldGuard's existing target-native predictive depth evaluator against its exact bundled runtime and current mesh input.",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "evidence_subject_id": "subject:check:worldguard:native-depth"
     }
   ],
   "artifacts": [],
@@ -408,85 +420,85 @@
     }
   ],
   "implementation_paths": [
-    ".skillguard/checks/check_guard_model_contract.py",
-    ".skillguard/checks/check_template_packs.py",
-    ".skillguard/checks/emit_native_depth_evidence.py",
-    ".skillguard/contract_model.py",
-    ".skillguard/runtime/worldguard",
-    "SKILL.md",
-    "agents/openai.yaml",
-    "references/guard-model-contract.md",
-    "references/template-packs.md",
-    "references/worldguard-contracts.md",
-    "references/closure-report.md"
+    "skills/worldguard/.skillguard/checks/check_guard_model_contract.py",
+    "skills/worldguard/.skillguard/checks/check_template_packs.py",
+    "skills/worldguard/.skillguard/checks/emit_native_depth_evidence.py",
+    "skills/worldguard/.skillguard/contract_model.py",
+    "skills/worldguard/runtime/worldguard",
+    "skills/worldguard/SKILL.md",
+    "skills/worldguard/agents/openai.yaml",
+    "skills/worldguard/references/guard-model-contract.md",
+    "skills/worldguard/references/template-packs.md",
+    "skills/worldguard/references/worldguard-contracts.md",
+    "skills/worldguard/references/closure-report.md"
   ],
   "native_route_bindings": [
     {
       "binding_id": "native:worldguard-claim-derived-depth",
       "native_route_id": "route:worldguard-claim-derived-depth",
       "required_before_closure": true,
-      "source": ".skillguard/contract_model.py"
+      "source": "skills/worldguard/.skillguard/contract_model.py"
     },
     {
       "binding_id": "native:worldguard-claim-or-source-intake",
       "native_route_id": "guard_investigation.claim_or_source_intake",
       "required_before_closure": true,
-      "source": "SKILL.md"
+      "source": "skills/worldguard/SKILL.md"
     },
     {
       "binding_id": "native:worldguard-evidence-model",
       "native_route_id": "guard_investigation.evidence_model",
       "required_before_closure": true,
-      "source": "SKILL.md"
+      "source": "skills/worldguard/SKILL.md"
     },
     {
       "binding_id": "native:worldguard-gap-review",
       "native_route_id": "guard_investigation.gap_review",
       "required_before_closure": true,
-      "source": "SKILL.md"
+      "source": "skills/worldguard/SKILL.md"
     },
     {
       "binding_id": "native:worldguard-closure",
       "native_route_id": "guard_investigation.closure",
       "required_before_closure": true,
-      "source": "SKILL.md"
+      "source": "skills/worldguard/SKILL.md"
     },
     {
       "binding_id": "native:worldguard-semantic-rollout",
       "native_route_id": "worldguard.semantic_rollout",
       "required_before_closure": true,
-      "source": ".skillguard/runtime/worldguard/mesh.py"
+      "source": "skills/worldguard/runtime/worldguard/mesh.py"
     },
     {
       "binding_id": "native:worldguard-template-pack-builder",
       "native_route_id": "worldguard.template_pack_builder",
       "required_before_closure": true,
-      "source": ".skillguard/runtime/worldguard/template_packs.py"
+      "source": "skills/worldguard/runtime/worldguard/template_packs.py"
     }
   ],
   "native_check_bindings": [
     {
       "binding_id": "native-check:worldguard-flowguard-contract-model",
       "native_check_id": "check:worldguard:flowguard-contract-model",
-      "evidence_source": ".skillguard/contract_model.py",
+      "evidence_source": "skills/worldguard/.skillguard/contract_model.py",
       "required": true
     },
     {
       "binding_id": "native-check:worldguard-guard-model-contract",
       "native_check_id": "check:worldguard:guard-model-contract",
-      "evidence_source": ".skillguard/checks/check_guard_model_contract.py",
+      "evidence_source": "skills/worldguard/.skillguard/checks/check_guard_model_contract.py",
       "required": true
     },
     {
       "binding_id": "native-check:worldguard-native-depth",
       "native_check_id": "check:worldguard:native-depth",
-      "evidence_source": ".skillguard/checks/emit_native_depth_evidence.py",
+      "evidence_source": "skills/worldguard/.skillguard/checks/emit_native_depth_evidence.py",
       "required": true
     },
     {
       "binding_id": "native-check:worldguard-template-packs",
       "native_check_id": "check:worldguard:template-packs",
-      "evidence_source": ".skillguard/checks/check_template_packs.py",
+      "evidence_source": "skills/worldguard/.skillguard/checks/check_template_packs.py",
       "required": true
     }
   ],
@@ -537,5 +549,30 @@
     },
     "claim_boundary": "SkillGuard freezes and reconciles WorldGuard's declared target-native checks. WorldGuard alone owns template applicability, field composition, the exact unsealed neutral projection, native candidate inventory, native construction validators, each Guard purpose, protected failure class, fixture, oracle, and predictive-depth meaning."
   },
-  "claim_boundary": "WorldGuard owns template-pack manifests and selection facts, field composition, the exact target-owned unsealed neutral projection and applicability rows, native construction validators, Guard purposes, the complete finite Guard-owned failure inventory, native good/bad fixtures and reactions, claim routing, semantic execution, and predictive judgment. SkillGuard only validates/seals the neutral interchange shape and supervises the exact declared checks; it cannot infer applicability, select a template, add a domain route, or reinterpret a WorldGuard result."
+  "claim_boundary": "WorldGuard owns template-pack manifests and selection facts, field composition, the exact target-owned unsealed neutral projection and applicability rows, native construction validators, Guard purposes, the complete finite Guard-owned failure inventory, native good/bad fixtures and reactions, claim routing, semantic execution, and predictive judgment. SkillGuard only validates/seals the neutral interchange shape and supervises the exact declared checks; it cannot infer applicability, select a template, add a domain route, or reinterpret a WorldGuard result.",
+  "repository_role": "skill_maintainer_source",
+  "maintenance_unit_id": "unit:worldguard",
+  "member_skill_ids": [
+    "worldguard"
+  ],
+  "consumer_projection": {
+    "prohibited_path_prefixes": [
+      ".skillguard/"
+    ],
+    "prohibited_prompt_tokens": [
+      "SkillGuard",
+      ".skillguard",
+      "skillguard.py"
+    ],
+    "projection_id": "projection:consumer-distribution",
+    "release_manifest_path": "consumer-release.json"
+  },
+  "content_role_overrides": [
+    {
+      "path": "skills/worldguard/runtime/worldguard/skillguard_current_protocol.py",
+      "role": "test_dev",
+      "install_disposition": "source_only",
+      "reason": "author_only_maintenance_protocol_adapter"
+    }
+  ]
 }

@@ -159,7 +159,7 @@ def test_guard_candidate_purpose_order_model_covers_all_rejections():
 
 def test_bundled_guard_model_contract_matches_the_canonical_runtime():
     source = ROOT / "worldguard" / "guard_model_contract.py"
-    bundled = ROOT / "skills" / "worldguard" / ".skillguard" / "runtime" / "worldguard" / "guard_model_contract.py"
+    bundled = ROOT / "skills" / "worldguard" / "runtime" / "worldguard" / "guard_model_contract.py"
     assert bundled.read_bytes() == source.read_bytes()
 
 

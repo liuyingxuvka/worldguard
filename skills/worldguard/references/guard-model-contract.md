@@ -49,11 +49,10 @@ Run the native oracle from a source checkout with:
 python -m worldguard.guard_model_contract
 ```
 
-Formal SkillGuard supervision invokes
-`.skillguard/checks/check_guard_model_contract.py` against the bundled runtime.
-SkillGuard only freezes and reconciles that declared target-native check; it
-must not duplicate or reinterpret these purposes, fixtures, failure classes, or
-oracles.
+Author-side maintenance may invoke a private adapter around this same native
+oracle. That adapter must not duplicate or reinterpret WorldGuard purposes,
+fixtures, failure classes, or oracles, and ordinary installed use does not
+depend on it.
 
 ## Required Task-Model-Instance Declaration
 
@@ -73,7 +72,7 @@ from the claim. Each entry contains:
 The task may select one failure or several. Every selected failure is proved
 separately. If a needed failure has no native oracle in the family catalog,
 WorldGuard blocks until its runtime code, oracle, and family regression are
-implemented. SkillGuard cannot add that domain meaning.
+implemented. A downstream authoring tool cannot add that domain meaning.
 
 `build_calibration_task_purpose_declaration` is deliberately named and scoped
 for repository tests and packaged examples. Production code never calls it as

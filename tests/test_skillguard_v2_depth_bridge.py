@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from worldguard.skillguard_depth import (
+from worldguard.execution_depth import (
     UNIVERSE_CLAIM_SCOPE,
     UNIVERSE_NATIVE_POLICY,
     UNIVERSE_PREDICTIVE_AXES,

@@ -7,6 +7,10 @@ from typing import Any
 import yaml
 
 from worldguard.contracts import GuardContract
+from worldguard.guard_model_contract import (
+    PROTECTED_FAILURE_CLASSES,
+    build_calibration_task_purpose_declaration,
+)
 from worldguard.io import dump_json
 from worldguard.kernel import run_worldguard
 
@@ -61,10 +65,31 @@ def build_contracts() -> list[GuardContract]:
         **state,
     }
     for claim in story.get("claims", []):
+        task_contract_id = f"fuel-cell:{claim['claim_id']}"
+        declarations = []
+        for guard in claim.get("target_guards", []):
+            selected_failure_id = next(
+                item.failure_id
+                for item in PROTECTED_FAILURE_CLASSES
+                if item.guard == guard
+            )
+            declarations.append(
+                build_calibration_task_purpose_declaration(
+                    guard,
+                    task_contract_id=task_contract_id,
+                    run_id="fuel-cell-toy",
+                    model_instance_id=str(model["model_id"]),
+                    selected_failure_ids=[selected_failure_id],
+                    purpose=(
+                        f"Prevent toy claim {claim['claim_id']} from bypassing its explicit {guard} boundary."
+                    ),
+                    boundary="This declaration belongs only to the packaged toy replay and proves no real fuel-cell fact.",
+                )
+            )
         contracts.append(
             GuardContract.from_dict(
                 {
-                    "contract_id": f"fuel-cell:{claim['claim_id']}",
+                    "contract_id": task_contract_id,
                     "schema_version": "worldguard.contract.v1",
                     "run_id": "fuel-cell-toy",
                     "claim": {
@@ -75,6 +100,7 @@ def build_contracts() -> list[GuardContract]:
                     },
                     "world_model": model,
                     "inputs": inputs,
+                    "guard_purpose_declarations": declarations,
                     "dependencies": {"upstream_results": [], "read_only": True},
                     "output_requirements": {
                         "require_ledgers": True,

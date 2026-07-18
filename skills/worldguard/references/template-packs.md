@@ -5,7 +5,7 @@ Use this construction layer before manually assembling a new `GuardContract` or 
 ## Fixed boundary
 
 - WorldGuard owns every pack, applicability fact, field fragment, validator binding, and receipt meaning.
-- SkillGuard may supervise the declared WorldGuard check but never selects a pack or interprets Guard semantics.
+- A downstream authoring tool may validate the declared WorldGuard check but never selects a pack or interprets Guard semantics.
 - A template does not derive required Guards, choose a task purpose or failure id, create native good/bad evidence, execute the claim, or license prediction.
 - `build_calibration_task_purpose_declaration` remains tests/examples-only. A real task supplies its own declaration.
 
@@ -66,21 +66,21 @@ Each fragment's `owned_field_ids` must exactly equal its payload leaves. Equal f
 
 Guard instances run canonical GuardContract shape validation plus the existing claim-derived task-purpose proof. ModelMesh instances run canonical mesh validation plus the same proof for embedded Guard contracts. Unknown validator ids block; no fallback validator is selected.
 
-Retain the receipt's registry, selection, pack, composition, binding, output, validator, and final instance fingerprints. Its claim boundary is construction integrity only. Continue through `run_worldguard` or `run_model_mesh`, target-native depth evaluation where required, and the current SkillGuard declared-check closure before making a broader conclusion.
+Retain the receipt's registry, selection, pack, composition, binding, output, validator, and final instance fingerprints. Its claim boundary is construction integrity only. Continue through `run_worldguard` or `run_model_mesh` and target-native depth evaluation where required before making a broader conclusion.
 
-## Target-owned neutral SkillGuard projection
+## Target-owned neutral interchange
 
-When SkillGuard needs a neutral catalog for the template route, WorldGuard—not SkillGuard—must author it from the current native registry:
+When another authoring tool needs a neutral catalog for the template route, WorldGuard authors it from the current native registry:
 
 ```python
 from worldguard import (
     GUARD_CONTRACT_KIND,
-    build_skillguard_target_template_projection,
+    build_target_template_interchange,
     builtin_template_registry,
 )
 
 registry = builtin_template_registry()
-projection = build_skillguard_target_template_projection(
+projection = build_target_template_interchange(
     registry,
     contract_kind=GUARD_CONTRACT_KIND,
     fact_ids=["guard:EventGuard"],
@@ -90,8 +90,8 @@ projection = build_skillguard_target_template_projection(
 
 The adapter validates the current registry, calls its native selector and each manifest's native applicability predicate, and emits one row for every manifest in the requested contract-kind family. A GuardContract projection therefore includes its one base plus all seven current Guard candidates; a ModelMeshContract projection includes its one base plus both coverage candidates. The eligible booleans equal the current native selection candidate set. A many-match request keeps every matching candidate eligible so the neutral central selector blocks on the WorldGuard-authored conflicts; it never ranks words or chooses a different winner.
 
-The root fields are closed and exact: `schema_version`, `target_id`, `native_owner_id`, `family_id`, `route_id`, `request_fingerprint`, `catalog`, `applicability_results`, and `claim_boundary`. The target emits unsealed `skillguard.target_template_projection.v1`, `skillguard.template_catalog.v1`, and `skillguard.template_manifest.v1` specifications. It intentionally omits `catalog_digest` and `manifest_digest`; current central SkillGuard validates and seals those neutral identities downstream.
+The root fields are closed and exact: `schema_version`, `target_id`, `native_owner_id`, `family_id`, `route_id`, `request_fingerprint`, `catalog`, `applicability_results`, and `claim_boundary`. The target emits unsealed `worldguard.target_template_interchange.v1`, `worldguard.target_template_catalog.v1`, and `worldguard.target_template_manifest.v1` records. It intentionally omits `catalog_digest` and `manifest_digest`; a downstream authoring tool may validate and seal those transport identities.
 
 Every artifact content-template hash binds the native manifest fingerprint. Builder and validator content hashes bind their current WorldGuard implementation source. The request fingerprint binds the exact registry, native selection, contract kind, route, and normalized facts. Unknown root fields, a route other than `worldguard.template_pack_builder`, incomplete/duplicate candidate accounting, missing explicit parameter types, or a stale caller-supplied registry fingerprint block before projection.
 
-This projection is interchange plumbing, not a new semantic contract. SkillGuard may validate exact neutral fields, seal digests, and supervise the existing native check; it may not infer applicability, add a template, change eligibility, choose a Guard, or reinterpret a WorldGuard result.
+This interchange is plumbing, not a new semantic contract. A downstream authoring tool may validate exact neutral fields and seal digests; it may not infer applicability, add a template, change eligibility, choose a Guard, or reinterpret a WorldGuard result.

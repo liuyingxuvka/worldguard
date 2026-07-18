@@ -105,7 +105,7 @@ def main(argv: list[str] | None = None) -> int:
 
     compile_result = compile_skill_contract(
         SKILL_ROOT,
-        repository_root=SKILL_ROOT,
+        repository_root=ROOT,
         write=False,
     )
     if not compile_result.ok:
@@ -121,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     if guard_check.returncode != 0:
         failures.append("target_native_guard_model_check_failed")
 
-    from worldguard.skillguard_depth import build_native_depth_evidence  # noqa: PLC0415
+    from worldguard.execution_depth import build_native_depth_evidence  # noqa: PLC0415
 
     target_regressions = []
     fixtures = ROOT / "tests" / "fixtures" / "skillguard_depth"

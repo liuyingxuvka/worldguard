@@ -1,4 +1,4 @@
 interface:
   display_name: "WorldGuard"
   short_description: "World claims with validated template packs"
-  default_prompt: "Use $worldguard to select a WorldGuard-owned validating template pack from explicit facts, fill task-owned slots, run native validators, and then evaluate the resulting GuardContract or ModelMeshContract without letting templates or SkillGuard decide Guard semantics."
+  default_prompt: "Use $worldguard to select a WorldGuard-owned validating template pack from explicit facts, fill task-owned slots, run native validators, and evaluate the resulting GuardContract or ModelMeshContract without letting templates or downstream tools decide Guard semantics."

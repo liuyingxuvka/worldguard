@@ -1,0 +1,23 @@
+{
+  "claim_boundary": "Author adoption marks only this explicit skill-maintainer repository. It creates no consumer or ordinary-project dependency and proves no target-domain work.",
+  "maintenance_default": "skillguard-author-maintenance-only",
+  "managed_block_hash": "D5E556AF7C129CB6102544DEBCE59F133E68170036911F7D20FCE64286C13C30",
+  "managed_skills": [
+    {
+      "integration_mode": "native-integrated",
+      "maintenance_unit_id": "unit:worldguard",
+      "native_owner_id": "worldguard",
+      "native_route_evidence_path": "skills/worldguard/SKILL.md",
+      "native_route_status": "present",
+      "skill_id": "worldguard",
+      "skill_path": "skills/worldguard"
+    }
+  ],
+  "manifest_hash": "6FD07317795E722D1636E2EAF2FFC10EB0EF11377BAA7F87411753764424660F",
+  "project_id": "WorldGuard",
+  "project_prompt_path": "AGENTS.md",
+  "repository_role": "skill_maintainer_source",
+  "schema_version": "skillguard.project_adoption.v1",
+  "skillguard_repository": "https://github.com/liuyingxuvka/SkillGuard",
+  "skillguard_version": "current"
+}
