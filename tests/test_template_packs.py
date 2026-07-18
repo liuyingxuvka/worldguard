@@ -14,11 +14,11 @@ from worldguard.guard_model_contract import (
 from worldguard.template_packs import (
     GUARD_CONTRACT_KIND,
     MODEL_MESH_CONTRACT_KIND,
-    SKILLGUARD_APPLICABILITY_RESULT_FIELDS,
-    SKILLGUARD_TARGET_TEMPLATE_PROJECTION_FIELDS,
-    SKILLGUARD_TARGET_TEMPLATE_PROJECTION_SCHEMA_VERSION,
-    SKILLGUARD_TEMPLATE_CATALOG_FIELDS,
-    SKILLGUARD_TEMPLATE_MANIFEST_FIELDS,
+    TARGET_APPLICABILITY_RESULT_FIELDS,
+    TARGET_TEMPLATE_INTERCHANGE_FIELDS,
+    TARGET_TEMPLATE_INTERCHANGE_SCHEMA_VERSION,
+    TARGET_TEMPLATE_CATALOG_FIELDS,
+    TARGET_TEMPLATE_MANIFEST_FIELDS,
     VALIDATOR_GUARD_SHAPE,
     WORLDGUARD_TEMPLATE_ROUTE_ID,
     TemplateFragment,
@@ -26,11 +26,11 @@ from worldguard.template_packs import (
     TemplatePackManifest,
     TemplatePackRegistry,
     build_template_instance,
-    build_skillguard_target_template_projection,
+    build_target_template_interchange,
     builtin_template_registry,
     compose_template_packs,
     template_slot,
-    validate_skillguard_target_template_projection,
+    validate_target_template_interchange,
 )
 
 
@@ -329,22 +329,22 @@ def test_binding_change_changes_instance_fingerprint() -> None:
 
 def test_source_and_bundled_template_pack_runtime_are_exactly_equal() -> None:
     source = ROOT / "worldguard" / "template_packs.py"
-    bundled = ROOT / "skills" / "worldguard" / ".skillguard" / "runtime" / "worldguard" / "template_packs.py"
+    bundled = ROOT / "skills" / "worldguard" / "runtime" / "worldguard" / "template_packs.py"
     assert bundled.read_bytes() == source.read_bytes()
 
 
-def test_skillguard_projection_good_shape_is_exact_unsealed_and_content_bound() -> None:
+def test_target_interchange_good_shape_is_exact_unsealed_and_content_bound() -> None:
     registry = builtin_template_registry()
-    projection = build_skillguard_target_template_projection(
+    projection = build_target_template_interchange(
         registry,
         contract_kind=GUARD_CONTRACT_KIND,
         fact_ids=["guard:EventGuard"],
         native_registry_fingerprint=registry.registry_fingerprint,
     )
 
-    assert projection["schema_version"] == SKILLGUARD_TARGET_TEMPLATE_PROJECTION_SCHEMA_VERSION
-    assert set(projection) == set(SKILLGUARD_TARGET_TEMPLATE_PROJECTION_FIELDS)
-    assert set(projection["catalog"]) == set(SKILLGUARD_TEMPLATE_CATALOG_FIELDS)
+    assert projection["schema_version"] == TARGET_TEMPLATE_INTERCHANGE_SCHEMA_VERSION
+    assert set(projection) == set(TARGET_TEMPLATE_INTERCHANGE_FIELDS)
+    assert set(projection["catalog"]) == set(TARGET_TEMPLATE_CATALOG_FIELDS)
     assert "catalog_digest" not in projection["catalog"]
     assert projection["route_id"] == WORLDGUARD_TEMPLATE_ROUTE_ID
     assert projection["request_fingerprint"].startswith("sha256:")
@@ -356,7 +356,7 @@ def test_skillguard_projection_good_shape_is_exact_unsealed_and_content_bound() 
         if item.contract_kind == GUARD_CONTRACT_KIND
     }
     for template in projection["catalog"]["templates"]:
-        assert set(template) == set(SKILLGUARD_TEMPLATE_MANIFEST_FIELDS)
+        assert set(template) == set(TARGET_TEMPLATE_MANIFEST_FIELDS)
         assert "manifest_digest" not in template
         assert template["parameter_schema"]["type"] == "object"
         assert template["parameter_schema"]["additionalProperties"] is False
@@ -366,7 +366,7 @@ def test_skillguard_projection_good_shape_is_exact_unsealed_and_content_bound() 
         assert template["builder"]["content_hash"].startswith("sha256:")
         assert all(item["content_hash"].startswith("sha256:") for item in template["validators"])
     assert all(
-        set(item) == set(SKILLGUARD_APPLICABILITY_RESULT_FIELDS)
+        set(item) == set(TARGET_APPLICABILITY_RESULT_FIELDS)
         for item in projection["applicability_results"]
     )
     eligibility = {
@@ -377,9 +377,9 @@ def test_skillguard_projection_good_shape_is_exact_unsealed_and_content_bound() 
     assert eligibility["worldguard.guard-contract.base"] is False
 
 
-def test_skillguard_projection_unknown_root_field_is_rejected() -> None:
+def test_target_interchange_unknown_root_field_is_rejected() -> None:
     registry = builtin_template_registry()
-    projection = build_skillguard_target_template_projection(
+    projection = build_target_template_interchange(
         registry,
         contract_kind=GUARD_CONTRACT_KIND,
         native_registry_fingerprint=registry.registry_fingerprint,
@@ -388,7 +388,7 @@ def test_skillguard_projection_unknown_root_field_is_rejected() -> None:
     unknown["family_guess"] = "forbidden"
 
     with pytest.raises(TemplatePackError) as caught:
-        validate_skillguard_target_template_projection(unknown)
+        validate_target_template_interchange(unknown)
     assert caught.value.code == "TEMPLATE_PROJECTION_ROOT_UNKNOWN_FIELD"
     assert caught.value.details["unknown_field_ids"] == ["family_guess"]
 
@@ -400,13 +400,13 @@ def test_skillguard_projection_unknown_root_field_is_rejected() -> None:
         (MODEL_MESH_CONTRACT_KIND, ["coverage:bounded"]),
     ],
 )
-def test_skillguard_projection_candidate_inventory_equals_native_registry_once(
+def test_target_interchange_candidate_inventory_equals_native_registry_once(
     contract_kind: str,
     fact_ids: list[str],
 ) -> None:
     registry = builtin_template_registry()
     native_selection = registry.select(contract_kind, fact_ids)
-    projection = build_skillguard_target_template_projection(
+    projection = build_target_template_interchange(
         registry,
         contract_kind=contract_kind,
         fact_ids=fact_ids,
@@ -429,10 +429,10 @@ def test_skillguard_projection_candidate_inventory_equals_native_registry_once(
     assert eligible_candidates == set(native_selection.candidate_pack_ids)
 
 
-def test_skillguard_projection_wrong_route_is_rejected_by_worldguard() -> None:
+def test_target_interchange_wrong_route_is_rejected_by_worldguard() -> None:
     registry = builtin_template_registry()
     with pytest.raises(TemplatePackError) as caught:
-        build_skillguard_target_template_projection(
+        build_target_template_interchange(
             registry,
             contract_kind=GUARD_CONTRACT_KIND,
             native_registry_fingerprint=registry.registry_fingerprint,
@@ -441,10 +441,10 @@ def test_skillguard_projection_wrong_route_is_rejected_by_worldguard() -> None:
     assert caught.value.code == "TEMPLATE_PROJECTION_ROUTE_INVALID"
 
 
-def test_skillguard_projection_stale_native_identity_is_rejected() -> None:
+def test_target_interchange_stale_native_identity_is_rejected() -> None:
     registry = builtin_template_registry()
     with pytest.raises(TemplatePackError) as caught:
-        build_skillguard_target_template_projection(
+        build_target_template_interchange(
             registry,
             contract_kind=GUARD_CONTRACT_KIND,
             native_registry_fingerprint="0" * 64,

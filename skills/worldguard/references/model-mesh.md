@@ -54,8 +54,8 @@ counterfactual, holdout, representative timepoint count/ratio, native phase-stra
 When a node exposes variables or signals, each `(node, variable-or-signal)` pair
 is its own temporal child universe over the same horizon. Every child uses its
 own observations and must satisfy the native square-root count floor plus
-early/middle/late coverage. WorldGuard sends that effective floor to SkillGuard
-as a content-addressed per-object receipt; a fixed SkillGuard ratio must not
+early/middle/late coverage. WorldGuard records that effective floor
+as content-addressed per-object evidence; a fixed external ratio must not
 replace it. The native examples are 32 representative points for 1,000 steps
 and 100 for 10,000 steps, unless a target declares a stricter floor. Meeting
 the count and early/middle/late phases is still insufficient when one

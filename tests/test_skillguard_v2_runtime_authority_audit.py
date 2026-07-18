@@ -23,8 +23,7 @@ def _source_file_hash(path: Path) -> str:
 SCRIPT = ROOT / "scripts" / "verify_guard_simulation_readiness.py"
 PRIMARY_ROOT = ROOT / "skills" / "worldguard"
 DEPTH_BRIDGE = PRIMARY_ROOT / ".skillguard/checks/emit_native_depth_evidence.py"
-CALIBRATION_BRIDGE = PRIMARY_ROOT / ".skillguard/checks/emit_calibration_evidence.py"
-BRIDGE_PATHS = (DEPTH_BRIDGE, CALIBRATION_BRIDGE)
+BRIDGE_PATHS = (DEPTH_BRIDGE,)
 GUARD_MODEL_CHECK = PRIMARY_ROOT / ".skillguard/checks/check_guard_model_contract.py"
 
 
@@ -136,8 +135,9 @@ def test_primary_contract_uses_generic_supervision_and_binds_portable_runtime() 
     compiled = json.loads((PRIMARY_ROOT / ".skillguard/compiled-contract.json").read_text(encoding="utf-8"))
     profile = contract["depth_profile"]
 
-    assert ".skillguard/runtime/worldguard" in contract["implementation_paths"]
-    assert len(compiled["source_fingerprints"]["implementation:.skillguard/runtime/worldguard"]) == 64
+    runtime_path = "skills/worldguard/runtime/worldguard"
+    assert runtime_path in contract["implementation_paths"]
+    assert len(compiled["source_fingerprints"][f"implementation:{runtime_path}"]) == 64
     assert profile["integration_mode"] == "native-integrated"
     assert profile["enforcement_level"] == "enforced"
     assert profile["required_closure_profiles"] == ["enforced"]
@@ -156,13 +156,13 @@ def test_primary_contract_uses_generic_supervision_and_binds_portable_runtime() 
     for check_id in ("check:worldguard:native-depth", "check:worldguard:guard-model-contract"):
         selectors = checks[check_id]["input_selectors"]
         assert any(
-            item.get("path") == ".skillguard/runtime/worldguard"
-            or str(item.get("path", "")).startswith(".skillguard/runtime/worldguard/")
+            item.get("path") == runtime_path
+            or str(item.get("path", "")).startswith(f"{runtime_path}/")
             for item in selectors
         )
     for bridge in BRIDGE_PATHS:
         text = bridge.read_text(encoding="utf-8")
-        assert "_activate_bundled_runtime(repository_root)" in text
+        assert "_activate_bundled_runtime(" in text
         assert "source_root" not in text
         assert "portable_target_runtime" not in text
     assert "sys.path.insert(0, str(RUNTIME_ROOT))" in GUARD_MODEL_CHECK.read_text(encoding="utf-8")
@@ -182,22 +182,9 @@ def test_formal_depth_rejects_missing_bundled_runtime_without_source_fallback(
 def test_formal_depth_selects_only_the_skill_bundled_runtime(tmp_path: Path) -> None:
     bridge = _load_module(DEPTH_BRIDGE, "worldguard_depth_bridge_runtime_under_test")
     skill_root = tmp_path / "installed-skill"
-    package_root = skill_root / ".skillguard" / "runtime" / "worldguard"
+    package_root = skill_root / "runtime" / "worldguard"
     package_root.mkdir(parents=True)
-    for name in ("__init__.py", "skillguard_depth.py", "skillguard_current_protocol.py"):
+    for name in ("__init__.py", "execution_depth.py", "skillguard_current_protocol.py"):
         package_root.joinpath(name).write_text("# bundled\n", encoding="utf-8")
 
     assert bridge._activate_bundled_runtime(skill_root) == package_root.resolve()
-
-
-def test_formal_calibration_rejects_missing_bundled_runtime_without_source_fallback(
-    tmp_path: Path,
-) -> None:
-    bridge = _load_module(
-        CALIBRATION_BRIDGE, "worldguard_calibration_bridge_under_test"
-    )
-    skill_root = tmp_path / "installed-skill"
-    skill_root.mkdir()
-
-    with pytest.raises(ValueError, match="bundled WorldGuard runtime"):
-        bridge._activate_bundled_runtime(skill_root)

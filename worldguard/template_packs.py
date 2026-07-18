@@ -32,9 +32,9 @@ VALIDATOR_GUARD_PURPOSE = "worldguard.guard_contract.task-purpose.v1"
 VALIDATOR_MESH_SHAPE = "worldguard.model_mesh_contract.shape.v1"
 VALIDATOR_MESH_PURPOSE = "worldguard.model_mesh_contract.embedded-purpose.v1"
 
-SKILLGUARD_TARGET_TEMPLATE_PROJECTION_SCHEMA_VERSION = "skillguard.target_template_projection.v1"
-SKILLGUARD_TEMPLATE_CATALOG_SCHEMA_VERSION = "skillguard.template_catalog.v1"
-SKILLGUARD_TEMPLATE_MANIFEST_SCHEMA_VERSION = "skillguard.template_manifest.v1"
+TARGET_TEMPLATE_INTERCHANGE_SCHEMA_VERSION = "worldguard.target_template_interchange.v1"
+TARGET_TEMPLATE_CATALOG_SCHEMA_VERSION = "worldguard.target_template_catalog.v1"
+TARGET_TEMPLATE_MANIFEST_SCHEMA_VERSION = "worldguard.target_template_manifest.v1"
 WORLDGUARD_TEMPLATE_TARGET_ID = "worldguard"
 WORLDGUARD_TEMPLATE_NATIVE_OWNER_ID = "worldguard.template_packs"
 WORLDGUARD_TEMPLATE_ROUTE_ID = "worldguard.template_pack_builder"
@@ -46,7 +46,7 @@ WORLDGUARD_TEMPLATE_FAMILY_IDS = {
     MODEL_MESH_CONTRACT_KIND: "worldguard.model_mesh_contract_templates",
 }
 
-SKILLGUARD_TARGET_TEMPLATE_PROJECTION_FIELDS = frozenset(
+TARGET_TEMPLATE_INTERCHANGE_FIELDS = frozenset(
     {
         "schema_version",
         "target_id",
@@ -59,7 +59,7 @@ SKILLGUARD_TARGET_TEMPLATE_PROJECTION_FIELDS = frozenset(
         "claim_boundary",
     }
 )
-SKILLGUARD_TEMPLATE_CATALOG_FIELDS = frozenset(
+TARGET_TEMPLATE_CATALOG_FIELDS = frozenset(
     {
         "schema_version",
         "catalog_id",
@@ -72,7 +72,7 @@ SKILLGUARD_TEMPLATE_CATALOG_FIELDS = frozenset(
         "claim_boundary",
     }
 )
-SKILLGUARD_TEMPLATE_MANIFEST_FIELDS = frozenset(
+TARGET_TEMPLATE_MANIFEST_FIELDS = frozenset(
     {
         "schema_version",
         "template_id",
@@ -101,7 +101,7 @@ SKILLGUARD_TEMPLATE_MANIFEST_FIELDS = frozenset(
         "claim_boundary",
     }
 )
-SKILLGUARD_APPLICABILITY_RESULT_FIELDS = frozenset(
+TARGET_APPLICABILITY_RESULT_FIELDS = frozenset(
     {
         "template_id",
         "eligible",
@@ -976,7 +976,7 @@ def build_template_instance(
     output_fingerprint = content_fingerprint(resolved)
     claim_boundary = (
         "Template-pack construction integrity only. WorldGuard semantic execution, native depth, "
-        "provider readiness, and SkillGuard declared-check closure remain separate required evidence."
+        "provider readiness and any author-side maintenance closure remain separate evidence."
     )
     instance_payload = {
         "schema_version": TEMPLATE_INSTANCE_SCHEMA_VERSION,
@@ -1132,20 +1132,20 @@ def _is_sha256_identity(value: Any) -> bool:
     return all(character in "0123456789abcdef" for character in value.removeprefix("sha256:"))
 
 
-def validate_skillguard_target_template_projection(payload: Any) -> dict[str, Any]:
-    """Validate WorldGuard's exact unsealed central interchange projection.
+def validate_target_template_interchange(payload: Any) -> dict[str, Any]:
+    """Validate WorldGuard's exact unsealed target-template interchange.
 
-    This validates target ownership and exact inventories only. Central
-    SkillGuard remains responsible for generic manifest/catalog validation and
-    canonical digest sealing.
+    This validates target ownership and exact inventories only. A downstream
+    authoring tool may seal additional transport identities without changing
+    WorldGuard applicability or semantic meaning.
     """
 
     row = _require_exact_projection_fields(
         payload,
-        SKILLGUARD_TARGET_TEMPLATE_PROJECTION_FIELDS,
+        TARGET_TEMPLATE_INTERCHANGE_FIELDS,
         path="$",
     )
-    if row["schema_version"] != SKILLGUARD_TARGET_TEMPLATE_PROJECTION_SCHEMA_VERSION:
+    if row["schema_version"] != TARGET_TEMPLATE_INTERCHANGE_SCHEMA_VERSION:
         raise TemplatePackError(
             "TEMPLATE_PROJECTION_SCHEMA_INVALID",
             "Only the current target-template projection schema is accepted.",
@@ -1173,10 +1173,10 @@ def validate_skillguard_target_template_projection(payload: Any) -> dict[str, An
 
     catalog = _require_exact_projection_fields(
         row["catalog"],
-        SKILLGUARD_TEMPLATE_CATALOG_FIELDS,
+        TARGET_TEMPLATE_CATALOG_FIELDS,
         path="$.catalog",
     )
-    if catalog["schema_version"] != SKILLGUARD_TEMPLATE_CATALOG_SCHEMA_VERSION:
+    if catalog["schema_version"] != TARGET_TEMPLATE_CATALOG_SCHEMA_VERSION:
         raise TemplatePackError("TEMPLATE_PROJECTION_CATALOG_SCHEMA_INVALID", "Catalog schema is not current.")
     if catalog["native_owner_id"] != row["native_owner_id"] or catalog["family_id"] != row["family_id"]:
         raise TemplatePackError(
@@ -1190,7 +1190,7 @@ def validate_skillguard_target_template_projection(payload: Any) -> dict[str, An
     for index, value in enumerate(templates):
         manifest = _require_exact_projection_fields(
             value,
-            SKILLGUARD_TEMPLATE_MANIFEST_FIELDS,
+            TARGET_TEMPLATE_MANIFEST_FIELDS,
             path=f"$.catalog.templates[{index}]",
         )
         template_id = manifest.get("template_id")
@@ -1200,7 +1200,7 @@ def validate_skillguard_target_template_projection(payload: Any) -> dict[str, An
                 "Every projected template needs a non-empty native id.",
                 details={"template_index": index},
             )
-        if manifest.get("schema_version") != SKILLGUARD_TEMPLATE_MANIFEST_SCHEMA_VERSION:
+        if manifest.get("schema_version") != TARGET_TEMPLATE_MANIFEST_SCHEMA_VERSION:
             raise TemplatePackError(
                 "TEMPLATE_PROJECTION_MANIFEST_SCHEMA_INVALID",
                 "Projected template manifest schema is not current.",
@@ -1235,7 +1235,7 @@ def validate_skillguard_target_template_projection(payload: Any) -> dict[str, An
     for index, value in enumerate(raw_results):
         result = _require_exact_projection_fields(
             value,
-            SKILLGUARD_APPLICABILITY_RESULT_FIELDS,
+            TARGET_APPLICABILITY_RESULT_FIELDS,
             path=f"$.applicability_results[{index}]",
         )
         if not isinstance(result.get("template_id"), str) or not result["template_id"]:
@@ -1277,7 +1277,7 @@ def validate_skillguard_target_template_projection(payload: Any) -> dict[str, An
     return row
 
 
-def _project_skillguard_template_manifest(
+def _project_target_template_manifest(
     manifest: TemplatePackManifest,
     *,
     family_id: str,
@@ -1326,7 +1326,7 @@ def _project_skillguard_template_manifest(
         ],
     }
     return {
-        "schema_version": SKILLGUARD_TEMPLATE_MANIFEST_SCHEMA_VERSION,
+        "schema_version": TARGET_TEMPLATE_MANIFEST_SCHEMA_VERSION,
         "template_id": manifest.pack_id,
         "revision": manifest.pack_version,
         "template_kind": "base" if manifest.is_base else "profile",
@@ -1385,7 +1385,7 @@ def _project_skillguard_template_manifest(
     }
 
 
-def _project_skillguard_applicability_result(
+def _project_target_applicability_result(
     manifest: TemplatePackManifest,
     *,
     selection: TemplateSelection,
@@ -1451,7 +1451,7 @@ def _project_skillguard_applicability_result(
     }
 
 
-def build_skillguard_target_template_projection(
+def build_target_template_interchange(
     registry: TemplatePackRegistry,
     *,
     contract_kind: str,
@@ -1460,11 +1460,11 @@ def build_skillguard_target_template_projection(
     route_id: str = WORLDGUARD_TEMPLATE_ROUTE_ID,
     parameter_types: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Project current WorldGuard native templates into SkillGuard's neutral shape.
+    """Project native templates into WorldGuard's neutral interchange shape.
 
     WorldGuard remains the sole route/applicability/semantic owner. The return
     value deliberately omits central `manifest_digest` and `catalog_digest`;
-    the central compiler may validate and seal those neutral identities.
+    a downstream authoring tool may validate and seal those transport identities.
     """
 
     registry.validate()
@@ -1505,7 +1505,7 @@ def build_skillguard_target_template_projection(
     }
     builder_content_hash = _native_template_builder_content_hash()
     templates = [
-        _project_skillguard_template_manifest(
+        _project_target_template_manifest(
             manifest,
             family_id=family_id,
             base_pack_id=base_pack_id,
@@ -1517,7 +1517,7 @@ def build_skillguard_target_template_projection(
     ]
     fact_set = frozenset(selection.fact_ids)
     applicability_results = [
-        _project_skillguard_applicability_result(
+        _project_target_applicability_result(
             manifest,
             selection=selection,
             fact_set=fact_set,
@@ -1539,7 +1539,7 @@ def build_skillguard_target_template_projection(
         )
     request_fingerprint = _sha256_identity(
         {
-            "schema_version": SKILLGUARD_TARGET_TEMPLATE_PROJECTION_SCHEMA_VERSION,
+            "schema_version": TARGET_TEMPLATE_INTERCHANGE_SCHEMA_VERSION,
             "target_id": WORLDGUARD_TEMPLATE_TARGET_ID,
             "native_owner_id": WORLDGUARD_TEMPLATE_NATIVE_OWNER_ID,
             "family_id": family_id,
@@ -1552,18 +1552,18 @@ def build_skillguard_target_template_projection(
     )
     claim_boundary = (
         "WorldGuard owns this route, native candidate inventory, applicability, manifests, "
-        "builder, validators, fixtures, and semantic meaning. SkillGuard may validate the "
-        "neutral shape and seal generic identities only; it cannot infer, rank, or replace them."
+        "builder, validators, fixtures, and semantic meaning. A downstream authoring tool "
+        "may seal transport identities but cannot infer, rank, or replace them."
     )
     projection = {
-        "schema_version": SKILLGUARD_TARGET_TEMPLATE_PROJECTION_SCHEMA_VERSION,
+        "schema_version": TARGET_TEMPLATE_INTERCHANGE_SCHEMA_VERSION,
         "target_id": WORLDGUARD_TEMPLATE_TARGET_ID,
         "native_owner_id": WORLDGUARD_TEMPLATE_NATIVE_OWNER_ID,
         "family_id": family_id,
         "route_id": route_id,
         "request_fingerprint": request_fingerprint,
         "catalog": {
-            "schema_version": SKILLGUARD_TEMPLATE_CATALOG_SCHEMA_VERSION,
+            "schema_version": TARGET_TEMPLATE_CATALOG_SCHEMA_VERSION,
             "catalog_id": f"worldguard.template_catalog.{contract_kind}",
             "revision": registry.registry_fingerprint,
             "native_owner_id": WORLDGUARD_TEMPLATE_NATIVE_OWNER_ID,
@@ -1576,13 +1576,13 @@ def build_skillguard_target_template_projection(
             },
             "claim_boundary": (
                 "Unsealed WorldGuard-owned neutral catalog for one exact contract kind; "
-                "central digests and selection receipts remain downstream SkillGuard plumbing."
+                "downstream transport digests are outside WorldGuard semantic authority."
             ),
         },
         "applicability_results": applicability_results,
         "claim_boundary": claim_boundary,
     }
-    return validate_skillguard_target_template_projection(projection)
+    return validate_target_template_interchange(projection)
 
 
 def _manifest(
@@ -1745,7 +1745,7 @@ def run_template_pack_contract() -> dict[str, Any]:
         ).outcome,
     )
 
-    projection = build_skillguard_target_template_projection(
+    projection = build_target_template_interchange(
         registry,
         contract_kind=GUARD_CONTRACT_KIND,
         fact_ids=("guard:EventGuard",),
@@ -1753,7 +1753,7 @@ def run_template_pack_contract() -> dict[str, Any]:
     )
     observe(
         "projection:good-schema",
-        SKILLGUARD_TARGET_TEMPLATE_PROJECTION_SCHEMA_VERSION,
+        TARGET_TEMPLATE_INTERCHANGE_SCHEMA_VERSION,
         projection["schema_version"],
     )
     native_guard_ids = sorted(
@@ -1776,7 +1776,7 @@ def run_template_pack_contract() -> dict[str, Any]:
     unknown_root = deepcopy(projection)
     unknown_root["family_guess"] = "forbidden"
     try:
-        validate_skillguard_target_template_projection(unknown_root)
+        validate_target_template_interchange(unknown_root)
         unknown_root_code = "<accepted>"
     except TemplatePackError as exc:
         unknown_root_code = exc.code
@@ -1787,7 +1787,7 @@ def run_template_pack_contract() -> dict[str, Any]:
     )
 
     try:
-        build_skillguard_target_template_projection(
+        build_target_template_interchange(
             registry,
             contract_kind=GUARD_CONTRACT_KIND,
             native_registry_fingerprint=registry.registry_fingerprint,
@@ -1803,7 +1803,7 @@ def run_template_pack_contract() -> dict[str, Any]:
     )
 
     try:
-        build_skillguard_target_template_projection(
+        build_target_template_interchange(
             registry,
             contract_kind=GUARD_CONTRACT_KIND,
             native_registry_fingerprint="0" * 64,
@@ -1923,8 +1923,8 @@ def run_template_pack_contract() -> dict[str, Any]:
         "base_pack_count": sum(1 for item in registry.manifests if item.is_base),
         "candidate_pack_count": sum(1 for item in registry.manifests if not item.is_base),
         "registry_fingerprint": registry.registry_fingerprint,
-        "projection_schema_version": SKILLGUARD_TARGET_TEMPLATE_PROJECTION_SCHEMA_VERSION,
-        "projection_root_fields": sorted(SKILLGUARD_TARGET_TEMPLATE_PROJECTION_FIELDS),
+        "projection_schema_version": TARGET_TEMPLATE_INTERCHANGE_SCHEMA_VERSION,
+        "projection_root_fields": sorted(TARGET_TEMPLATE_INTERCHANGE_FIELDS),
         "observations": observations,
         "failures": [item for item in observations if not item["passed"]],
         "claim_boundary": (

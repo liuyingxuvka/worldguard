@@ -1,4 +1,4 @@
-"""Target-owned WorldGuard execution-depth evidence for generic SkillGuard supervision."""
+"""Target-owned WorldGuard execution-depth evidence."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from .mesh import (
 from .semantic import SemanticStatus
 
 
-EVIDENCE_SCHEMA = "worldguard.skillguard_native_depth_evidence.v2"
+EVIDENCE_SCHEMA = "worldguard.execution_depth_evidence.v3"
 TARGET_SKILL_ID = "worldguard"
 NATIVE_OWNER_ID = "worldguard.mesh.predictive_coverage"
 NATIVE_ROUTE_ID = "route:worldguard-claim-derived-depth"
@@ -190,11 +190,7 @@ def _sha256(value: object) -> str:
 
 
 def target_native_policy_fingerprints() -> dict[str, str]:
-    """Return WorldGuard-owned policy identities for generic supervision.
-
-    SkillGuard consumes these only as target output. It does not declare or
-    recalculate the WorldGuard coverage policies.
-    """
+    """Return identities for WorldGuard-owned coverage policies."""
 
     return {
         universe_id: _sha256(definition)
@@ -424,7 +420,7 @@ def _object_scope_attestation(
     excluded_objects: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     payload = {
-        "schema_version": "skillguard.object_scope_attestation.v1",
+        "schema_version": "worldguard.object_scope_attestation.v1",
         "discovery_algorithm_id": discovery_algorithm_id,
         "discovery_input_fingerprint": discovery_input_fingerprint.upper(),
         "discovered_object_ids": sorted(dict.fromkeys(discovered_object_ids)),
@@ -478,7 +474,7 @@ def _native_floor_receipt(
     receipt_ref: str,
 ) -> dict[str, Any]:
     receipt: dict[str, Any] = {
-        "schema_version": "skillguard.native_dynamic_floor.v1",
+        "schema_version": "worldguard.native_dynamic_floor.v1",
         "algorithm_id": algorithm_id,
         "algorithm_version": "1.0",
         "algorithm_input_eligible_count": algorithm_input_eligible_count,

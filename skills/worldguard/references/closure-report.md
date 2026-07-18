@@ -20,7 +20,7 @@ Use closure reports before claiming a multi-model WorldGuard check is complete.
 - Did every expected semantic-rollout node supply a contract, and does every skipped node/child have a typed reason and coverage impact?
 - Were all current mesh nodes discovered before applying the caller expected list, and do discovered = declared + closed exclusions with exclusions contributing to neither execution nor claim scope?
 - For predictive work, did both normal and holdout scenarios execute across a non-degenerate horizon with the effective square-root representative timepoint floor, required coverage ratio, native early/middle/late coverage, acceptable maximum normalized time gap, states, transitions, branches, perturbations, interventions, and counterfactuals for every expected model node rather than only in aggregate?
-- For every exposed variable or signal, did its own temporal child universe independently meet the native dynamic count and early/middle/late floors, and is that per-object floor bound into the SkillGuard receipt without a conflicting fixed ratio?
+- For every exposed variable or signal, did its own temporal child universe independently meet the native dynamic count and early/middle/late floors, and is that per-object floor present in the WorldGuard receipt without a conflicting fixed ratio?
 - Does the native depth receipt list executed and skipped children, provider
   states, claim/route coverage, quantitative coverage, mesh/coverage fingerprints, predictive gaps, license decision, findings, and the aggregate claim boundary?
 - Are any old, stale, replaced, or superseded models still being used without disposition?

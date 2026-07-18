@@ -1,0 +1,100 @@
+{
+  "schema_version": "worldguard.internal_guard_routes.v1",
+  "public_entrypoint": {
+    "skill_id": "worldguard",
+    "console_id": "worldguard"
+  },
+  "terminal_statuses": [
+    "PASS",
+    "FAIL",
+    "GAP",
+    "BOUNDARY_EXCEEDED"
+  ],
+  "routes": [
+    {
+      "route_id": "internal:worldguard:event",
+      "guard_id": "EventGuard",
+      "runner": "worldguard.guards.event_guard:run",
+      "expectation_owner": "worldguard.contracts:GuardContract.for_guard",
+      "prediction_mode": "claim_derived_predictive_participant",
+      "prediction_boundary": "EventGuard participates in predictive closure only through the current claim-derived temporal coverage, scenario, holdout, and observation gates.",
+      "response_owner": "worldguard.reports:GuardResult",
+      "purpose_validator": "worldguard.guard_model_contract:verify_guard_candidate_purpose_contract",
+      "semantic_executor_id": "worldguard.semantic.event.v1",
+      "semantic_registry": "worldguard.semantic:EXECUTOR_REGISTRY"
+    },
+    {
+      "route_id": "internal:worldguard:agent",
+      "guard_id": "AgentGuard",
+      "runner": "worldguard.guards.agent_guard:run",
+      "expectation_owner": "worldguard.contracts:GuardContract.for_guard",
+      "prediction_mode": "bounded_expectation_only",
+      "prediction_boundary": "AgentGuard evaluates declared BDI expectations and conflicts; a PASS does not independently license a future forecast.",
+      "response_owner": "worldguard.reports:GuardResult",
+      "purpose_validator": "worldguard.guard_model_contract:verify_guard_candidate_purpose_contract",
+      "semantic_executor_id": "worldguard.semantic.agent.v1",
+      "semantic_registry": "worldguard.semantic:EXECUTOR_REGISTRY"
+    },
+    {
+      "route_id": "internal:worldguard:space",
+      "guard_id": "SpaceGuard",
+      "runner": "worldguard.guards.space_guard:run",
+      "expectation_owner": "worldguard.contracts:GuardContract.for_guard",
+      "prediction_mode": "bounded_expectation_only",
+      "prediction_boundary": "SpaceGuard evaluates declared qualitative spatial expectations; a PASS does not independently license a future forecast.",
+      "response_owner": "worldguard.reports:GuardResult",
+      "purpose_validator": "worldguard.guard_model_contract:verify_guard_candidate_purpose_contract",
+      "semantic_executor_id": "worldguard.semantic.space.v1",
+      "semantic_registry": "worldguard.semantic:EXECUTOR_REGISTRY"
+    },
+    {
+      "route_id": "internal:worldguard:resource",
+      "guard_id": "ResourceGuard",
+      "runner": "worldguard.guards.resource_guard:run",
+      "expectation_owner": "worldguard.contracts:GuardContract.for_guard",
+      "prediction_mode": "bounded_expectation_only",
+      "prediction_boundary": "ResourceGuard evaluates declared finite-resource expectations and transition enablement; a PASS does not independently license a future forecast.",
+      "response_owner": "worldguard.reports:GuardResult",
+      "purpose_validator": "worldguard.guard_model_contract:verify_guard_candidate_purpose_contract",
+      "semantic_executor_id": "worldguard.semantic.resource.v1",
+      "semantic_registry": "worldguard.semantic:EXECUTOR_REGISTRY"
+    },
+    {
+      "route_id": "internal:worldguard:causal",
+      "guard_id": "CausalGuard",
+      "runner": "worldguard.guards.causal_guard:run",
+      "expectation_owner": "worldguard.contracts:GuardContract.for_guard",
+      "prediction_mode": "claim_derived_predictive_participant",
+      "prediction_boundary": "CausalGuard participates in predictive closure only through complete structural equations, executed scenarios, interventions, counterfactuals, and current predictive-depth evidence.",
+      "response_owner": "worldguard.reports:GuardResult",
+      "purpose_validator": "worldguard.guard_model_contract:verify_guard_candidate_purpose_contract",
+      "semantic_executor_id": "worldguard.semantic.causal.v1",
+      "semantic_registry": "worldguard.semantic:EXECUTOR_REGISTRY"
+    },
+    {
+      "route_id": "internal:worldguard:conflict",
+      "guard_id": "ConflictGuard",
+      "runner": "worldguard.guards.conflict_guard:run",
+      "expectation_owner": "worldguard.contracts:GuardContract.for_guard",
+      "prediction_mode": "bounded_expectation_only",
+      "prediction_boundary": "ConflictGuard evaluates declared finite-game expectations and contradictions; a PASS does not independently license a future forecast.",
+      "response_owner": "worldguard.reports:GuardResult",
+      "purpose_validator": "worldguard.guard_model_contract:verify_guard_candidate_purpose_contract",
+      "semantic_executor_id": "worldguard.semantic.conflict.v1",
+      "semantic_registry": "worldguard.semantic:EXECUTOR_REGISTRY"
+    },
+    {
+      "route_id": "internal:worldguard:norm",
+      "guard_id": "NormGuard",
+      "runner": "worldguard.guards.norm_guard:run",
+      "expectation_owner": "worldguard.contracts:GuardContract.for_guard",
+      "prediction_mode": "bounded_expectation_only",
+      "prediction_boundary": "NormGuard evaluates declared deontic expectations and conflicts; a PASS does not independently license a future forecast.",
+      "response_owner": "worldguard.reports:GuardResult",
+      "purpose_validator": "worldguard.guard_model_contract:verify_guard_candidate_purpose_contract",
+      "semantic_executor_id": "worldguard.semantic.norm.v1",
+      "semantic_registry": "worldguard.semantic:EXECUTOR_REGISTRY"
+    }
+  ],
+  "claim_boundary": "This topology declares one public WorldGuard entrypoint and seven complete internal Guard routes. It does not make a child Guard an installable skill or independently license factual truth or future prediction."
+}

@@ -60,14 +60,14 @@ def _declared_check(run_root: Path, check_id: str) -> Mapping[str, Any]:
     return matches[0]
 
 
-def _activate_bundled_runtime(repository_root: Path) -> Path:
+def _activate_bundled_runtime(target_root: Path) -> Path:
     """Select the installed skill's formal runtime without any source fallback."""
 
-    runtime_root = (repository_root / ".skillguard" / "runtime").resolve()
+    runtime_root = (target_root / "runtime").resolve()
     package_root = runtime_root / "worldguard"
     required_modules = (
         package_root / "__init__.py",
-        package_root / "skillguard_depth.py",
+        package_root / "execution_depth.py",
         package_root / "skillguard_current_protocol.py",
     )
     missing = [path.name for path in required_modules if not path.is_file()]
@@ -110,8 +110,10 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         raise SystemExit(f"output outside run root: {args.output}") from exc
 
-    bundled_package_root = _activate_bundled_runtime(repository_root)
-    from worldguard.skillguard_depth import (  # noqa: PLC0415
+    bundled_package_root = _activate_bundled_runtime(
+        Path(__file__).resolve().parents[2]
+    )
+    from worldguard.execution_depth import (  # noqa: PLC0415
         build_target_native_depth_envelope,
         target_native_policy_fingerprints,
     )

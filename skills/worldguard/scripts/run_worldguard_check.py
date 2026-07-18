@@ -1,6 +1,12 @@
 import argparse
 import json
 import sys
+from pathlib import Path
+
+
+RUNTIME_ROOT = Path(__file__).resolve().parents[1] / "runtime"
+if str(RUNTIME_ROOT) not in sys.path:
+    sys.path.insert(0, str(RUNTIME_ROOT))
 
 
 def main() -> int:

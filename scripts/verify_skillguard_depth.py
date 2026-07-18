@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from worldguard.skillguard_depth import build_native_depth_evidence
+from worldguard.execution_depth import build_native_depth_evidence
 
 
 def main() -> int:

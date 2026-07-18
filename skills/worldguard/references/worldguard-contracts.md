@@ -133,3 +133,46 @@ Every downstream-facing ledger entry must be read-only.
 Read `model-mesh.md` for the canonical mesh fields.
 
 Core rule: child `GuardContract` success is not whole-mesh success. Mesh closure must also preserve child reports and validate model authority, handoffs, freshness, and cycles.
+
+## Task-Local Prediction And Revision
+
+`PredictionSnapshot` is the empirical task-local layer. It does not replace a
+`GuardContract`, `ModelMeshContract`, semantic execution, or native predictive
+depth. It freezes:
+
+- one exact base world-model id, version, path, and SHA-256;
+- one prediction sequence;
+- the declared initial state and intervention;
+- finite expected numeric values with absolute tolerances;
+- expected relationships identified by stable ids and exact
+  left/relation/right content; and
+- explicit weakening conditions.
+
+Every expected value or relationship declares one mismatch category:
+`initial_state`, `transition`, `causal_relation`, `resource`, `agent`,
+`observation_mapping`, or `other`. The evaluator retains that declared owner;
+it does not infer an owner from a target name.
+
+`ObservedWorldSnapshot` must name the prediction, use a strictly later sequence,
+retain a non-empty source reference, and carry at least one actual finite value
+or typed relationship. Missing declared expectations are mismatches; they
+cannot be silently treated as unobserved success.
+
+`CandidateWorldModelRevision` binds separate current base and candidate
+artifacts. A candidate path or content hash equal to v1 is invalid because it
+cannot be rolled back independently. Acceptance requires an exact declared
+revalidation inventory containing both:
+
+- `original_scenario`; and
+- `real_holdout_observation`.
+
+Each revalidation must bind the exact candidate identity and show both
+WorldGuard semantic rollout and a `worldguard_observed_world_comparison_receipt`
+passing. Semantic execution without a real-observation comparison is not
+empirical validation.
+
+The evaluator is read-only. A passing candidate is `accepted`; a failed
+unapplied candidate is `rejected`; a failed applied candidate is `rolled_back`
+only when its rollback identity exactly equals the still-current v1. These
+dispositions modify no WorldGuard code, core threshold, installed skill, or
+reusable default.

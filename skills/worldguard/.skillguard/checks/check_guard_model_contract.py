@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 TARGET_ROOT = Path(__file__).resolve().parents[2]
-RUNTIME_ROOT = (TARGET_ROOT / ".skillguard" / "runtime").resolve()
+RUNTIME_ROOT = (TARGET_ROOT / "runtime").resolve()
 sys.path.insert(0, str(RUNTIME_ROOT))
 
 from worldguard.guard_model_contract import run_guard_model_contract  # noqa: E402
