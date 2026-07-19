@@ -54,8 +54,8 @@ flowchart TD
 
 ## Development Process Freshness
 
-- Stage order: OpenSpec -> FlowGuard notes -> skill/reference contracts -> runtime -> CLI/examples/tests -> installed skill sync -> validation -> Git sync.
-- Later writes that stale evidence: any edit to `worldguard.mesh`, `worldguard.cli`, `skills/worldguard`, reference docs, tests, or installed skill copy requires rerunning relevant tests and helper commands.
+- Stage order: OpenSpec -> FlowGuard notes -> skill/reference contracts -> runtime -> CLI/examples/tests -> affected validation -> installed skill sync -> frozen final full owner -> receipt-only verification -> archive -> one Git/tag/Release publication -> read-only identity audit.
+- Later source writes stale only their mapped affected owners. Task checkboxes, reports, receipts, logs, archive movement, and publication metadata are process outputs and never relaunch a validation owner.
 - Minimum revalidation:
   - `openspec validate add-worldguard-model-mesh-core --strict`
   - `python -m pytest`
@@ -67,7 +67,7 @@ flowchart TD
 
 - `python -m pytest -q`: 24 passed.
 - `openspec validate add-worldguard-model-mesh-core --strict`: valid.
-- `python -m worldguard.examples.fuel_cell --check`: `ok=true`; legacy toy reports remain `PASS,PASS,FAIL`.
+- `python -m worldguard.examples.fuel_cell --check`: `ok=true`; current packaged toy reports are `PASS,GAP,FAIL`.
 - `python -m worldguard.cli mesh-check --mesh examples\model_mesh\basic_mesh.yaml`: mesh report status `PASS` with no findings.
 - Installed skill helper:
   - `--example fuel_cell`: `ok=true`.

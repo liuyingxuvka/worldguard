@@ -39,7 +39,7 @@ def _runtime_probe() -> dict[str, object]:
                         "requested_semantics": ["event"],
                     },
                     "world_model": {"model_id": model_instance_id, "model_version": "v1"},
-                    "inputs": {"event_model": {"events": [{"event_id": "e1", "at": "t0"}]}},
+                    "inputs": {"events": [{"event_id": "e1", "at": "t0"}]},
                     "guard_purpose_declarations": [
                         build_calibration_task_purpose_declaration(
                             "EventGuard",

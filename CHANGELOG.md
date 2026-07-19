@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.0 - 2026-07-19
+
+- Corrected release-readiness validation so author-side SkillGuard control stays
+  in the source repository while the installed consumer contains zero
+  `.skillguard` paths.
+- Added exact source/manifest/installed consumer inventory and hash checks.
+- Removed normal-runtime readers for retired claim, claim-atom, world-model,
+  and semantic-coverage aliases; old files now require direct upgrade migration.
+- Synchronized package metadata, bundled runtime, installed consumer, Git tag,
+  and GitHub Release identity for the release.
+
 ## v0.3.0 - 2026-07-18
 
 Single-entry internal-Guard source candidate. This source heading does not by

@@ -195,10 +195,8 @@ NATIVE_GOOD_CASES = (
         "NormGuard",
         "the operator may start when the declared condition fact holds",
         {
-            "norm_model": {
-                "norms": [{"modality": "permitted", "action": "start", "condition": "authorized"}],
-                "facts": ["authorized"],
-            }
+            "norms": [{"modality": "permitted", "action": "start", "condition": "authorized"}],
+            "facts": ["authorized"],
         },
     ),
 )
@@ -260,7 +258,7 @@ PROTECTED_FAILURE_CLASSES = (
     _failure("EventGuard", "semantic", "SEM_EVENT_MISSING_AXIOM", "GAP", "Semantic event execution cannot pass a record missing time or fluent axioms.", inputs={"events": [{"event_id": "e1"}]}),
     _failure("AgentGuard", "semantic", "SEM_AGENT_MISSING_MODEL", "GAP", "Semantic BDI execution cannot pass without agent records."),
     _failure("AgentGuard", "semantic", "SEM_AGENT_INCOMPLETE_BDI", "GAP", "Semantic BDI execution cannot pass an incomplete BDI record.", inputs={"beliefs": {"agent": {"beliefs": ["b"], "intentions": ["i"]}}}),
-    _failure("AgentGuard", "semantic", "SEM_AGENT_CONFLICTING_INTENTIONS", "FAIL", "Semantic BDI execution must reject conflicting intentions.", inputs={"agent_model": {"agents": {"agent": {"beliefs": ["b"], "desires": ["d"], "intentions": ["i"]}}, "conflicting_intentions": ["start", "stop"]}}),
+    _failure("AgentGuard", "semantic", "SEM_AGENT_CONFLICTING_INTENTIONS", "FAIL", "Semantic BDI execution must reject conflicting intentions.", inputs={"beliefs": {"agent": {"beliefs": ["b"], "desires": ["d"], "intentions": ["i"]}}, "agent_model": {"conflicting_intentions": ["start", "stop"]}}),
     _failure("SpaceGuard", "semantic", "SEM_SPACE_MISSING_RCC8", "GAP", "Semantic spatial execution cannot pass without RCC8 relations."),
     _failure("SpaceGuard", "semantic", "SEM_SPACE_UNEVALUABLE_RCC8", "GAP", "Semantic spatial execution cannot pass a malformed RCC8 relation.", inputs={"spatial_relations": [{"at": "t0", "x": "a", "y": "b", "relation": "NEAR"}]}),
     _failure("SpaceGuard", "semantic", "SEM_SPACE_RCC8_CONFLICT", "FAIL", "Semantic spatial execution must reject conflicting RCC8 relations.", inputs={"spatial_relations": [{"at": "t0", "x": "a", "y": "b", "relation": "DC"}, {"at": "t0", "x": "a", "y": "b", "relation": "EQ"}]}),
@@ -272,7 +270,7 @@ PROTECTED_FAILURE_CLASSES = (
     _failure("ConflictGuard", "semantic", "SEM_CONFLICT_INCOMPLETE_GAME", "GAP", "Semantic conflict execution cannot pass an incomplete finite game.", inputs={"game_model": {"players": ["a"], "actions": {"a": ["hold"]}}}),
     _failure("ConflictGuard", "semantic", "SEM_CONFLICT_INVALID_TRANSITION", "FAIL", "Semantic conflict execution must reject invalid transition probabilities.", inputs={"game_model": {"players": ["a", "b"], "actions": {"a": ["hold"], "b": ["hold"]}, "states": ["s"], "transitions": [{"state": "s", "probabilities": [0.7, 0.7]}], "payoffs": [{"state": "s", "reward": {"a": 1, "b": 1}}]}}),
     _failure("NormGuard", "semantic", "SEM_NORM_MISSING_MODEL", "GAP", "Semantic norm execution cannot pass without norms."),
-    _failure("NormGuard", "semantic", "SEM_NORM_MISSING_CONDITION_FACT", "GAP", "Semantic norm execution cannot pass without condition facts.", inputs={"norm_model": {"norms": [{"modality": "permitted", "action": "start", "condition": "authorized"}], "facts": []}}),
+    _failure("NormGuard", "semantic", "SEM_NORM_MISSING_CONDITION_FACT", "GAP", "Semantic norm execution cannot pass without condition facts.", inputs={"norms": [{"modality": "permitted", "action": "start", "condition": "authorized"}], "facts": []}),
 )
 
 

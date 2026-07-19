@@ -238,42 +238,48 @@ class SemanticCoverageContract:
         default_model_node_ids: list[str] | None = None,
     ) -> "SemanticCoverageContract":
         data = data or {}
+        retired = sorted(
+            {
+                "expected_node_ids",
+                "excluded_nodes",
+                "per_object_coverage",
+                "expected_child_ids",
+            }.intersection(data)
+        )
+        horizon = data.get("horizon", {})
+        if isinstance(horizon, Mapping):
+            retired.extend(
+                f"horizon.{key}"
+                for key in (
+                    "timepoint_ids",
+                    "time_strata",
+                    "minimum_timepoint_count",
+                    "minimum_timepoint_coverage",
+                )
+                if key in horizon
+            )
+        if retired:
+            raise ValueError(
+                "semantic coverage uses retired fields: " + ", ".join(retired)
+            )
         profile = str(data.get("profile", "bounded")).strip().lower()
         if profile not in {"bounded", "predictive"}:
-            profile = "bounded"
-        expected_nodes = data.get(
-            "expected_model_node_ids",
-            data.get("expected_node_ids", default_model_node_ids or []),
-        )
+            raise ValueError(f"unknown semantic coverage profile: {profile}")
+        expected_nodes = data.get("expected_model_node_ids", default_model_node_ids or [])
         if not expected_nodes:
             expected_nodes = default_model_node_ids or []
-        expected_explicit = any(
-            key in data for key in ("expected_model_node_ids", "expected_node_ids")
-        )
-        raw_exclusions = data.get(
-            "excluded_model_nodes", data.get("excluded_nodes", [])
-        )
+        expected_explicit = "expected_model_node_ids" in data
+        raw_exclusions = data.get("excluded_model_nodes", [])
         exclusion_rows: list[dict[str, Any]] = []
-        if isinstance(raw_exclusions, Mapping):
-            for node_id, value in raw_exclusions.items():
-                if isinstance(value, Mapping):
-                    row = dict(value)
-                    row.setdefault("model_node_id", str(node_id))
-                else:
-                    row = {
-                        "model_node_id": str(node_id),
-                        "disposition": str(value),
-                    }
-                exclusion_rows.append(row)
-        elif isinstance(raw_exclusions, (list, tuple, set)):
-            for value in raw_exclusions:
-                if isinstance(value, Mapping):
-                    exclusion_rows.append(dict(value))
-                elif str(value):
-                    exclusion_rows.append({"model_node_id": str(value)})
-        raw_per_model_node = data.get(
-            "per_model_node", data.get("per_object_coverage", {})
-        )
+        if not isinstance(raw_exclusions, (list, tuple)):
+            raise ValueError("excluded_model_nodes must be a list of current row objects")
+        for value in raw_exclusions:
+            if not isinstance(value, Mapping):
+                raise ValueError(
+                    "excluded_model_nodes entries must be current row objects"
+                )
+            exclusion_rows.append(dict(value))
+        raw_per_model_node = data.get("per_model_node", {})
         if not isinstance(raw_per_model_node, Mapping):
             raw_per_model_node = {}
         return cls(
@@ -283,10 +289,7 @@ class SemanticCoverageContract:
             excluded_model_nodes=exclusion_rows,
             expected_semantic_child_ids=[
                 str(item)
-                for item in data.get(
-                    "expected_semantic_child_ids",
-                    data.get("expected_child_ids", []),
-                )
+                for item in data.get("expected_semantic_child_ids", [])
             ],
             scenario_ids=[str(item) for item in data.get("scenario_ids", [])],
             holdout_scenario_ids=[
@@ -301,22 +304,11 @@ class SemanticCoverageContract:
             horizon=dict(data.get("horizon", {})),
             timepoint_ids=[
                 str(item)
-                for item in data.get(
-                    "timepoint_ids",
-                    data.get("horizon", {}).get("timepoint_ids", []),
-                )
+                for item in data.get("timepoint_ids", [])
             ],
-            time_strata=_time_strata_from_value(
-                data.get("time_strata", data.get("horizon", {}).get("time_strata", {}))
-            ),
-            minimum_timepoint_count=data.get(
-                "minimum_timepoint_count",
-                data.get("horizon", {}).get("minimum_timepoint_count", 0),
-            ),
-            minimum_timepoint_coverage=data.get(
-                "minimum_timepoint_coverage",
-                data.get("horizon", {}).get("minimum_timepoint_coverage", 0.0),
-            ),
+            time_strata=_time_strata_from_value(data.get("time_strata", {})),
+            minimum_timepoint_count=data.get("minimum_timepoint_count", 0),
+            minimum_timepoint_coverage=data.get("minimum_timepoint_coverage", 0.0),
             per_model_node={
                 str(node_id): dict(policy)
                 for node_id, policy in raw_per_model_node.items()
@@ -367,11 +359,15 @@ class ModelMeshContract:
             raise ValueError(
                 "closure_profile is retired; current WorldGuard always requires semantic execution"
             )
-        nodes = [ModelNode.from_dict(item) for item in data.get("nodes", [])]
-        coverage_data = data.get(
-            "semantic_coverage",
-            data.get("semantic_coverage_contract", data.get("coverage_contract")),
+        retired = sorted(
+            {"semantic_coverage_contract", "coverage_contract"}.intersection(data)
         )
+        if retired:
+            raise ValueError(
+                "model mesh uses retired fields: " + ", ".join(retired)
+            )
+        nodes = [ModelNode.from_dict(item) for item in data.get("nodes", [])]
+        coverage_data = data.get("semantic_coverage")
         return cls(
             mesh_id=str(data.get("mesh_id", "")),
             schema_version=str(data.get("schema_version", "worldguard.model_mesh.v1")),
@@ -479,10 +475,8 @@ def _coverage_route_state(mesh: ModelMeshContract) -> dict[str, Any]:
     valid_excluded_ids: set[str] = set()
     reconciliation_gaps: list[str] = []
     for raw in mesh.semantic_coverage.excluded_model_nodes:
-        node_id = str(
-            raw.get("model_node_id", raw.get("node_id", raw.get("object_id", "")))
-            or ""
-        ).strip()
+        retired_id_field = "node_id" in raw or "object_id" in raw
+        node_id = str(raw.get("model_node_id", "") or "").strip()
         reason = str(raw.get("reason", "") or "").strip()
         disposition = str(raw.get("disposition", "") or "").strip().lower()
         node = nodes_by_id.get(node_id)
@@ -502,6 +496,8 @@ def _coverage_route_state(mesh: ModelMeshContract) -> dict[str, Any]:
         }
         exclusion_rows.append(row)
         invalid: list[str] = []
+        if retired_id_field:
+            invalid.append("retired_id_field")
         if not node_id or node_id in seen_exclusions:
             invalid.append("duplicate_or_missing_id")
         seen_exclusions.add(node_id)
@@ -742,30 +738,23 @@ def _event_timepoint_ids(
             continue
         if node.contract is None:
             continue
-        event_model = node.contract.inputs.get("event_model") or {}
-        events = (
-            node.contract.inputs.get("events")
-            or event_model.get("events")
-            or node.contract.world_model.data.get("event_line")
-            or []
-        )
+        events = node.contract.inputs.get("events", [])
         for event in events:
             if isinstance(event, Mapping) and event.get("at") not in (None, ""):
                 timepoints.append(str(event["at"]))
     return _ordered_unique(timepoints)
 
 
-def _declared_object_ids(value: Any) -> list[str]:
+def _declared_object_ids(
+    value: Any, *, object_id_field: str | None = None
+) -> list[str]:
     if isinstance(value, Mapping):
         return [str(key) for key in value]
     if isinstance(value, (list, tuple, set)):
         result: list[str] = []
         for item in value:
             if isinstance(item, Mapping):
-                object_id = item.get(
-                    "variable_id",
-                    item.get("signal_id", item.get("id", item.get("name"))),
-                )
+                object_id = item.get(object_id_field) if object_id_field else None
                 if object_id not in (None, ""):
                     result.append(str(object_id))
             elif str(item):
@@ -779,17 +768,19 @@ def _declared_object_ids(value: Any) -> list[str]:
 def _node_variable_ids(node: ModelNode) -> list[str]:
     if node.contract is None:
         return []
-    causal = node.contract.inputs.get("causal_model") or {}
+    causal = node.contract.inputs.get("causal_model", {})
     values: list[str] = []
     if isinstance(causal, Mapping):
-        values.extend(_declared_object_ids(causal.get("variables", [])))
-        values.extend(_declared_object_ids(causal.get("signals", [])))
-    values.extend(
-        _declared_object_ids(node.contract.world_model.data.get("causal_variables", []))
-    )
-    values.extend(_declared_object_ids(node.contract.inputs.get("variables", [])))
-    values.extend(_declared_object_ids(node.contract.inputs.get("signals", [])))
-    values.extend(_declared_object_ids(node.contract.world_model.data.get("signals", [])))
+        values.extend(
+            _declared_object_ids(
+                causal.get("variables", []), object_id_field="variable_id"
+            )
+        )
+        values.extend(
+            _declared_object_ids(
+                causal.get("signals", []), object_id_field="signal_id"
+            )
+        )
     return _ordered_unique(values)
 
 
@@ -1720,8 +1711,9 @@ def _depth_receipt(
         for receipt in semantic_receipts
     }
     for row in skipped:
-        child_id = row.get("child_id") or f"{row.get('node_id', '')}:{row.get('guard', '')}"
-        provider_states.setdefault(str(child_id), "NOT_EXECUTED")
+        child_id = str(row.get("child_id", ""))
+        if child_id:
+            provider_states.setdefault(child_id, "NOT_EXECUTED")
     bindings = [
         {
             **receipt.binding.to_dict(),

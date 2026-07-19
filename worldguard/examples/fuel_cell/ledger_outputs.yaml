@@ -1,5 +1,5 @@
 ledger_outputs:
-  artifact_version: repair-v5-artifact
+  fixture_version: repair-v5-artifact
   event_ledger:
     - {claim_id: c_run_demo, event: e_c_precheck, fluent: c_precheck_complete, status_impact: supports_pass}
     - {claim_id: c_run_demo, event: e_a_start_demo, fluent: cell_running, status_impact: supports_pass}

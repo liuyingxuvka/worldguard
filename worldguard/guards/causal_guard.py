@@ -34,11 +34,7 @@ def _has_cycle(edges: list[list[str] | tuple[str, str]]) -> bool:
 def run(contract: GuardContract):
     guard = "CausalGuard"
     text = semantics_text(contract)
-    causal_model = contract.inputs.get("causal_model") or {
-        "variables": contract.world_model.data.get("causal_variables", []),
-        "equations": contract.world_model.data.get("causal_equations", {}),
-        "graph": contract.world_model.data.get("causal_graph", []),
-    }
+    causal_model = contract.inputs.get("causal_model", {})
     variables = causal_model.get("variables", [])
     equations = causal_model.get("equations", {})
     graph = causal_model.get("graph", [])

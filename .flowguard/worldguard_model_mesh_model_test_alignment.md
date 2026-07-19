@@ -25,13 +25,13 @@ Route: `model_test_alignment`
 - Tests must exercise the public dataclass/dict/CLI surfaces, not only internal helpers.
 - Mesh tests must not count single-contract happy paths as mesh closure proof.
 - Existing `python -m pytest` remains the broad regression command.
-- Existing fuel-cell example remains a unit/runtime compatibility check, not mesh proof.
+- The current fuel-cell example remains a unit/runtime regression check, not mesh proof.
 
 ## Current Evidence
 
 - `python -m pytest -q`: 24 passed.
 - `openspec validate add-worldguard-model-mesh-core --strict`: valid.
-- `python -m worldguard.examples.fuel_cell --check`: `ok=true`; expected aggregate status remains `FAIL`; claim statuses remain `PASS,PASS,FAIL`.
+- `python -m worldguard.examples.fuel_cell --check`: `ok=true`; expected aggregate status remains `FAIL`; current claim statuses are `PASS,GAP,FAIL`.
 - `python -m worldguard.cli mesh-check --mesh examples\model_mesh\basic_mesh.yaml`: status `PASS`; findings empty.
 - `python <codex-home>\skills\worldguard\scripts\run_worldguard_check.py --example fuel_cell`: `ok=true`.
 - `python <codex-home>\skills\worldguard\scripts\run_worldguard_check.py --mesh examples\model_mesh\basic_mesh.yaml`: status `PASS`; findings empty.

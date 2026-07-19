@@ -8,11 +8,12 @@ def test_kernel_preserves_upstream_gap_in_aggregate_ledger():
     data = {
             "contract_id": "kernel-gap",
             "run_id": "kernel-test",
-            "claim": {
-                "claim_id": "purge",
-                "text": "operator may purge after missing event fact",
-                "target_guards": ["EventGuard", "NormGuard"],
-            },
+                "claim": {
+                    "claim_id": "purge",
+                    "text": "operator may purge after missing event fact",
+                    "target_guards": ["EventGuard", "NormGuard"],
+                    "requested_semantics": ["event", "norm"],
+                },
             "world_model": {"model_id": "m", "model_version": "v"},
             "inputs": {"norms": [{"modality": "permitted", "action": "purge"}]},
         }
@@ -30,11 +31,12 @@ def test_kernel_aggregates_fail_before_gap_and_boundary():
     data = {
             "contract_id": "kernel-fail",
             "run_id": "kernel-test",
-            "claim": {
-                "claim_id": "mixed",
-                "text": "Company A may share the full membrane recipe with metric distance",
-                "target_guards": ["SpaceGuard", "ConflictGuard", "NormGuard"],
-            },
+                "claim": {
+                    "claim_id": "mixed",
+                    "text": "Company A may share the full membrane recipe with metric distance",
+                    "target_guards": ["SpaceGuard", "ConflictGuard", "NormGuard"],
+                    "requested_semantics": ["spatial", "conflict", "norm"],
+                },
             "world_model": {"model_id": "m", "model_version": "v"},
             "inputs": {
                 "spatial_relations": [{"at": "t0", "x": "a", "y": "b", "relation": "DC"}],

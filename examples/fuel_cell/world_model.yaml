@@ -1,5 +1,5 @@
 world_model:
-  artifact_version: repair-v5-artifact
+  model_version: repair-v5-artifact
   model_id: fuel_cell_company_abc_world_model_001
   initial_world_state:
     time: t0
@@ -69,7 +69,7 @@ world_model:
         actor: CompanyC.safety_auditor
         action: block_recipe_release
         condition: nda_active
-  event_line:
+  events:
     - {event_id: e_c_precheck, at: t0, actor: CompanyC.safety_auditor, initiates: c_precheck_complete}
     - {event_id: e_a_install_stack, at: t1, actor: CompanyA.lead_engineer, initiates: stack_installed_on_bench}
     - {event_id: e_a_start_demo, at: t2, actor: CompanyA.lead_engineer, initiates: cell_running}

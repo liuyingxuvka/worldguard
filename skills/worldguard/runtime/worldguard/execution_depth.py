@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -21,7 +20,7 @@ EVIDENCE_SCHEMA = "worldguard.execution_depth_evidence.v3"
 TARGET_SKILL_ID = "worldguard"
 NATIVE_OWNER_ID = "worldguard.mesh.predictive_coverage"
 NATIVE_ROUTE_ID = "route:worldguard-claim-derived-depth"
-TARGET_NATIVE_DEPTH_SCHEMA = "worldguard.native_depth_projection.v2"
+TARGET_NATIVE_DEPTH_SCHEMA = "worldguard.native_depth_projection.v3"
 
 UNIVERSE_SEMANTIC_CHILDREN = "universe:worldguard-semantic-children"
 UNIVERSE_TIMEPOINTS = "universe:worldguard-timepoints"
@@ -578,9 +577,7 @@ def _finalize_dynamic_runtime_contracts(
                     if item["object_id"] == object_id
                 ]
                 spec = time_specs.get(object_id, {})
-                minimum_count = int(
-                    spec.get("effective_minimum_timepoint_count", 1) or 1
-                )
+                minimum_count = int(spec["effective_minimum_timepoint_count"])
                 minimum_count = max(1, min(len(eligible_ids), minimum_count))
                 minimum_coverage = float(
                     spec.get(
@@ -751,7 +748,7 @@ def build_dynamic_depth_universes(
         horizon: Mapping[str, Any],
     ) -> None:
         try:
-            steps = int(time_result.get("horizon_step_count", horizon.get("steps", 0)))
+            steps = int(time_result.get("horizon_step_count", 0))
         except (TypeError, ValueError):
             steps = 0
         steps = max(0, steps)
@@ -1113,9 +1110,9 @@ def build_target_native_depth_envelope(
         fixture_path,
         policy_fingerprints=policy_fingerprints,
     )
-    created_at = str(receipt_payload.get("generated_at", "")) or datetime.now(
-        timezone.utc
-    ).isoformat()
+    created_at = str(receipt_payload.get("generated_at", ""))
+    if not created_at:
+        raise ValueError("native WorldGuard depth receipt omitted generated_at")
     _finalize_dynamic_runtime_contracts(
         universes,
         receipt_payload=receipt_payload,
@@ -1133,6 +1130,39 @@ def build_target_native_depth_envelope(
         for row in receipt_payload.get("native_obligation_evidence", [])
         if isinstance(row, Mapping)
     ]
+    retired_binding_fields = sorted(
+        field
+        for field in (
+            "evidence_domain",
+            "scheduled_production_identity",
+            "release_gate_identity",
+        )
+        if field in run_binding
+    )
+    if retired_binding_fields:
+        raise ValueError(
+            "retired native-depth run binding fields are forbidden: "
+            + ", ".join(retired_binding_fields)
+        )
+    evidence_context = run_binding.get("evidence_context")
+    if not isinstance(evidence_context, Mapping):
+        raise ValueError("native-depth evidence_context must be an object")
+    if set(evidence_context) != {"domain", "identity"}:
+        raise ValueError("native-depth evidence_context must use the exact current shape")
+    evidence_domain = str(evidence_context.get("domain", ""))
+    if evidence_domain not in {
+        "capability_validation",
+        "scheduled_production",
+        "release_gate",
+    }:
+        raise ValueError("native-depth evidence domain is unsupported")
+    evidence_identity = evidence_context.get("identity")
+    if not isinstance(evidence_identity, Mapping) or not evidence_identity:
+        raise ValueError("native-depth evidence identity must be a non-empty object")
+    normalized_evidence_context = {
+        "domain": evidence_domain,
+        "identity": dict(evidence_identity),
+    }
     payload = {
         "schema_version": TARGET_NATIVE_DEPTH_SCHEMA,
         "target_skill_id": TARGET_SKILL_ID,
@@ -1149,12 +1179,7 @@ def build_target_native_depth_envelope(
                 for obligation_id in row.get("target_obligation_ids", [])
             }
         ),
-        "evidence_domain": str(
-            run_binding.get("evidence_domain", "capability_validation")
-        ),
-        "scheduled_production_identity": dict(
-            run_binding.get("scheduled_production_identity", {})
-        ),
+        "evidence_context": normalized_evidence_context,
         "native_owner_id": NATIVE_OWNER_ID,
         "native_receipt_id": str(receipt_payload["receipt_id"]),
         "native_receipt_hash": _sha256(receipt_payload),

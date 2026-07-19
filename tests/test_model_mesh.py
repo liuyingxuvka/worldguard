@@ -1,11 +1,32 @@
 import json
 
+import pytest
 import yaml
 
 from worldguard import ModelMeshContract, MeshReport, run_model_mesh
 from worldguard.cli import main
 from worldguard.status import GuardStatus
 from tests.helpers import attach_task_purpose_declarations
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"mesh_id": "m", "semantic_coverage_contract": {}},
+        {"mesh_id": "m", "coverage_contract": {}},
+        {"mesh_id": "m", "semantic_coverage": {"expected_node_ids": []}},
+        {"mesh_id": "m", "semantic_coverage": {"excluded_nodes": []}},
+        {"mesh_id": "m", "semantic_coverage": {"per_object_coverage": {}}},
+        {"mesh_id": "m", "semantic_coverage": {"expected_child_ids": []}},
+        {
+            "mesh_id": "m",
+            "semantic_coverage": {"horizon": {"timepoint_ids": ["t0"]}},
+        },
+    ],
+)
+def test_retired_mesh_fields_fail_instead_of_falling_back(payload):
+    with pytest.raises(ValueError, match="retired"):
+        ModelMeshContract.from_dict(payload)
 
 
 def pass_mesh():

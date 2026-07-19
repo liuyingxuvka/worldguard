@@ -9,7 +9,7 @@ from ._helpers import error, result, semantics_text
 def run(contract: GuardContract):
     guard = "AgentGuard"
     text = semantics_text(contract)
-    agents = contract.inputs.get("beliefs") or contract.world_model.data.get("agents") or {}
+    agents = contract.inputs.get("beliefs", {})
     agent_model = contract.inputs.get("agent_model", {})
 
     if any(word in text for word in ["payoff", "equilibrium", "causal effect", "permission"]):
@@ -34,7 +34,7 @@ def run(contract: GuardContract):
             counterexamples=[{"kind": "model_conflict", "steps": agent_model["conflicting_intentions"]}],
         )
 
-    missing = agent_model.get("missing_beliefs") or agent_model.get("missing_slots") or []
+    missing = agent_model.get("missing_beliefs", [])
     if missing or not agents:
         return result(
             contract,

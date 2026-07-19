@@ -9,8 +9,8 @@ from ._helpers import error, result, semantics_text
 def run(contract: GuardContract):
     guard = "NormGuard"
     text = semantics_text(contract)
-    norm_model = contract.inputs.get("norm_model") or {
-        "norms": contract.inputs.get("norms") or contract.world_model.data.get("norms", []),
+    norm_model = {
+        "norms": contract.inputs.get("norms", []),
         "facts": contract.inputs.get("facts", []),
     }
     norms = norm_model.get("norms", [])

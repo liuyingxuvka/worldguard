@@ -22,7 +22,7 @@ Boundary: new runtime dataclass/dict fields, CLI payload fields, reference promp
 | Field id | Owner | Readers | Writers | Lifecycle | Projection |
 |---|---|---|---|---|---|
 | `mesh_id` | `worldguard.mesh` | CLI, tests, report | mesh loader | new | mesh identity |
-| `schema_version` | `worldguard.mesh` | CLI, tests | mesh loader | new | compatibility |
+| `schema_version` | `worldguard.mesh` | CLI, tests | mesh loader | current-only | exact schema identity |
 | `run_id` | `worldguard.mesh` | ledgers, report | mesh loader | new | traceability |
 | `nodes.*.model_id` | `worldguard.mesh` | edge checks, reports | mesh loader | new | node identity |
 | `nodes.*.model_version` | `worldguard.mesh` | reports, freshness checks | mesh loader | new | version evidence |

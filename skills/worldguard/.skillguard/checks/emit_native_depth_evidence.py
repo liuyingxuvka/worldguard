@@ -68,7 +68,6 @@ def _activate_bundled_runtime(target_root: Path) -> Path:
     required_modules = (
         package_root / "__init__.py",
         package_root / "execution_depth.py",
-        package_root / "skillguard_current_protocol.py",
     )
     missing = [path.name for path in required_modules if not path.is_file()]
     if missing:
@@ -113,6 +112,7 @@ def main(argv: list[str] | None = None) -> int:
     bundled_package_root = _activate_bundled_runtime(
         Path(__file__).resolve().parents[2]
     )
+    from worldguard import __version__ as worldguard_version  # noqa: PLC0415
     from worldguard.execution_depth import (  # noqa: PLC0415
         build_target_native_depth_envelope,
         target_native_policy_fingerprints,
@@ -124,13 +124,38 @@ def main(argv: list[str] | None = None) -> int:
     check = _declared_check(run_root, args.check_id)
     fixture = _resolve_input(target_root, run)
     fixture_payload = _load_object(fixture)
-    if fixture_payload.get("input_origin") != "target_native_scheduled_execution":
+    retired_identity_fields = sorted(
+        field
+        for field in ("input_origin", "scheduled_production_identity")
+        if field in fixture_payload
+    )
+    if retired_identity_fields:
         raise ValueError(
-            "scheduled production requires a target-native scheduled execution input; relabeling calibration is forbidden"
+            "retired native-depth identity fields are forbidden: "
+            + ", ".join(retired_identity_fields)
         )
-    schedule = fixture_payload.get("scheduled_production_identity", {})
-    if not isinstance(schedule, Mapping) or not schedule:
-        raise ValueError("scheduled production identity missing from target-native receipt")
+    release_gate = fixture_payload.get("release_gate_binding", {})
+    if not isinstance(release_gate, Mapping):
+        raise ValueError("release_gate_binding must be an object")
+    required_release_gate = {
+        "schema_version",
+        "target_skill_id",
+        "release_version",
+        "gate_id",
+        "execution_owner_id",
+    }
+    if set(release_gate) != required_release_gate:
+        raise ValueError("release_gate_binding must contain the exact current field set")
+    if release_gate.get("schema_version") != "worldguard.release_gate_binding.v1":
+        raise ValueError("release_gate_binding schema is not current")
+    if release_gate.get("target_skill_id") != "worldguard":
+        raise ValueError("release_gate_binding target skill mismatch")
+    if release_gate.get("release_version") != worldguard_version:
+        raise ValueError("release_gate_binding release version mismatch")
+    if release_gate.get("gate_id") != "skillguard-final-validation":
+        raise ValueError("release_gate_binding gate mismatch")
+    if release_gate.get("execution_owner_id") != check.get("execution_owner_id"):
+        raise ValueError("release_gate_binding execution owner mismatch")
     request = run.get("request", {})
     assert isinstance(request, Mapping)
     native_projection = build_target_native_depth_envelope(
@@ -140,8 +165,10 @@ def main(argv: list[str] | None = None) -> int:
             "contract_hash": run["contract_hash"],
             "request_fingerprint": run["request_fingerprint"],
             "target_input_fingerprint": request["target_input_fingerprint"],
-            "evidence_domain": "scheduled_production",
-            "scheduled_production_identity": dict(schedule),
+            "evidence_context": {
+                "domain": "release_gate",
+                "identity": dict(release_gate),
+            },
         },
         check_id=args.check_id,
         policy_fingerprints=target_native_policy_fingerprints(),
@@ -167,11 +194,13 @@ def main(argv: list[str] | None = None) -> int:
         and observed_obligations == expected_obligations
     )
     payload = {
-        "schema_version": "worldguard.declared_native_depth_check.v1",
+        "schema_version": "worldguard.declared_native_depth_check.v2",
         "ok": ok,
         "check_id": args.check_id,
-        "evidence_domain": "scheduled_production",
-        "scheduled_production_identity": dict(schedule),
+        "evidence_context": {
+            "domain": "release_gate",
+            "identity": dict(release_gate),
+        },
         "target_obligation_ids": observed_obligations,
         "expected_obligation_ids": expected_obligations,
         "predictive_claim_licensed": predictive_claim_licensed,

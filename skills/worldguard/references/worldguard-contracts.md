@@ -53,14 +53,15 @@ freeze/construction sequence. Unit and semantic verifiers reject a missing,
 empty, unknown-oracle, incomplete-proof, stale, wrong-instance, or out-of-order
 binding before running the Guard proof.
 
-`claim.target_guard` is only a compatibility input alias. Normalize it to `claim.target_guards`.
+`claim.target_guard` is retired and rejected in normal runtime. Migrate old
+files directly to `claim.target_guards` before invoking WorldGuard.
 
 `claim.target_guards` is an execution declaration, not the authority for what
 must be checked. WorldGuard maps structured atom semantics to their owning
 Guards and compares the derived set with the declared set. Missing derived
-routes fail closed. Legacy claims without atoms remain runnable for bounded
-compatibility, but cannot use their own target list as proof of predictive
-completeness.
+routes fail closed. Claims without current `requested_semantics` or structured
+atoms are rejected; the caller's target list is never used as a fallback
+authority.
 
 Likewise, `semantic_coverage.expected_model_node_ids` is a completeness
 assertion over the mesh-discovered node inventory. It cannot shrink that

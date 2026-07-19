@@ -6,13 +6,23 @@ from worldguard.guard_model_contract import (
     build_calibration_task_purpose_declaration,
 )
 
+GUARD_SEMANTICS = {
+    "EventGuard": "event",
+    "AgentGuard": "agent",
+    "SpaceGuard": "spatial",
+    "ResourceGuard": "resource",
+    "CausalGuard": "causal",
+    "ConflictGuard": "conflict",
+    "NormGuard": "norm",
+}
+
 
 def attach_task_purpose_declarations(
     contract: dict,
     *,
     guards: list[str] | None = None,
 ) -> dict:
-    """Make test intent explicit; production code has no analogous fallback."""
+    """Make the test-local Guard purpose declaration explicit."""
 
     task_contract_id = str(contract["contract_id"])
     run_id = str(contract.get("run_id", "worldguard-run"))
@@ -58,7 +68,11 @@ def make_contract(
                 "claim_id": "claim-001",
                 "text": text,
                 "target_guards": [guard],
-                "requested_semantics": requested_semantics or [],
+                "requested_semantics": (
+                    requested_semantics
+                    if requested_semantics is not None
+                    else [GUARD_SEMANTICS[guard]]
+                ),
             },
             "world_model": resolved_world_model,
             "inputs": inputs or {},

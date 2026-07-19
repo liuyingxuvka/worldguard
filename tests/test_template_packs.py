@@ -122,18 +122,23 @@ def test_builtin_guard_pack_selects_validates_and_fingerprints_stably() -> None:
     assert len(first.receipt.instance_fingerprint) == 64
 
 
-def test_no_candidate_uses_explicit_base_template_without_claiming_semantic_pass() -> None:
-    instance = build_template_instance(
-        builtin_template_registry(),
-        contract_kind=GUARD_CONTRACT_KIND,
-        fact_ids=["unmatched:fact"],
-        slot_bindings=_base_guard_bindings(),
+def test_no_candidate_blocks_instead_of_activating_the_shared_scaffold() -> None:
+    registry = builtin_template_registry()
+    selection = registry.select(
+        GUARD_CONTRACT_KIND,
+        ["unmatched:fact"],
     )
 
-    assert instance.receipt.selection.outcome == "base_template"
-    assert instance.receipt.selection.candidate_pack_ids == ()
-    assert "construction integrity only" in instance.receipt.claim_boundary
-    assert GuardContract.from_dict(instance.data).inputs == {}
+    assert selection.outcome == "no_match"
+    assert selection.candidate_pack_ids == ()
+    with pytest.raises(TemplatePackError) as caught:
+        build_template_instance(
+            registry,
+            contract_kind=GUARD_CONTRACT_KIND,
+            fact_ids=["unmatched:fact"],
+            slot_bindings=_base_guard_bindings(),
+        )
+    assert caught.value.code == "TEMPLATE_SELECTION_NO_MATCH"
 
 
 def test_many_matching_candidates_are_visible_and_never_ranked() -> None:
@@ -179,7 +184,7 @@ def test_no_match_without_base_is_a_typed_blocker() -> None:
             contract_kind=GUARD_CONTRACT_KIND,
             slot_bindings={},
         )
-    assert caught.value.code == "TEMPLATE_NO_MATCH_AND_BASE_MISSING"
+    assert caught.value.code == "TEMPLATE_SELECTION_NO_MATCH"
 
 
 def test_composition_rejects_overlapping_field_owners() -> None:
@@ -239,23 +244,25 @@ def test_stale_manifest_and_stale_registry_are_rejected() -> None:
 
 
 def test_missing_and_unused_slot_bindings_fail_closed() -> None:
-    missing = _base_guard_bindings()
+    missing = _event_bindings()
     missing.pop("model_id")
     with pytest.raises(TemplatePackError) as caught:
         build_template_instance(
             builtin_template_registry(),
             contract_kind=GUARD_CONTRACT_KIND,
+            fact_ids=["guard:EventGuard"],
             slot_bindings=missing,
         )
     assert caught.value.code == "TEMPLATE_SLOT_MISSING"
     assert caught.value.details["slot_id"] == "model_id"
 
-    extra = _base_guard_bindings()
+    extra = _event_bindings()
     extra["undeclared_extra"] = True
     with pytest.raises(TemplatePackError) as caught:
         build_template_instance(
             builtin_template_registry(),
             contract_kind=GUARD_CONTRACT_KIND,
+            fact_ids=["guard:EventGuard"],
             slot_bindings=extra,
         )
     assert caught.value.code == "TEMPLATE_BINDING_UNUSED"

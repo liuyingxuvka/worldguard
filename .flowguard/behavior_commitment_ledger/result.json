@@ -1,0 +1,152 @@
+{
+  "artifact_type": "worldguard_behavior_commitment_aggregation",
+  "schema_version": "2.0",
+  "ok": true,
+  "execution_count": 0,
+  "shard_receipt_hashes": {
+    "input": "sha256:39914f18373648b6390f90cae9d9b1bc19c8bd7824053b2c3591976136f64120",
+    "template": "sha256:e9ee4dd62a730bd3e6225036e02fab89fc637459f37ac2d40931871431051e20"
+  },
+  "input_primary_path": {
+    "ok": true,
+    "plan_id": "ppa:worldguard-current-input-authority",
+    "decision": "primary_path_authority_green",
+    "confidence": "full",
+    "findings": [],
+    "primary_path_id": "path:worldguard-current-input-authority",
+    "primary_path_ids": [
+      "path:worldguard-current-input-authority"
+    ],
+    "business_intent_id": "intent:worldguard-current-input-authority",
+    "business_intent_ids": [
+      "intent:worldguard-current-input-authority"
+    ],
+    "behavior_commitment_id": "commitment:worldguard-current-input-authority",
+    "behavior_commitment_ids": [
+      "commitment:worldguard-current-input-authority"
+    ],
+    "fallback_candidate_ids": [],
+    "missing_candidate_ids": [],
+    "covered_surface_ids": [
+      "surface:worldguard-current-contract-code",
+      "surface:worldguard-current-contract-tests",
+      "surface:worldguard-current-contract-model",
+      "surface:worldguard-current-contract-openspec"
+    ],
+    "missing_surface_ids": [],
+    "runtime_observation_ids": [
+      "observation:worldguard-current-input-targeted-tests"
+    ],
+    "proof_artifact_ids": [
+      "proof:worldguard-current-input-authority"
+    ],
+    "evidence_current": true,
+    "coverage_case_ids": [
+      "case:current-input-accepted",
+      "case:retired-input-rejected"
+    ],
+    "coverage_shard_ids": [
+      "shard:worldguard-current-input-authority"
+    ],
+    "coverage_receipt_ids": [
+      "receipt:worldguard-current-input-authority"
+    ],
+    "risk_gate_ids": [
+      "risk_gate:worldguard-current-input-authority"
+    ],
+    "summary": "OK: plan=ppa:worldguard-current-input-authority decision=primary_path_authority_green findings=0"
+  },
+  "template_primary_path": {
+    "ok": true,
+    "plan_id": "ppa:worldguard-template-selection-authority",
+    "decision": "primary_path_authority_green",
+    "confidence": "full",
+    "findings": [],
+    "primary_path_id": "path:worldguard-template-selection-authority",
+    "primary_path_ids": [
+      "path:worldguard-template-selection-authority"
+    ],
+    "business_intent_id": "intent:worldguard-template-selection-authority",
+    "business_intent_ids": [
+      "intent:worldguard-template-selection-authority"
+    ],
+    "behavior_commitment_id": "commitment:worldguard-template-selection-authority",
+    "behavior_commitment_ids": [
+      "commitment:worldguard-template-selection-authority"
+    ],
+    "fallback_candidate_ids": [],
+    "missing_candidate_ids": [],
+    "covered_surface_ids": [
+      "surface:worldguard-template-code",
+      "surface:worldguard-template-tests",
+      "surface:worldguard-template-model",
+      "surface:worldguard-template-docs"
+    ],
+    "missing_surface_ids": [],
+    "runtime_observation_ids": [
+      "observation:worldguard-template-targeted-tests"
+    ],
+    "proof_artifact_ids": [
+      "proof:worldguard-template-selection-authority"
+    ],
+    "evidence_current": true,
+    "coverage_case_ids": [
+      "case:template-zero-blocks",
+      "case:template-one-selects",
+      "case:template-many-blocks"
+    ],
+    "coverage_shard_ids": [
+      "shard:worldguard-template-selection-authority"
+    ],
+    "coverage_receipt_ids": [
+      "receipt:worldguard-template-selection-authority"
+    ],
+    "risk_gate_ids": [
+      "risk_gate:worldguard-template-selection-authority"
+    ],
+    "summary": "OK: plan=ppa:worldguard-template-selection-authority decision=primary_path_authority_green findings=0"
+  },
+  "behavior_commitment_ledger": {
+    "ok": true,
+    "ledger_id": "worldguard-v0.4-current-authority",
+    "decision": "behavior_commitment_coverage_green",
+    "confidence": "full",
+    "findings": [],
+    "covered_commitment_ids": [
+      "commitment:worldguard-current-input-authority",
+      "commitment:worldguard-template-selection-authority"
+    ],
+    "covered_business_intent_ids": [
+      "intent:worldguard-current-input-authority",
+      "intent:worldguard-template-selection-authority"
+    ],
+    "missing_business_intent_ids": [],
+    "unmapped_surface_ids": [],
+    "extra_commitment_ids": [],
+    "path_sensitive_commitment_ids": [
+      "commitment:worldguard-current-input-authority",
+      "commitment:worldguard-template-selection-authority"
+    ],
+    "ppa_blocked_commitment_ids": [],
+    "required_risk_gate_ids": [
+      "risk_gate:worldguard-current-input-authority",
+      "risk_gate:worldguard-template-selection-authority"
+    ],
+    "coverage_case_ids": [
+      "case:current-input-accepted",
+      "case:retired-input-rejected",
+      "case:template-zero-blocks",
+      "case:template-one-selects",
+      "case:template-many-blocks"
+    ],
+    "coverage_shard_ids": [
+      "shard:worldguard-current-input-authority",
+      "shard:worldguard-template-selection-authority"
+    ],
+    "coverage_receipt_ids": [
+      "receipt:worldguard-current-input-authority",
+      "receipt:worldguard-template-selection-authority"
+    ],
+    "summary": "OK: ledger=worldguard-v0.4-current-authority decision=behavior_commitment_coverage_green findings=0"
+  }
+}

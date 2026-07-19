@@ -39,4 +39,5 @@ Handoff contracts define how one model node may consume another model node's out
 
 - Do not let a child `PASS` become parent `PASS` without mesh closure.
 - Do not let a downstream `PASS` repair upstream `GAP`.
-- Do not treat stale evidence as current evidence without an explicit compatibility rule.
+- Do not treat stale evidence as current evidence. Migrate and revalidate it to
+  the current schema or block the handoff.

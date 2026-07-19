@@ -1,5 +1,12 @@
 {
   "case_id": "worldguard-deep-predictive",
+  "release_gate_binding": {
+    "schema_version": "worldguard.release_gate_binding.v1",
+    "target_skill_id": "worldguard",
+    "release_version": "0.4.0",
+    "gate_id": "skillguard-final-validation",
+    "execution_owner_id": "owner:worldguard:native-depth"
+  },
   "mesh": {
     "mesh_id": "skillguard-world-deep",
     "nodes": [

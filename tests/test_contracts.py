@@ -5,18 +5,147 @@ from worldguard.reports import GuardResult
 from worldguard.status import GuardStatus
 
 
-def test_target_guard_alias_normalizes_to_target_guards():
-    contract = GuardContract.from_dict(
-        {
-            "contract_id": "c1",
-            "run_id": "r1",
-            "claim": {"claim_id": "claim", "text": "text", "target_guard": "EventGuard"},
-            "world_model": {"model_id": "m1", "model_version": "v1"},
-        }
-    )
+@pytest.mark.parametrize(
+    ("claim", "message"),
+    [
+        (
+            {
+                "claim_id": "claim",
+                "text": "text",
+                "target_guard": "EventGuard",
+                "requested_semantics": ["event"],
+            },
+            "claim.target_guard is retired",
+        ),
+        (
+            {
+                "claim_id": "claim",
+                "text": "text",
+                "target_guards": ["EventGuard"],
+            },
+            "requires current requested_semantics or structured atoms",
+        ),
+        (
+            {
+                "claim_id": "claim",
+                "text": "text",
+                "target_guards": ["EventGuard"],
+                "atoms": [
+                    {
+                        "id": "a1",
+                        "text": "event",
+                        "requested_semantics": ["event"],
+                    }
+                ],
+            },
+            "claim atom uses retired fields",
+        ),
+    ],
+)
+def test_retired_claim_shapes_fail_instead_of_falling_back(claim, message):
+    with pytest.raises(ValueError, match=message):
+        GuardContract.from_dict(
+            {
+                "contract_id": "c1",
+                "run_id": "r1",
+                "claim": claim,
+                "world_model": {"model_id": "m1", "model_version": "v1"},
+            }
+        )
 
-    assert contract.claim.target_guards == ["EventGuard"]
-    assert "target_guard" not in contract.claim.to_dict()
+
+def test_retired_world_model_version_alias_fails():
+    with pytest.raises(ValueError, match="world_model.artifact_version is retired"):
+        GuardContract.from_dict(
+            {
+                "contract_id": "c1",
+                "run_id": "r1",
+                "claim": {
+                    "claim_id": "claim",
+                    "text": "text",
+                    "target_guards": ["EventGuard"],
+                    "requested_semantics": ["event"],
+                },
+                "world_model": {"model_id": "m1", "artifact_version": "v1"},
+            }
+        )
+
+
+@pytest.mark.parametrize(
+    ("world_model_extra", "inputs", "message"),
+    [
+        ({"event_line": []}, {}, "world_model uses retired Guard input fields"),
+        ({}, {"norm_model": {}}, "inputs uses retired alternate Guard paths"),
+        (
+            {},
+            {"event_model": {"events": []}},
+            "inputs.event_model.events is retired",
+        ),
+        (
+            {},
+            {"event_model": {"exclusive_violation": []}},
+            "inputs.event_model.exclusive_violation is retired",
+        ),
+        (
+            {},
+            {"agent_model": {"agents": {}}},
+            "inputs.agent_model.agents is retired",
+        ),
+        (
+            {},
+            {"events": [{"branch_ids": ["b1"]}]},
+            "inputs.events\\[0\\] uses retired fields",
+        ),
+        (
+            {},
+            {"variable_observations": []},
+            "inputs.variable_observations must be a mapping",
+        ),
+        (
+            {},
+            {"causal_model": {"scenarios": {"s1": {"values": {"x": 1}}}}},
+            "records use retired nested values",
+        ),
+        (
+            {},
+            {"causal_model": {"interventions": [{"id": "i1"}]}},
+            "interventions\\[0\\] uses retired fields",
+        ),
+        (
+            {},
+            {"causal_model": {"counterfactuals": [{"variable": "x"}]}},
+            "counterfactuals\\[0\\] uses retired fields",
+        ),
+        ({}, {"facts": [{"name": "f1"}]}, "inputs.facts\\[0\\].name is retired"),
+        (
+            {},
+            {"norms": [{"condition": {"fact": "f1"}}]},
+            "inputs.norms\\[0\\].condition.fact is retired",
+        ),
+    ],
+)
+def test_retired_guard_input_paths_fail_visibly(
+    world_model_extra, inputs, message
+):
+    with pytest.raises(ValueError, match=message):
+        GuardContract.from_dict(
+            {
+                "contract_id": "c1",
+                "run_id": "r1",
+                "claim": {
+                    "claim_id": "claim",
+                    "text": "text",
+                    "target_guards": ["EventGuard"],
+                    "requested_semantics": ["event"],
+                },
+                "world_model": {
+                    "model_id": "m1",
+                    "model_version": "v1",
+                    **world_model_extra,
+                },
+                "inputs": inputs,
+            }
+        )
 
 
 def test_non_pass_result_requires_evidence():
@@ -36,7 +165,12 @@ def test_contract_serializes_canonical_fields():
             "contract_id": "c1",
             "schema_version": "worldguard.contract.v1",
             "run_id": "r1",
-            "claim": {"claim_id": "claim", "text": "text", "target_guards": ["NormGuard"]},
+            "claim": {
+                "claim_id": "claim",
+                "text": "text",
+                "target_guards": ["NormGuard"],
+                "requested_semantics": ["norm"],
+            },
             "world_model": {"model_id": "m1", "model_version": "v1", "scope_limits": ["toy"]},
             "inputs": {"norms": []},
         }

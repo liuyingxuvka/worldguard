@@ -98,11 +98,12 @@ def test_causal_guard_rejects_partially_defined_structural_equations():
         {
             "contract_id": task_contract_id,
             "run_id": run_id,
-            "claim": {
-                "claim_id": "partial-causal-equations",
-                "text": "the declared SCM is complete",
-                "target_guards": ["CausalGuard"],
-            },
+                "claim": {
+                    "claim_id": "partial-causal-equations",
+                    "text": "the declared SCM is complete",
+                    "target_guards": ["CausalGuard"],
+                    "requested_semantics": ["causal"],
+                },
             "world_model": {"model_id": model_instance_id, "model_version": "v1"},
             "inputs": {
                 "causal_model": {

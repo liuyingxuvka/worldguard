@@ -11,11 +11,7 @@ from ._helpers import error, result, semantics_text
 def run(contract: GuardContract):
     guard = "SpaceGuard"
     text = semantics_text(contract)
-    relations = (
-        contract.inputs.get("spatial_relations")
-        or contract.world_model.data.get("rcc8_relations")
-        or contract.world_model.relations.get("rcc8_relations", [])
-    )
+    relations = contract.inputs.get("spatial_relations", [])
 
     if any(word in text for word in ["meters", "distance", "metric", "geometry"]):
         return result(

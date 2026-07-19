@@ -13,10 +13,9 @@ Use this construction layer before manually assembling a new `GuardContract` or 
 
 Call `builtin_template_registry().select(contract_kind, fact_ids)` before building:
 
-- `base_template`: zero candidates matched; use the unique base scaffold and preserve that bounded outcome.
+- `no_match`: zero candidates matched; block with `TEMPLATE_SELECTION_NO_MATCH`. The shared base scaffold is never a selectable result.
 - `selected`: exactly one candidate matched; compose it after the base scaffold.
 - `ambiguous`: several candidates matched; show every candidate id and block. Do not use order, scores, filenames, or AI preference to choose.
-- `no_match`: no candidate and no base exist; block with `TEMPLATE_NO_MATCH_AND_BASE_MISSING`.
 
 For a Guard-specific child, pass one exact fact such as `guard:EventGuard` only after WorldGuard/caller context selected that Guard. For a ModelMesh coverage scaffold, pass `coverage:bounded` or `coverage:predictive`. Passing mutually matching facts is deliberately ambiguous.
 
@@ -24,10 +23,10 @@ For a Guard-specific child, pass one exact fact such as `guard:EventGuard` only 
 
 | Contract kind | Base slots | Candidate fact and added slot |
 |---|---|---|
-| `guard_contract` | `contract_id`, `run_id`, `claim_id`, `claim_text`, `target_guards`, `requested_semantics`, `claim_atoms`, `model_id`, `model_version`, `guard_purpose_declarations` | `guard:EventGuard` → `event_inputs`; `AgentGuard` → `agent_inputs`; `SpaceGuard` → `space_inputs`; `ResourceGuard` → `resource_inputs`; `CausalGuard` → `causal_inputs`; `ConflictGuard` → `conflict_inputs`; `NormGuard` → `norm_inputs` |
+| `guard_contract` | `contract_id`, `run_id`, `claim_id`, `claim_text`, `target_guards`, `requested_semantics`, `claim_atoms`, `model_id`, `model_version`, `guard_purpose_declarations` | `guard:EventGuard` → `event_inputs`; `AgentGuard` → `agent_inputs`; `SpaceGuard` → `space_inputs`; `ResourceGuard` → `resource_inputs`; `CausalGuard` → `causal_inputs`; `ConflictGuard` → `conflict_inputs`; `NormGuard` → `norms` + `facts` |
 | `model_mesh_contract` | `mesh_id`, `run_id`, `nodes`, `expected_model_node_ids` | `coverage:bounded` or `coverage:predictive` adds only the explicit coverage profile |
 
-The Guard base intentionally does not invent `inputs`; a no-match base can be structurally valid yet later evaluate to `GAP`. Guard candidates add only the appropriate input slot. The caller still writes all task-local purpose declarations and evidence.
+The Guard base is a non-selectable shared construction fragment. It is composed only after exactly one Guard candidate matches. Guard candidates add only the appropriate input slots. The caller still writes all task-local purpose declarations and evidence.
 
 ## Build
 

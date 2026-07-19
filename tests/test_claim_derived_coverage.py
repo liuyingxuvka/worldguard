@@ -5,6 +5,8 @@ from copy import deepcopy
 from math import ceil, sqrt
 from pathlib import Path
 
+import pytest
+
 from worldguard import (
     GuardContract,
     SemanticStatus,
@@ -267,11 +269,11 @@ def test_rich_prediction_still_blocks_when_structured_claim_atom_is_missing() ->
     mesh = _predictive_mesh()
     mesh["nodes"][0]["contract"]["claim"]["atoms"] = []
 
-    report = run_model_mesh(mesh)
-
-    assert report.depth_receipt is not None
-    assert report.depth_receipt.predictive_claim_licensed is False
-    assert "structured_claim_atoms_missing" in report.depth_receipt.predictive_gaps
+    with pytest.raises(
+        ValueError,
+        match="claim requires current requested_semantics or structured atoms",
+    ):
+        run_model_mesh(mesh)
 
 
 def test_complete_supported_predictive_fixture_gets_mesh_bound_license() -> None:

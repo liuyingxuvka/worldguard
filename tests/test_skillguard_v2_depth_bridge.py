@@ -5,6 +5,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
+
 from worldguard.execution_depth import (
     UNIVERSE_CLAIM_SCOPE,
     UNIVERSE_NATIVE_POLICY,
@@ -21,18 +23,23 @@ from worldguard.execution_depth import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _scheduled_identity() -> dict:
+def _release_gate_binding() -> dict:
     return {
-        "scheduler_or_trigger_id": "test:worldguard",
-        "scheduled_execution_id": "execution:worldguard:bridge",
-        "installation_receipt_id": "installation-test-worldguard",
-        "installation_receipt_hash": "A" * 64,
-        "installation_receipt_root_ref": {
-            "path_token": "active_skill_root",
-            "relative_path": ".sg-runtime/installation",
-        },
-        "installed_runtime_fingerprint": "B" * 64,
+        "schema_version": "worldguard.release_gate_binding.v1",
+        "target_skill_id": "worldguard",
+        "release_version": "0.4.0",
+        "gate_id": "skillguard-final-validation",
+        "execution_owner_id": "owner:worldguard:native-depth",
     }
+
+
+def _capability_evidence_context(case_id: str) -> dict:
+    return {
+        "domain": "capability_validation",
+        "identity": {"validation_case_id": case_id},
+    }
+
+
 FIXTURES = ROOT / "tests" / "fixtures" / "skillguard_depth"
 POLICY_FINGERPRINTS = {
     universe_id: "A" * 64
@@ -199,6 +206,9 @@ def test_dynamic_projection_has_exact_identity_without_mechanical_ranges() -> No
             "contract_hash": "B" * 64,
             "request_fingerprint": "C" * 64,
             "target_input_fingerprint": "D" * 64,
+            "evidence_context": _capability_evidence_context(
+                "worldguard-test-run"
+            ),
         },
         check_id="check:worldguard:native-depth",
         policy_fingerprints=POLICY_FINGERPRINTS,
@@ -261,6 +271,9 @@ def test_ten_thousand_step_envelope_carries_native_hundred_point_floor(
             "contract_hash": "B" * 64,
             "request_fingerprint": "C" * 64,
             "target_input_fingerprint": "D" * 64,
+            "evidence_context": _capability_evidence_context(
+                "worldguard-ten-thousand"
+            ),
         },
         check_id="check:worldguard:native-depth",
         policy_fingerprints=POLICY_FINGERPRINTS,
@@ -309,8 +322,7 @@ def test_current_generic_emitter_binds_each_obligation_to_target_native_receipt(
             encoding="utf-8"
         )
     )
-    target_payload["input_origin"] = "target_native_scheduled_execution"
-    target_payload["scheduled_production_identity"] = _scheduled_identity()
+    target_payload["release_gate_binding"] = _release_gate_binding()
     target_fixture.write_text(json.dumps(target_payload), encoding="utf-8")
     (run_root / "run.json").write_text(
         json.dumps(
@@ -356,14 +368,16 @@ def test_current_generic_emitter_binds_each_obligation_to_target_native_receipt(
         (run_root / "depth-evidence/worldguard.json").read_text(encoding="utf-8")
     )
     assert evidence["ok"] is True
-    assert evidence["evidence_domain"] == "scheduled_production"
-    assert evidence["scheduled_production_identity"] == _scheduled_identity()
-    assert evidence["schema_version"] == "worldguard.declared_native_depth_check.v1"
+    assert evidence["evidence_context"] == {
+        "domain": "release_gate",
+        "identity": _release_gate_binding(),
+    }
+    assert evidence["schema_version"] == "worldguard.declared_native_depth_check.v2"
     assert evidence["predictive_claim_licensed"] is True
     assert evidence["target_obligation_ids"] == sorted(check["covers_obligation_ids"])
     projection = evidence["native_projection"]
-    assert projection["schema_version"] == "worldguard.native_depth_projection.v2"
-    assert projection["scheduled_production_identity"] == _scheduled_identity()
+    assert projection["schema_version"] == "worldguard.native_depth_projection.v3"
+    assert projection["evidence_context"] == evidence["evidence_context"]
     assert all(
         row["target_obligation_ids"]
         and row["evidence_ref"].startswith("worldguard:")
@@ -376,19 +390,15 @@ def test_current_generic_emitter_binds_each_obligation_to_target_native_receipt(
         for obligation_id in row["target_obligation_ids"]
     } == set(check["covers_obligation_ids"])
 
-    target_payload.pop("input_origin")
+    target_payload.pop("release_gate_binding")
     target_fixture.write_text(json.dumps(target_payload), encoding="utf-8")
-    relabeled = subprocess.run(
+    missing_binding = subprocess.run(
         command, cwd=ROOT, check=False, capture_output=True, text=True
     )
-    assert relabeled.returncode != 0
-    assert "relabeling calibration is forbidden" in relabeled.stderr
-    target_payload["input_origin"] = "target_native_scheduled_execution"
-
-    target_payload.pop("scheduled_production_identity")
-    target_fixture.write_text(json.dumps(target_payload), encoding="utf-8")
+    assert missing_binding.returncode != 0
+    assert "exact current field set" in missing_binding.stderr
     misplaced_run = json.loads((run_root / "run.json").read_text(encoding="utf-8"))
-    misplaced_run["request"]["scheduled_production_identity"] = _scheduled_identity()
+    misplaced_run["request"]["release_gate_binding"] = _release_gate_binding()
     (run_root / "run.json").write_text(json.dumps(misplaced_run), encoding="utf-8")
     misplaced = subprocess.run(
         command,
@@ -398,12 +408,24 @@ def test_current_generic_emitter_binds_each_obligation_to_target_native_receipt(
         text=True,
     )
     assert misplaced.returncode != 0
-    assert "scheduled production identity missing from target-native receipt" in misplaced.stderr
+    assert "exact current field set" in misplaced.stderr
 
-    target_payload["scheduled_production_identity"] = _scheduled_identity()
+    target_payload["release_gate_binding"] = _release_gate_binding()
     target_fixture.write_text(json.dumps(target_payload), encoding="utf-8")
-    misplaced_run["request"].pop("scheduled_production_identity")
+    misplaced_run["request"].pop("release_gate_binding")
     (run_root / "run.json").write_text(json.dumps(misplaced_run), encoding="utf-8")
+
+    target_payload["input_origin"] = "target_native_scheduled_execution"
+    target_payload["scheduled_production_identity"] = {"legacy": True}
+    target_fixture.write_text(json.dumps(target_payload), encoding="utf-8")
+    legacy = subprocess.run(
+        command, cwd=ROOT, check=False, capture_output=True, text=True
+    )
+    assert legacy.returncode != 0
+    assert "retired native-depth identity fields are forbidden" in legacy.stderr
+    target_payload.pop("input_origin")
+    target_payload.pop("scheduled_production_identity")
+    target_fixture.write_text(json.dumps(target_payload), encoding="utf-8")
 
     extra_input = target_root / "extra.json"
     extra_input.write_text("{}", encoding="utf-8")
@@ -419,3 +441,19 @@ def test_current_generic_emitter_binds_each_obligation_to_target_native_receipt(
     )
     assert rejected.returncode != 0
     assert "exactly one current target input" in rejected.stderr
+
+
+def test_native_depth_projection_rejects_retired_run_binding_fields() -> None:
+    with pytest.raises(ValueError, match="retired native-depth run binding fields"):
+        build_target_native_depth_envelope(
+            FIXTURES / "deep.json",
+            run_binding={
+                "run_id": "worldguard-retired-binding",
+                "contract_hash": "B" * 64,
+                "request_fingerprint": "C" * 64,
+                "target_input_fingerprint": "D" * 64,
+                "evidence_domain": "capability_validation",
+            },
+            check_id="check:worldguard:native-depth",
+            policy_fingerprints=POLICY_FINGERPRINTS,
+        )

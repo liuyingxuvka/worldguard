@@ -43,31 +43,30 @@ def build_contracts() -> list[GuardContract]:
     story = _load_yaml("input_story_fragment.yaml")["input_story_fragment"]
     world = _load_yaml("world_model.yaml")["world_model"]
     state = world["initial_world_state"]
-    scope_limits = story.get("scope_limits", [])
+    scope_limits = story["scope_limits"]
     contracts = []
     inputs = {
-        "events": world.get("event_line", []),
-        "beliefs": state.get("agents", {}),
-        "spatial_relations": state.get("rcc8_relations", []),
-        "resources": state.get("resources", {}),
+        "events": world["events"],
+        "beliefs": state["agents"],
+        "spatial_relations": state["rcc8_relations"],
+        "resources": state["resources"],
         "causal_model": {
-            "variables": state.get("causal_variables", []),
-            "equations": state.get("causal_equations", {}),
+            "variables": state["causal_variables"],
+            "equations": state["causal_equations"],
         },
-        "game_model": {"payoffs": state.get("conflict_payoffs", [])},
-        "norms": state.get("norms", []),
+        "game_model": {"payoffs": state["conflict_payoffs"]},
+        "norms": state["norms"],
         "facts": ["c_precheck_complete", "nda_active"],
     }
     model = {
-        "model_id": world.get("model_id", "fuel_cell_company_abc_world_model_001"),
-        "model_version": world.get("artifact_version", "repair-v5-artifact"),
+        "model_id": world["model_id"],
+        "model_version": world["model_version"],
         "scope_limits": scope_limits,
-        **state,
     }
-    for claim in story.get("claims", []):
+    for claim in story["claims"]:
         task_contract_id = f"fuel-cell:{claim['claim_id']}"
         declarations = []
-        for guard in claim.get("target_guards", []):
+        for guard in claim["target_guards"]:
             selected_failure_id = next(
                 item.failure_id
                 for item in PROTECTED_FAILURE_CLASSES
@@ -94,9 +93,9 @@ def build_contracts() -> list[GuardContract]:
                     "run_id": "fuel-cell-toy",
                     "claim": {
                         "claim_id": claim["claim_id"],
-                        "text": claim.get("text", ""),
-                        "target_guards": claim.get("target_guards", []),
-                        "requested_semantics": claim.get("target_guards", []),
+                        "text": claim["text"],
+                        "target_guards": claim["target_guards"],
+                        "requested_semantics": claim["requested_semantics"],
                     },
                     "world_model": model,
                     "inputs": inputs,
@@ -121,8 +120,8 @@ def run_check() -> dict[str, Any]:
     guards_seen = sorted({result.guard for report in reports for result in report.child_results})
     statuses = [report.status.value for report in reports]
     scope_notes = [
-        *story.get("scope_limits", []),
-        *ledger_outputs.get("artifact_scope_note", {}).get("no_real_world_claims", []),
+        *story["scope_limits"],
+        *ledger_outputs["artifact_scope_note"]["no_real_world_claims"],
     ]
     toy_boundaries_ok = all(
         any(boundary in item for item in scope_notes) or boundary in str(scope_notes)

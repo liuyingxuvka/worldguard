@@ -1,0 +1,458 @@
+{
+  "artifact_type": "flowguard_behavior_commitment_ledger",
+  "format_version": "1",
+  "ledger": {
+    "change_mode": "remove_or_replace_behavior",
+    "claim_scope": "routine",
+    "commitments": [
+      {
+        "actor": "WorldGuard runtime",
+        "actor_kind": "application",
+        "behavior_plane": "product_runtime",
+        "business_intent_id": "intent:worldguard-current-input-authority",
+        "child_model_ids": [],
+        "commitment_id": "commitment:worldguard-current-input-authority",
+        "commitment_kind": "public_api",
+        "evidence": {
+          "code_contract_ids": [
+            "contract:worldguard-v0.4-input-authority"
+          ],
+          "coverage_case_ids": [
+            "case:current-input-accepted",
+            "case:retired-input-rejected"
+          ],
+          "coverage_receipt_ids": [
+            "receipt:worldguard-current-input-authority"
+          ],
+          "coverage_shard_ids": [
+            "shard:worldguard-current-input-authority"
+          ],
+          "current": true,
+          "evidence_state": "current_pass",
+          "metadata": {},
+          "model_obligation_ids": [
+            "obligation:worldguard-current-input-only"
+          ],
+          "proof_artifact_ids": [
+            "proof:worldguard-current-input-authority"
+          ],
+          "risk_gate_ids": [
+            "risk_gate:worldguard-current-input-authority"
+          ],
+          "test_evidence_ids": [
+            "tests/test_contracts.py",
+            "tests/test_guard_model_contract.py"
+          ],
+          "test_mesh_state": "shard_current"
+        },
+        "excluded_behavior_ids": [],
+        "expected_result": "the runtime reads only the v0.4 current fields and verifies the requested Guards",
+        "expected_terminal": "verified current input or one visible typed contract failure",
+        "external_differences": [],
+        "failure_boundary": "a retired alias, alternate semantic location, or malformed current field fails visibly and is never retried through another reader",
+        "in_scope": true,
+        "label": "WorldGuard accepts one current input contract",
+        "lookup_binding": {
+          "error_signatures": [
+            "CONTRACT_INVALID",
+            "retired input path"
+          ],
+          "metadata": {},
+          "path_patterns": [
+            "worldguard/contracts.py",
+            "worldguard/semantic.py",
+            "worldguard/guards"
+          ],
+          "task_terms": [
+            "current WorldGuard input contract",
+            "retired input alias",
+            "no compatibility reader"
+          ],
+          "tool_ids": [
+            "worldguard.verify"
+          ],
+          "workflow_families": [
+            "worldguard_verification"
+          ]
+        },
+        "metadata": {},
+        "miss_origin_state": "no_miss",
+        "model_sync_state": "owner_model_current",
+        "owner": "WorldGuard contracts and Guard implementations",
+        "path_authority": {
+          "behavior_commitment_id": "",
+          "business_intent": "",
+          "business_intent_id": "",
+          "evidence_current": false,
+          "evidence_refs": [],
+          "fallback_candidate_ids": [],
+          "metadata": {},
+          "path_sensitive": false,
+          "ppa_confidence": "",
+          "ppa_coverage_receipt_ids": [],
+          "ppa_coverage_shard_ids": [],
+          "ppa_decision": "",
+          "ppa_ok": null,
+          "ppa_report_id": "",
+          "ppa_risk_gate_ids": [],
+          "primary_path_id": "",
+          "proof_artifact_ids": [],
+          "runtime_observation_ids": [],
+          "scoped_out_reason": ""
+        },
+        "preconditions": [
+          "the caller supplies a world model and claim using the v0.4 contract"
+        ],
+        "primary_owner_model_id": ".flowguard/semantic_rollout_model.py",
+        "rationale": "One current reader keeps upgrades explicit and prevents permanent compatibility chains.",
+        "relations": [],
+        "replacement_state": "active",
+        "scoped_out_reason": "",
+        "side_effects": [],
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_refs": [],
+        "source_surface_ids": [
+          "surface:worldguard-current-contract-code",
+          "surface:worldguard-current-contract-tests",
+          "surface:worldguard-current-contract-model",
+          "surface:worldguard-current-contract-openspec"
+        ],
+        "state_writes": [],
+        "supporting_model_ids": [
+          ".flowguard/worldguard_field_lifecycle.md"
+        ],
+        "surface_delegation_only": false,
+        "trigger": "a caller loads or verifies a world model and requested Guard inputs",
+        "validation_boundary": "current schema loading, exact semantic input ownership, and visible rejection of retired paths",
+        "variant_of_business_intent_id": ""
+      },
+      {
+        "actor": "WorldGuard template builder",
+        "actor_kind": "application",
+        "behavior_plane": "product_runtime",
+        "business_intent_id": "intent:worldguard-template-selection-authority",
+        "child_model_ids": [],
+        "commitment_id": "commitment:worldguard-template-selection-authority",
+        "commitment_kind": "workflow",
+        "evidence": {
+          "code_contract_ids": [
+            "contract:worldguard-template-selection"
+          ],
+          "coverage_case_ids": [
+            "case:template-zero-blocks",
+            "case:template-one-selects",
+            "case:template-many-blocks"
+          ],
+          "coverage_receipt_ids": [
+            "receipt:worldguard-template-selection-authority"
+          ],
+          "coverage_shard_ids": [
+            "shard:worldguard-template-selection-authority"
+          ],
+          "current": true,
+          "evidence_state": "current_pass",
+          "metadata": {},
+          "model_obligation_ids": [
+            "obligation:worldguard-template-selection-one-path"
+          ],
+          "proof_artifact_ids": [
+            "proof:worldguard-template-selection-authority"
+          ],
+          "risk_gate_ids": [
+            "risk_gate:worldguard-template-selection-authority"
+          ],
+          "test_evidence_ids": [
+            "tests/test_template_packs.py"
+          ],
+          "test_mesh_state": "shard_current"
+        },
+        "excluded_behavior_ids": [],
+        "expected_result": "exactly one applicable candidate is selected and composed with its declared shared fragment",
+        "expected_terminal": "one selected template or one visible typed no-match/ambiguity failure",
+        "external_differences": [],
+        "failure_boundary": "zero candidates blocks with TEMPLATE_SELECTION_NO_MATCH and multiple candidates block as ambiguous; neither state falls back to a base template",
+        "in_scope": true,
+        "label": "WorldGuard template selection has one authoritative decision path",
+        "lookup_binding": {
+          "error_signatures": [
+            "TEMPLATE_SELECTION_NO_MATCH",
+            "TEMPLATE_SELECTION_AMBIGUOUS"
+          ],
+          "metadata": {},
+          "path_patterns": [
+            "worldguard/template_packs.py",
+            "skills/worldguard/references/template-packs.md"
+          ],
+          "task_terms": [
+            "WorldGuard template selection",
+            "zero candidates",
+            "ambiguous templates",
+            "no base fallback"
+          ],
+          "tool_ids": [
+            "worldguard-template-packs"
+          ],
+          "workflow_families": [
+            "worldguard_template_selection"
+          ]
+        },
+        "metadata": {},
+        "miss_origin_state": "no_miss",
+        "model_sync_state": "owner_model_current",
+        "owner": "WorldGuard template-pack builder",
+        "path_authority": {
+          "behavior_commitment_id": "",
+          "business_intent": "",
+          "business_intent_id": "",
+          "evidence_current": false,
+          "evidence_refs": [],
+          "fallback_candidate_ids": [],
+          "metadata": {},
+          "path_sensitive": false,
+          "ppa_confidence": "",
+          "ppa_coverage_receipt_ids": [],
+          "ppa_coverage_shard_ids": [],
+          "ppa_decision": "",
+          "ppa_ok": null,
+          "ppa_report_id": "",
+          "ppa_risk_gate_ids": [],
+          "primary_path_id": "",
+          "proof_artifact_ids": [],
+          "runtime_observation_ids": [],
+          "scoped_out_reason": ""
+        },
+        "preconditions": [
+          "the target Guard template catalog is current"
+        ],
+        "primary_owner_model_id": ".flowguard/worldguard_template_pack_builder.py",
+        "rationale": "The base template is an internal composition fragment, not a second selectable or fallback behavior.",
+        "relations": [],
+        "replacement_state": "active",
+        "scoped_out_reason": "",
+        "side_effects": [],
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_refs": [],
+        "source_surface_ids": [
+          "surface:worldguard-template-code",
+          "surface:worldguard-template-tests",
+          "surface:worldguard-template-model",
+          "surface:worldguard-template-docs"
+        ],
+        "state_writes": [],
+        "supporting_model_ids": [
+          ".flowguard/worldguard_template_pack_field_lifecycle.md"
+        ],
+        "surface_delegation_only": false,
+        "trigger": "a caller asks WorldGuard to select an applicable Guard template",
+        "validation_boundary": "zero, one, and many candidate selection plus internal shared-fragment composition",
+        "variant_of_business_intent_id": ""
+      }
+    ],
+    "current_revision": "worldguard-v0.4.0-current-only-contract",
+    "expected_business_intent_ids": [
+      "intent:worldguard-current-input-authority",
+      "intent:worldguard-template-selection-authority"
+    ],
+    "expected_commitment_ids": [
+      "commitment:worldguard-current-input-authority",
+      "commitment:worldguard-template-selection-authority"
+    ],
+    "ledger_id": "worldguard-v0.4-current-authority",
+    "metadata": {},
+    "owner": "WorldGuard",
+    "project_boundary": "WorldGuard v0.4 current-only input authority and template-selection behavior changed by harden-guard-simulation-readiness",
+    "rationale": "These two externally observable paths are the v0.4 breaking boundary where retired readers and base-template fallback were removed.",
+    "require_current_evidence": true,
+    "require_risk_gates_for_broad_claim": true,
+    "source_surfaces": [
+      {
+        "business_intent_ids": [
+          "intent:worldguard-current-input-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-current-input-authority"
+        ],
+        "delegates_to_primary_path": false,
+        "freshness_state": "current",
+        "in_scope": true,
+        "label": "current contract and Guard runtime",
+        "metadata": {},
+        "owner": "WorldGuard runtime",
+        "primary_path_id": "path:worldguard-current-input-authority",
+        "rationale": "canonical implementation surface",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_ref": "worldguard/contracts.py; worldguard/semantic.py; worldguard/guards; skills/worldguard/runtime/worldguard",
+        "surface_id": "surface:worldguard-current-contract-code",
+        "surface_kind": "code",
+        "validation_boundary": "source and bundled runtime parity"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-current-input-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-current-input-authority"
+        ],
+        "delegates_to_primary_path": false,
+        "freshness_state": "current",
+        "in_scope": true,
+        "label": "current and retired input contract tests",
+        "metadata": {},
+        "owner": "WorldGuard tests",
+        "primary_path_id": "path:worldguard-current-input-authority",
+        "rationale": "direct executable evidence",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_ref": "tests/test_contracts.py; tests/test_guard_model_contract.py",
+        "surface_id": "surface:worldguard-current-contract-tests",
+        "surface_kind": "test",
+        "validation_boundary": "positive current cases and negative retired cases"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-current-input-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-current-input-authority"
+        ],
+        "delegates_to_primary_path": false,
+        "freshness_state": "current",
+        "in_scope": true,
+        "label": "current semantic rollout and field lifecycle models",
+        "metadata": {},
+        "owner": "WorldGuard FlowGuard model",
+        "primary_path_id": "path:worldguard-current-input-authority",
+        "rationale": "model ownership evidence",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_ref": ".flowguard/semantic_rollout_model.py; .flowguard/worldguard_field_lifecycle.md",
+        "surface_id": "surface:worldguard-current-contract-model",
+        "surface_kind": "process",
+        "validation_boundary": "current input authority and retired-path failures"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-current-input-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-current-input-authority"
+        ],
+        "delegates_to_primary_path": false,
+        "freshness_state": "current",
+        "in_scope": true,
+        "label": "guard simulation readiness change",
+        "metadata": {},
+        "owner": "WorldGuard OpenSpec",
+        "primary_path_id": "path:worldguard-current-input-authority",
+        "rationale": "declared product behavior",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_ref": "openspec/changes/harden-guard-simulation-readiness",
+        "surface_id": "surface:worldguard-current-contract-openspec",
+        "surface_kind": "openspec",
+        "validation_boundary": "requirements and acceptance boundary"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-template-selection-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-template-selection-authority"
+        ],
+        "delegates_to_primary_path": false,
+        "freshness_state": "current",
+        "in_scope": true,
+        "label": "template selection runtime",
+        "metadata": {},
+        "owner": "WorldGuard template runtime",
+        "primary_path_id": "path:worldguard-template-selection-authority",
+        "rationale": "canonical implementation surface",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_ref": "worldguard/template_packs.py; skills/worldguard/runtime/worldguard/template_packs.py",
+        "surface_id": "surface:worldguard-template-code",
+        "surface_kind": "code",
+        "validation_boundary": "source and bundled runtime parity"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-template-selection-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-template-selection-authority"
+        ],
+        "delegates_to_primary_path": false,
+        "freshness_state": "current",
+        "in_scope": true,
+        "label": "template zero/one/many tests",
+        "metadata": {},
+        "owner": "WorldGuard tests",
+        "primary_path_id": "path:worldguard-template-selection-authority",
+        "rationale": "direct executable evidence",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_ref": "tests/test_template_packs.py",
+        "surface_id": "surface:worldguard-template-tests",
+        "surface_kind": "test",
+        "validation_boundary": "zero, one, and many candidate outcomes"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-template-selection-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-template-selection-authority"
+        ],
+        "delegates_to_primary_path": false,
+        "freshness_state": "current",
+        "in_scope": true,
+        "label": "template pack executable model",
+        "metadata": {},
+        "owner": "WorldGuard FlowGuard model",
+        "primary_path_id": "path:worldguard-template-selection-authority",
+        "rationale": "model ownership evidence",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_ref": ".flowguard/worldguard_template_pack_builder.py; .flowguard/worldguard_template_pack_field_lifecycle.md",
+        "surface_id": "surface:worldguard-template-model",
+        "surface_kind": "process",
+        "validation_boundary": "candidate-state and composition-state coverage"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-template-selection-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-template-selection-authority"
+        ],
+        "delegates_to_primary_path": false,
+        "freshness_state": "current",
+        "in_scope": true,
+        "label": "template pack public contract",
+        "metadata": {},
+        "owner": "WorldGuard documentation",
+        "primary_path_id": "path:worldguard-template-selection-authority",
+        "rationale": "user-visible behavior description",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_ref": "skills/worldguard/references/template-packs.md; README.md",
+        "surface_id": "surface:worldguard-template-docs",
+        "surface_kind": "doc",
+        "validation_boundary": "public no-match and ambiguity contract"
+      }
+    ],
+    "validation_boundary": "The ledger covers only current contract input loading and template candidate selection; the remaining WorldGuard runtime stays under its existing models and tests."
+  },
+  "schema_version": "1.0"
+}

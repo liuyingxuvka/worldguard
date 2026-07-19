@@ -9,10 +9,7 @@ from ._helpers import error, result, semantics_text
 def run(contract: GuardContract):
     guard = "ConflictGuard"
     text = semantics_text(contract)
-    game_model = contract.inputs.get("game_model") or {
-        "payoffs": contract.world_model.data.get("conflict_payoffs", []),
-        "transitions": contract.world_model.data.get("conflict_transitions", []),
-    }
+    game_model = contract.inputs.get("game_model", {})
     payoffs = game_model.get("payoffs", [])
     transitions = game_model.get("transitions", [])
 

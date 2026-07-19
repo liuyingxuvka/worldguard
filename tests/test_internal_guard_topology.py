@@ -39,7 +39,7 @@ def test_current_worldguard_has_one_entry_and_seven_internal_routes():
     assert report["ok"], report["findings"]
     assert report["public_skill_ids"] == ["worldguard"]
     assert report["project_console_ids"] == ["worldguard"]
-    assert report["source_version"] == "0.3.0"
+    assert report["source_version"] == "0.4.0"
     assert len(report["internal_guard_ids"]) == 7
 
 

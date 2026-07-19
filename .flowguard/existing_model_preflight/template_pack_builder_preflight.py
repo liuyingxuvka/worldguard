@@ -1,20 +1,83 @@
 """Full existing-model preflight for WorldGuard validating template packs."""
 
+import importlib.util
+from hashlib import sha256
+from pathlib import Path
+
 from flowguard import (
+    BehaviorLookupQuery,
     DuplicateBoundaryRisk,
     ExistingModelPreflight,
     ExistingOwnershipSnapshot,
     ModelContextHit,
     REUSE_DECISION_EXTEND_EXISTING,
+    query_behavior_commitments,
     review_existing_model_preflight,
 )
 
 
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _content_evidence_id(label: str, *relative_paths: str) -> str:
+    digest = sha256()
+    for relative in sorted(relative_paths):
+        path = ROOT / relative
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
+        digest.update(b"\0")
+    return f"{label}-{digest.hexdigest()[:16]}"
+
+
+def _template_behavior_lookup():
+    model_path = (
+        Path(__file__).resolve().parents[1]
+        / "behavior_commitment_ledger"
+        / "model.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "worldguard_behavior_commitment_model_for_preflight",
+        model_path,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load the canonical WorldGuard behavior ledger")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    ledger = module.build_worldguard_behavior_commitment_ledger()
+    return query_behavior_commitments(
+        ledger,
+        BehaviorLookupQuery(
+            task_summary=(
+                "Add WorldGuard-owned validating template packs before canonical "
+                "GuardContract and ModelMeshContract loading"
+            ),
+            primary_plane="product_runtime",
+            canonical_terms=(
+                "WorldGuard template selection",
+                "zero candidates",
+                "no base fallback",
+            ),
+            changed_paths=(
+                "worldguard/template_packs.py",
+                "tests/test_template_packs.py",
+            ),
+            workflow_families=("worldguard_template_selection",),
+            top_k=1,
+        ),
+    )
+
+
 def build_preflight() -> ExistingModelPreflight:
+    behavior_lookup = _template_behavior_lookup()
     contracts = ModelContextHit(
         "worldguard-contracts",
         model_path="worldguard/contracts.py;skills/worldguard/references/worldguard-contracts.md",
-        evidence_id="filesystem-current-contracts-1427f4e",
+        evidence_id=_content_evidence_id(
+            "filesystem-current-contracts",
+            "worldguard/contracts.py",
+            "skills/worldguard/references/worldguard-contracts.md",
+        ),
         responsibilities=(
             "canonical GuardContract parsing and serialization",
             "claim-derived Guard requirements",
@@ -35,7 +98,11 @@ def build_preflight() -> ExistingModelPreflight:
     purpose = ModelContextHit(
         "worldguard-guard-purpose-contract",
         model_path="worldguard/guard_model_contract.py;.flowguard/guard_candidate_purpose_order.py",
-        evidence_id="filesystem-current-purpose-binding-1427f4e",
+        evidence_id=_content_evidence_id(
+            "filesystem-current-purpose-binding",
+            "worldguard/guard_model_contract.py",
+            ".flowguard/guard_candidate_purpose_order.py",
+        ),
         responsibilities=(
             "task/model Guard purpose authority",
             "per-failure native proof",
@@ -60,7 +127,11 @@ def build_preflight() -> ExistingModelPreflight:
     mesh = ModelContextHit(
         "worldguard-model-mesh-core",
         model_path="worldguard/mesh.py;.flowguard/worldguard_model_mesh_core.md",
-        evidence_id="filesystem-current-mesh-1427f4e",
+        evidence_id=_content_evidence_id(
+            "filesystem-current-mesh",
+            "worldguard/mesh.py",
+            ".flowguard/worldguard_model_mesh_core.md",
+        ),
         responsibilities=(
             "canonical ModelMeshContract parsing",
             "mesh topology and semantic coverage ownership",
@@ -80,9 +151,14 @@ def build_preflight() -> ExistingModelPreflight:
         public_entrypoints=("ModelMeshContract.from_dict", "worldguard mesh-check"),
     )
     template_packs = ModelContextHit(
-        "worldguard-template-pack-builder",
+        ".flowguard/worldguard_template_pack_builder.py",
         model_path="worldguard/template_packs.py;.flowguard/worldguard_template_pack_builder.py",
-        evidence_id="filesystem-current-template-pack-owner-20260717",
+        evidence_id=_content_evidence_id(
+            "filesystem-current-template-pack-owner",
+            "worldguard/template_packs.py",
+            ".flowguard/worldguard_template_pack_builder.py",
+            ".flowguard/worldguard_template_pack_field_lifecycle.md",
+        ),
         responsibilities=(
             "native template manifest and registry ownership",
             "deterministic zero/one/many selection and exact applicability",
@@ -120,7 +196,12 @@ def build_preflight() -> ExistingModelPreflight:
     skillguard = ModelContextHit(
         "worldguard-skillguard-declared-checks-current",
         model_path="skills/worldguard/.skillguard/contract-source.json",
-        evidence_id="skillguard-current-trio-acab8070",
+        evidence_id=_content_evidence_id(
+            "skillguard-current-trio",
+            "skills/worldguard/.skillguard/contract-source.json",
+            "skills/worldguard/.skillguard/compiled-contract.json",
+            "skills/worldguard/.skillguard/check-manifest.json",
+        ),
         responsibilities=(
             "freeze exact WorldGuard-declared checks",
             "reconcile immutable owner receipts",
@@ -135,6 +216,36 @@ def build_preflight() -> ExistingModelPreflight:
         fields_owned=("native_check_ids", "execution_owner_id", "receipt identity"),
         side_effects_owned=("block incomplete or stale declared-check closure",),
     )
+    behavior_ledger = ModelContextHit(
+        "worldguard-v0.4-current-authority",
+        model_path=".flowguard/behavior_commitment_ledger/ledger.json;.flowguard/behavior_commitment_ledger/model.py",
+        evidence_id=_content_evidence_id(
+            "worldguard-v0.4-behavior-ledger",
+            ".flowguard/behavior_commitment_ledger/ledger.json",
+            ".flowguard/behavior_commitment_ledger/model.py",
+        ),
+        responsibilities=(
+            "register the singular current input authority",
+            "register the singular template-selection authority",
+            "bind both paths to current Primary Path Authority evidence with zero fallback candidates",
+        ),
+        function_blocks=(
+            "LoadCurrentWorldGuardInput",
+            "SelectExactlyOneWorldGuardTemplateOrBlock",
+        ),
+        state_owned=(
+            "current_input_authority",
+            "template_selection_authority",
+        ),
+        fields_owned=(
+            "inputs.*",
+            "template_selection.*",
+        ),
+        side_effects_owned=(
+            "reject retired input locations",
+            "block zero or multiple applicable template candidates",
+        ),
+    )
     return ExistingModelPreflight(
         "worldguard-template-pack-builder-preflight",
         "Add WorldGuard-owned validating template packs before canonical GuardContract and ModelMeshContract loading",
@@ -148,13 +259,27 @@ def build_preflight() -> ExistingModelPreflight:
             "openspec/changes",
             "tests",
         ),
-        behavior_lookup_required=False,
-        behavior_lookup_status="fallback",
+        behavior_lookup_required=True,
+        behavior_lookup_status=behavior_lookup.status,
+        primary_behavior_plane=behavior_lookup.selected_plane,
+        primary_commitment_hits=behavior_lookup.primary_hits,
+        related_commitment_hits=behavior_lookup.related_hits,
+        candidate_commitment_hits=behavior_lookup.candidate_hits,
+        plane_ambiguity=behavior_lookup.plane_ambiguity,
+        ledger_fingerprint=behavior_lookup.ledger_fingerprint,
         behavior_lookup_reason=(
-            "No canonical BehaviorCommitmentLedger artifact is present in this repository; "
-            "the current source/model/spec inventory is recorded as explicit fallback evidence."
+            "The canonical WorldGuard v0.4 BehaviorCommitmentLedger resolves both changed "
+            "business intents to one current path each, with current PPA evidence and zero "
+            "fallback candidates."
         ),
-        relevant_models=(contracts, purpose, mesh, template_packs, skillguard),
+        relevant_models=(
+            contracts,
+            purpose,
+            mesh,
+            template_packs,
+            skillguard,
+            behavior_ledger,
+        ),
         ownership_snapshot=ExistingOwnershipSnapshot(
             function_block_owners=(
                 ("LoadGuardContract", contracts.model_id),
@@ -170,6 +295,11 @@ def build_preflight() -> ExistingModelPreflight:
                 ("ComposeTemplatePack", template_packs.model_id),
                 ("FreezeDeclaredCheckInventory", skillguard.model_id),
                 ("ValidateNeutralTemplateProjection", skillguard.model_id),
+                ("LoadCurrentWorldGuardInput", behavior_ledger.model_id),
+                (
+                    "SelectExactlyOneWorldGuardTemplateOrBlock",
+                    behavior_ledger.model_id,
+                ),
             ),
             state_owners=(
                 ("guard_contract", contracts.model_id),
@@ -177,6 +307,8 @@ def build_preflight() -> ExistingModelPreflight:
                 ("model_mesh_contract", mesh.model_id),
                 ("target_template_projection", template_packs.model_id),
                 ("execution_depth_receipt", skillguard.model_id),
+                ("current_input_authority", behavior_ledger.model_id),
+                ("template_selection_authority", behavior_ledger.model_id),
             ),
             field_owners=(
                 ("claim.*", contracts.model_id),
@@ -185,6 +317,7 @@ def build_preflight() -> ExistingModelPreflight:
                 ("semantic_coverage.*", mesh.model_id),
                 ("skillguard_target_template_projection.*", template_packs.model_id),
                 ("native_check_ids", skillguard.model_id),
+                ("inputs.*", behavior_ledger.model_id),
             ),
             side_effect_owners=(
                 ("construct Guard child", contracts.model_id),
@@ -192,6 +325,7 @@ def build_preflight() -> ExistingModelPreflight:
                 ("execute semantic mesh", mesh.model_id),
                 ("project exact native template catalog and applicability", template_packs.model_id),
                 ("supervise declared checks", skillguard.model_id),
+                ("reject retired input locations", behavior_ledger.model_id),
             ),
             public_entrypoint_owners=(
                 ("GuardContract.from_dict", contracts.model_id),
@@ -205,6 +339,7 @@ def build_preflight() -> ExistingModelPreflight:
                 ("mesh semantics and predictive coverage", mesh.model_id),
                 ("template catalog and applicability projection", template_packs.model_id),
                 ("receipt completeness only", skillguard.model_id),
+                ("changed v0.4 path authority", behavior_ledger.model_id),
             ),
         ),
         reuse_decision=REUSE_DECISION_EXTEND_EXISTING,

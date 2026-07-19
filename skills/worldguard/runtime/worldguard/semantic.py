@@ -182,85 +182,27 @@ def _coverage_context(contract: GuardContract) -> dict[str, Any]:
 
 
 def _variable_timepoint_map(contract: GuardContract) -> dict[str, list[str]]:
-    """Read explicit per-variable/signal observations without inventing samples."""
+    """Read the one current variable-to-timepoint observation mapping."""
 
-    rows: dict[str, set[str]] = {}
-
-    def add(variable_id: object, timepoint_id: object) -> None:
-        variable = str(variable_id or "").strip()
-        timepoint = str(timepoint_id or "").strip()
-        if variable and timepoint:
-            rows.setdefault(variable, set()).add(timepoint)
-
-    def consume(value: object) -> None:
-        if isinstance(value, Mapping):
-            variable = value.get(
-                "variable_id",
-                value.get("signal_id", value.get("variable", value.get("signal"))),
-            )
-            timepoint = value.get(
-                "timepoint_id", value.get("at", value.get("time"))
-            )
-            if variable not in (None, "") and timepoint not in (None, ""):
-                add(variable, timepoint)
-            values = value.get("values")
-            if timepoint not in (None, "") and isinstance(values, Mapping):
-                for key in values:
-                    add(key, timepoint)
-            for key, item in value.items():
-                if key in {
-                    "variable_id",
-                    "signal_id",
-                    "variable",
-                    "signal",
-                    "timepoint_id",
-                    "at",
-                    "time",
-                    "values",
-                }:
-                    continue
-                if isinstance(item, (list, tuple, set)):
-                    for point in item:
-                        if isinstance(point, Mapping):
-                            add(key, point.get("timepoint_id", point.get("at", point.get("time"))))
-                        else:
-                            add(key, point)
-                elif isinstance(item, Mapping):
-                    for point in item.get(
-                        "timepoint_ids", item.get("observed_timepoints", [])
-                    ):
-                        add(key, point)
-        elif isinstance(value, (list, tuple, set)):
-            for item in value:
-                consume(item)
-
-    causal = contract.inputs.get("causal_model") or {}
-    event_model = contract.inputs.get("event_model") or {}
-    for source in (
-        contract.inputs.get("variable_observations"),
-        contract.inputs.get("signal_observations"),
-        contract.inputs.get("time_series_observations"),
-        causal.get("variable_observations") if isinstance(causal, Mapping) else None,
-        causal.get("signal_observations") if isinstance(causal, Mapping) else None,
-        event_model.get("variable_observations") if isinstance(event_model, Mapping) else None,
-        event_model.get("signal_observations") if isinstance(event_model, Mapping) else None,
-        contract.world_model.data.get("variable_observations"),
-        contract.world_model.data.get("signal_observations"),
-    ):
-        consume(source)
-    events = (
-        contract.inputs.get("events")
-        or (event_model.get("events") if isinstance(event_model, Mapping) else None)
-        or contract.world_model.data.get("event_line")
-        or []
-    )
-    consume(events)
-    return {key: sorted(values) for key, values in sorted(rows.items())}
+    observations = contract.inputs.get("variable_observations", {})
+    if not isinstance(observations, Mapping):
+        return {}
+    return {
+        str(variable_id): sorted(
+            {
+                str(timepoint_id)
+                for timepoint_id in timepoint_ids
+                if str(timepoint_id)
+            }
+        )
+        for variable_id, timepoint_ids in sorted(observations.items())
+        if str(variable_id) and isinstance(timepoint_ids, list)
+    }
 
 
 def _event(contract: GuardContract):
-    event_model = contract.inputs.get("event_model") or {}
-    events = contract.inputs.get("events") or event_model.get("events") or contract.world_model.data.get("event_line") or []
+    event_model = contract.inputs.get("event_model", {})
+    events = contract.inputs.get("events", [])
     variable_timepoints = _variable_timepoint_map(contract)
     consumed = {
         "event_model": event_model,
@@ -269,7 +211,7 @@ def _event(contract: GuardContract):
     }
     if not events:
         return SemanticStatus.GAP, [_finding("SEM_EVENT_MISSING_EVENTS", "No executable event records were supplied.")], consumed, {}
-    contradictory = event_model.get("contradictory_fluents") or event_model.get("exclusive_violation")
+    contradictory = event_model.get("contradictory_fluents")
     if contradictory:
         return SemanticStatus.FAIL, [_finding("SEM_EVENT_CONTRADICTION", "Declared event fluents are contradictory.", evidence={"contradiction": contradictory})], consumed, {}
     missing: list[dict[str, Any]] = []
@@ -315,9 +257,9 @@ def _event(contract: GuardContract):
             observed_timepoints.add(str(event.get("at")))
             event_id = str(event.get("event_id"))
             executed_transition_ids.add(event_id)
-            executed_branch_ids.update(_string_values(event.get("branch_id", event.get("branch_ids"))))
+            executed_branch_ids.update(_string_values(event.get("branch_id")))
             executed_perturbation_ids.update(
-                _string_values(event.get("perturbation_id", event.get("perturbation_ids")))
+                _string_values(event.get("perturbation_id"))
             )
             for fluent in _fluent_values(event.get("terminates")):
                 state.discard(fluent)
@@ -347,10 +289,8 @@ def _event(contract: GuardContract):
 
 
 def _agent(contract: GuardContract):
-    agent_model = contract.inputs.get("agent_model") or contract.world_model.data.get("agent_model") or {}
-    agents = agent_model.get("agents") if isinstance(agent_model, dict) else None
-    if agents is None:
-        agents = contract.world_model.data.get("agents") or contract.inputs.get("agents") or contract.inputs.get("beliefs") or {}
+    agent_model = contract.inputs.get("agent_model", {})
+    agents = contract.inputs.get("beliefs", {})
     consumed = {"agent_model": agent_model, "agents": agents}
     if not agents:
         return SemanticStatus.GAP, [_finding("SEM_AGENT_MISSING_MODEL", "No BDI agent records were supplied.")], consumed, {}
@@ -375,7 +315,7 @@ _RCC8 = {"DC", "EC", "PO", "EQ", "TPP", "NTPP", "TPPI", "NTPPI"}
 
 
 def _space(contract: GuardContract):
-    relations = contract.inputs.get("spatial_relations") or contract.world_model.data.get("rcc8_relations") or contract.world_model.relations.get("rcc8_relations", [])
+    relations = contract.inputs.get("spatial_relations", [])
     consumed = {"spatial_relations": relations}
     if not relations:
         return SemanticStatus.GAP, [_finding("SEM_SPACE_MISSING_RCC8", "No RCC8 base relations were supplied.")], consumed, {}
@@ -410,7 +350,7 @@ def _space(contract: GuardContract):
 
 
 def _resource(contract: GuardContract):
-    resources = contract.inputs.get("resources") or contract.world_model.data.get("resources") or {}
+    resources = contract.inputs.get("resources", {})
     consumed = {"resources": resources}
     places = resources.get("places", {}) if isinstance(resources, dict) else {}
     transitions = resources.get("transitions", []) if isinstance(resources, dict) else []
@@ -483,19 +423,9 @@ def _scenario_records(value: Any) -> dict[str, dict[str, float]]:
     if isinstance(value, dict):
         for scenario_id, raw in value.items():
             if isinstance(raw, dict):
-                values = raw.get("values", raw)
-                if isinstance(values, dict):
-                    records[str(scenario_id)] = {
-                        str(key): float(item) for key, item in values.items()
-                    }
-    elif isinstance(value, list):
-        for index, raw in enumerate(value):
-            if not isinstance(raw, dict):
-                continue
-            scenario_id = str(raw.get("scenario_id", raw.get("id", index)))
-            values = raw.get("values", {})
-            if isinstance(values, dict):
-                records[scenario_id] = {str(key): float(item) for key, item in values.items()}
+                records[str(scenario_id)] = {
+                    str(key): float(item) for key, item in raw.items()
+                }
     return records
 
 
@@ -530,11 +460,7 @@ def _evaluate_equations(
 
 
 def _causal(contract: GuardContract):
-    causal = contract.inputs.get("causal_model") or {
-        "variables": contract.world_model.data.get("causal_variables", []),
-        "equations": contract.world_model.data.get("causal_equations", {}),
-        "graph": contract.world_model.data.get("causal_graph", []),
-    }
+    causal = contract.inputs.get("causal_model", {})
     variable_timepoints = _variable_timepoint_map(contract)
     consumed = {
         "causal_model": causal,
@@ -553,10 +479,8 @@ def _causal(contract: GuardContract):
     coverage = _coverage_context(contract)
     scenario_ids = _string_values(coverage.get("scenario_ids"))
     holdout_ids = _string_values(coverage.get("holdout_scenario_ids"))
-    scenarios = _scenario_records(causal.get("scenarios", contract.inputs.get("scenarios", {})))
-    holdouts = _scenario_records(
-        causal.get("holdout_scenarios", contract.inputs.get("holdout_scenarios", {}))
-    )
+    scenarios = _scenario_records(causal.get("scenarios", {}))
+    holdouts = _scenario_records(causal.get("holdout_scenarios", {}))
     scenario_results: dict[str, dict[str, float]] = {}
     execution_errors: list[dict[str, Any]] = []
     executed_scenarios: list[str] = []
@@ -580,16 +504,21 @@ def _causal(contract: GuardContract):
         scenario_results[scenario_id] = values
         executed_holdouts.append(scenario_id)
 
-    interventions = causal.get("interventions", contract.inputs.get("interventions", []))
+    interventions = causal.get("interventions", [])
     intervention_results: dict[str, dict[str, float]] = {}
     executed_interventions: list[str] = []
     for index, intervention in enumerate(interventions or []):
         if not isinstance(intervention, dict):
             continue
-        intervention_id = str(intervention.get("intervention_id", intervention.get("id", index)))
+        intervention_id = str(intervention.get("intervention_id", ""))
         scenario_id = str(intervention.get("scenario_id", ""))
-        seed = scenarios.get(scenario_id, holdouts.get(scenario_id, {}))
-        assignments = intervention.get("set", intervention.get("values", {}))
+        if scenario_id in scenarios:
+            seed = scenarios[scenario_id]
+        elif scenario_id in holdouts:
+            seed = holdouts[scenario_id]
+        else:
+            seed = {}
+        assignments = intervention.get("set", {})
         if not isinstance(assignments, dict) or not seed:
             continue
         values, row_errors = _evaluate_equations(
@@ -604,17 +533,15 @@ def _causal(contract: GuardContract):
         intervention_results[intervention_id] = values
         executed_interventions.append(intervention_id)
 
-    counterfactuals = causal.get("counterfactuals", contract.inputs.get("counterfactuals", []))
+    counterfactuals = causal.get("counterfactuals", [])
     counterfactual_results: dict[str, Any] = {}
     executed_counterfactuals: list[str] = []
     for index, counterfactual in enumerate(counterfactuals or []):
         if not isinstance(counterfactual, dict):
             continue
-        counterfactual_id = str(
-            counterfactual.get("counterfactual_id", counterfactual.get("id", index))
-        )
+        counterfactual_id = str(counterfactual.get("counterfactual_id", ""))
         intervention_id = str(counterfactual.get("intervention_id", ""))
-        query = str(counterfactual.get("query", counterfactual.get("variable", "")))
+        query = str(counterfactual.get("query", ""))
         result = intervention_results.get(intervention_id)
         if not result or query not in result:
             continue
@@ -650,13 +577,7 @@ def _causal(contract: GuardContract):
 
 
 def _conflict(contract: GuardContract):
-    game = contract.inputs.get("game_model") or {
-        "players": contract.world_model.data.get("conflict_players", []),
-        "actions": contract.world_model.data.get("conflict_actions", {}),
-        "states": contract.world_model.data.get("conflict_states", []),
-        "payoffs": contract.world_model.data.get("conflict_payoffs", []),
-        "transitions": contract.world_model.data.get("conflict_transitions", []),
-    }
+    game = contract.inputs.get("game_model", {})
     consumed = {"game_model": game}
     required = [name for name in ("players", "actions", "states", "transitions", "payoffs") if not game.get(name)]
     if required:
@@ -672,16 +593,16 @@ def _conflict(contract: GuardContract):
 
 
 def _norm(contract: GuardContract):
-    norm_model = contract.inputs.get("norm_model") or {
-        "norms": contract.inputs.get("norms") or contract.world_model.data.get("norms", []),
-        "facts": contract.inputs.get("facts") or contract.world_model.data.get("facts", []),
-    }
-    norms = norm_model.get("norms", [])
-    facts = norm_model.get("facts", [])
+    norms = contract.inputs.get("norms", [])
+    facts = contract.inputs.get("facts", [])
+    norm_model = {"norms": norms, "facts": facts}
     consumed = {"norm_model": norm_model}
     if not norms:
         return SemanticStatus.GAP, [_finding("SEM_NORM_MISSING_MODEL", "No norms were supplied.")], consumed, {}
-    fact_ids = {str(item.get("fact_id", item.get("name", ""))) if isinstance(item, dict) else str(item) for item in facts}
+    fact_ids = {
+        str(item.get("fact_id", "")) if isinstance(item, dict) else str(item)
+        for item in facts
+    }
     missing = []
     for index, norm in enumerate(norms):
         condition = norm.get("condition") if isinstance(norm, dict) else None
@@ -690,7 +611,7 @@ def _norm(contract: GuardContract):
         elif isinstance(condition, str) and condition not in fact_ids:
             missing.append({"norm": index, "needed_fact": condition})
         elif isinstance(condition, dict):
-            needed = str(condition.get("fact", condition.get("fact_id", "")))
+            needed = str(condition.get("fact_id", ""))
             if not needed or needed not in fact_ids:
                 missing.append({"norm": index, "needed_fact": needed or "condition fact"})
     if missing:
@@ -710,13 +631,13 @@ def _binding(guard: str, fields: tuple[str, ...], semantics: tuple[str, ...], bo
 
 
 EXECUTOR_REGISTRY: dict[str, SemanticExecutor] = {
-    "EventGuard": SemanticExecutor(_binding("EventGuard", ("inputs.events", "inputs.event_model", "inputs.variable_observations", "inputs.signal_observations", "mesh.semantic_coverage"), ("event_axiom_completeness", "fluent_consistency", "bounded_state_rollout", "scenario_and_holdout_execution", "declared_variable_signal_timepoint_observation"), "arbitrary temporal theorem proving and continuous dynamics"), _event),
-    "AgentGuard": SemanticExecutor(_binding("AgentGuard", ("inputs.agent_model", "world_model.data.agents"), ("bdi_completeness", "declared_intention_conflict"), "open-ended planning and belief revision"), _agent),
-    "SpaceGuard": SemanticExecutor(_binding("SpaceGuard", ("inputs.spatial_relations", "world_model.rcc8_relations"), ("rcc8_base_consistency", "ntpp_transitivity"), "metric geometry and full RCC8 closure"), _space),
+    "EventGuard": SemanticExecutor(_binding("EventGuard", ("inputs.events", "inputs.event_model", "inputs.variable_observations", "mesh.semantic_coverage"), ("event_axiom_completeness", "fluent_consistency", "bounded_state_rollout", "scenario_and_holdout_execution", "declared_variable_timepoint_observation"), "arbitrary temporal theorem proving and continuous dynamics"), _event),
+    "AgentGuard": SemanticExecutor(_binding("AgentGuard", ("inputs.beliefs", "inputs.agent_model"), ("bdi_completeness", "declared_intention_conflict"), "open-ended planning and belief revision"), _agent),
+    "SpaceGuard": SemanticExecutor(_binding("SpaceGuard", ("inputs.spatial_relations",), ("rcc8_base_consistency", "ntpp_transitivity"), "metric geometry and full RCC8 closure"), _space),
     "ResourceGuard": SemanticExecutor(_binding("ResourceGuard", ("inputs.resources.places", "inputs.resources.transitions"), ("finite_resource_conservation",), "unbounded colored Petri-net reachability"), _resource),
-    "CausalGuard": SemanticExecutor(_binding("CausalGuard", ("inputs.causal_model.variables", "inputs.causal_model.equations", "inputs.causal_model.scenarios", "inputs.causal_model.interventions", "inputs.causal_model.counterfactuals", "inputs.variable_observations", "inputs.signal_observations", "mesh.semantic_coverage"), ("safe_scalar_equation_evaluability", "bounded_scenario_rollout", "declared_intervention_execution", "declared_counterfactual_query", "declared_variable_signal_timepoint_observation"), "arbitrary code, external solvers, and causal identification"), _causal),
+    "CausalGuard": SemanticExecutor(_binding("CausalGuard", ("inputs.causal_model.variables", "inputs.causal_model.equations", "inputs.causal_model.scenarios", "inputs.causal_model.interventions", "inputs.causal_model.counterfactuals", "inputs.variable_observations", "mesh.semantic_coverage"), ("safe_scalar_equation_evaluability", "bounded_scenario_rollout", "declared_intervention_execution", "declared_counterfactual_query", "declared_variable_timepoint_observation"), "arbitrary code, external solvers, and causal identification"), _causal),
     "ConflictGuard": SemanticExecutor(_binding("ConflictGuard", ("inputs.game_model.players", "inputs.game_model.actions", "inputs.game_model.states", "inputs.game_model.transitions", "inputs.game_model.payoffs"), ("finite_game_completeness", "transition_probability"), "equilibrium solving and open-ended strategy search"), _conflict),
-    "NormGuard": SemanticExecutor(_binding("NormGuard", ("inputs.norm_model.norms", "inputs.norm_model.facts"), ("condition_fact_binding",), "general deontic theorem proving and legal interpretation"), _norm),
+    "NormGuard": SemanticExecutor(_binding("NormGuard", ("inputs.norms", "inputs.facts"), ("condition_fact_binding",), "general deontic theorem proving and legal interpretation"), _norm),
 }
 
 

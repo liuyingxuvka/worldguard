@@ -1,12 +1,12 @@
 expected_guard_report:
-  artifact_version: repair-v5-artifact
+  fixture_version: repair-v5-artifact
   check_id: wg13_repair_v5_artifact_expected_report
   aggregate_status: FAIL
   demo_outcome_label: CONTRADICTION
   status_mapping: CONTRADICTION is represented as canonical FAIL with explicit ConflictGuard and NormGuard contradiction counterexamples. BOUNDARY_EXCEEDED remains reserved for formal ownership boundaries.
   guard_results:
     - guard: EventGuard
-      input_slice: [event_line, Happens, Initiates, HoldsAt]
+      input_slice: [events, Happens, Initiates, HoldsAt]
       expected_status: PASS
       expected_errors: []
       expected_counterexample: {trace: [], reason: event line supports the toy event claims}

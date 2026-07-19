@@ -119,7 +119,7 @@ Snapshots are optional metadata for version/state context. They do not replace n
 - `depth_receipt`
 
 The aggregate ledger must include child Guard ledgers and mesh-level ledger entries.
-The legacy `status` is a conservative projection. Structural `PASS` cannot
+The aggregate `status` is a conservative projection. Structural `PASS` cannot
 become aggregate `PASS` when semantic execution did not run, a required
 provider was unavailable, or an executor reported a gap or boundary.
 

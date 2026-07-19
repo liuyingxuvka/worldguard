@@ -21,7 +21,7 @@ EXPECTED_GUARDS = (
     "ConflictGuard",
     "NormGuard",
 )
-EXPECTED_VERSION = "0.3.0"
+EXPECTED_VERSION = "0.4.0"
 PREDICTIVE_GUARDS = {"EventGuard", "CausalGuard"}
 TERMINAL_STATUSES = ("PASS", "FAIL", "GAP", "BOUNDARY_EXCEEDED")
 REQUIRED_ROW_FIELDS = {
@@ -40,7 +40,8 @@ GOVERNED_RUNTIME_SUFFIXES = {".py", ".json", ".yaml", ".yml"}
 
 
 def _hash(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    normalized = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 def _runtime_inventory(root: Path) -> dict[str, str]:

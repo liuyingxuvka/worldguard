@@ -40,6 +40,130 @@ PREDICTIVE_TEXT_MARKERS = (
     "next state",
 )
 
+RETIRED_WORLD_MODEL_INPUT_FIELDS = {
+    "event_line",
+    "agents",
+    "rcc8_relations",
+    "resources",
+    "causal_variables",
+    "causal_equations",
+    "causal_graph",
+    "conflict_players",
+    "conflict_actions",
+    "conflict_states",
+    "conflict_payoffs",
+    "conflict_transitions",
+    "norms",
+    "facts",
+    "variable_observations",
+    "signal_observations",
+}
+RETIRED_TOP_LEVEL_INPUT_FIELDS = {
+    "agents",
+    "norm_model",
+    "signal_observations",
+    "time_series_observations",
+    "scenarios",
+    "holdout_scenarios",
+    "interventions",
+    "counterfactuals",
+}
+
+
+def _reject_retired_runtime_input_paths(
+    world_model: dict[str, Any], inputs: dict[str, Any]
+) -> None:
+    retired_world = sorted(RETIRED_WORLD_MODEL_INPUT_FIELDS.intersection(world_model))
+    if retired_world:
+        raise ValueError(
+            "world_model uses retired Guard input fields; migrate them to inputs: "
+            + ", ".join(retired_world)
+        )
+    retired_inputs = sorted(RETIRED_TOP_LEVEL_INPUT_FIELDS.intersection(inputs))
+    if retired_inputs:
+        raise ValueError(
+            "inputs uses retired alternate Guard paths: " + ", ".join(retired_inputs)
+        )
+
+    event_model = inputs.get("event_model")
+    if isinstance(event_model, dict) and "events" in event_model:
+        raise ValueError(
+            "inputs.event_model.events is retired; migrate events to inputs.events"
+        )
+    if isinstance(event_model, dict) and "exclusive_violation" in event_model:
+        raise ValueError(
+            "inputs.event_model.exclusive_violation is retired; use contradictory_fluents"
+        )
+    agent_model = inputs.get("agent_model")
+    if isinstance(agent_model, dict) and "agents" in agent_model:
+        raise ValueError(
+            "inputs.agent_model.agents is retired; migrate agents to inputs.beliefs"
+        )
+
+    for index, event in enumerate(inputs.get("events", [])):
+        if not isinstance(event, dict):
+            continue
+        retired = sorted({"branch_ids", "perturbation_ids"}.intersection(event))
+        if retired:
+            raise ValueError(
+                f"inputs.events[{index}] uses retired fields: " + ", ".join(retired)
+            )
+
+    observations = inputs.get("variable_observations")
+    if observations is not None:
+        if not isinstance(observations, dict):
+            raise ValueError(
+                "inputs.variable_observations must be a mapping of variable id to timepoint ids"
+            )
+        if any(not isinstance(value, list) for value in observations.values()):
+            raise ValueError(
+                "inputs.variable_observations values must be lists of timepoint ids"
+            )
+
+    causal = inputs.get("causal_model")
+    if isinstance(causal, dict):
+        for field_name in ("scenarios", "holdout_scenarios"):
+            records = causal.get(field_name)
+            if records is None:
+                continue
+            if not isinstance(records, dict):
+                raise ValueError(f"inputs.causal_model.{field_name} must be a mapping")
+            if any(
+                isinstance(record, dict) and "values" in record
+                for record in records.values()
+            ):
+                raise ValueError(
+                    f"inputs.causal_model.{field_name} records use retired nested values"
+                )
+        for index, intervention in enumerate(causal.get("interventions", [])):
+            if isinstance(intervention, dict):
+                retired = sorted({"id", "values"}.intersection(intervention))
+                if retired:
+                    raise ValueError(
+                        f"inputs.causal_model.interventions[{index}] uses retired fields: "
+                        + ", ".join(retired)
+                    )
+        for index, counterfactual in enumerate(causal.get("counterfactuals", [])):
+            if isinstance(counterfactual, dict):
+                retired = sorted({"id", "variable"}.intersection(counterfactual))
+                if retired:
+                    raise ValueError(
+                        f"inputs.causal_model.counterfactuals[{index}] uses retired fields: "
+                        + ", ".join(retired)
+                    )
+
+    for index, fact in enumerate(inputs.get("facts", [])):
+        if isinstance(fact, dict) and "name" in fact:
+            raise ValueError(
+                f"inputs.facts[{index}].name is retired; use fact_id"
+            )
+    for index, norm in enumerate(inputs.get("norms", [])):
+        condition = norm.get("condition") if isinstance(norm, dict) else None
+        if isinstance(condition, dict) and "fact" in condition:
+            raise ValueError(
+                f"inputs.norms[{index}].condition.fact is retired; use fact_id"
+            )
+
 
 @dataclass(frozen=True)
 class ClaimAtom:
@@ -50,14 +174,19 @@ class ClaimAtom:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ClaimAtom":
-        requested = data.get("requested_semantics", data.get("semantics", []))
+        retired = sorted({"id", "semantics", "predictive"}.intersection(data))
+        if retired:
+            raise ValueError(
+                "claim atom uses retired fields: " + ", ".join(retired)
+            )
+        requested = data.get("requested_semantics", [])
         if isinstance(requested, str):
             requested = [requested]
         return cls(
-            atom_id=str(data.get("atom_id", data.get("id", ""))),
+            atom_id=str(data.get("atom_id", "")),
             text=str(data.get("text", "")),
             requested_semantics=[str(item) for item in requested],
-            predictive_intent=bool(data.get("predictive_intent", data.get("predictive", False))),
+            predictive_intent=bool(data.get("predictive_intent", False)),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -79,18 +208,27 @@ class Claim:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Claim":
-        target_guards = data.get("target_guards", data.get("target_guard", []))
+        if "target_guard" in data:
+            raise ValueError(
+                "claim.target_guard is retired; migrate the input to claim.target_guards"
+            )
+        target_guards = data.get("target_guards", [])
         if isinstance(target_guards, str):
             target_guards = [target_guards]
         requested_semantics = data.get("requested_semantics", [])
         if isinstance(requested_semantics, str):
             requested_semantics = [requested_semantics]
+        atoms = [ClaimAtom.from_dict(item) for item in data.get("atoms", [])]
+        if not requested_semantics and not atoms:
+            raise ValueError(
+                "claim requires current requested_semantics or structured atoms"
+            )
         return cls(
             claim_id=str(data.get("claim_id", "")),
             text=str(data.get("text", "")),
             target_guards=list(target_guards),
             requested_semantics=[str(item) for item in requested_semantics],
-            atoms=[ClaimAtom.from_dict(item) for item in data.get("atoms", [])],
+            atoms=atoms,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -138,10 +276,6 @@ def derive_required_guards(claim: Claim) -> tuple[str, ...]:
     semantics = claim_semantics(claim)
     for semantic in semantics:
         guards.extend(SEMANTIC_GUARD_ROUTES.get(semantic, ()))
-    if not semantics:
-        # Legacy contracts without semantic structure remain runnable, but cannot
-        # prove that the caller's route list was complete.
-        guards.extend(claim.target_guards)
     return tuple(dict.fromkeys(guards))
 
 
@@ -165,9 +299,13 @@ class WorldModel:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "WorldModel":
+        if "artifact_version" in data:
+            raise ValueError(
+                "world_model.artifact_version is retired; migrate the input to world_model.model_version"
+            )
         return cls(
             model_id=str(data.get("model_id", "")),
-            model_version=str(data.get("model_version", data.get("artifact_version", ""))),
+            model_version=str(data.get("model_version", "")),
             entities=dict(data.get("entities", {})),
             relations=dict(data.get("relations", {})),
             assumptions=list(data.get("assumptions", [])),
@@ -334,13 +472,16 @@ class GuardContract:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "GuardContract":
+        world_model = dict(data.get("world_model", {}))
+        inputs = dict(data.get("inputs", {}))
+        _reject_retired_runtime_input_paths(world_model, inputs)
         return cls(
             contract_id=str(data.get("contract_id", "")),
             schema_version=str(data.get("schema_version", "worldguard.contract.v1")),
             run_id=str(data.get("run_id", "worldguard-run")),
             claim=Claim.from_dict(data.get("claim", {})),
-            world_model=WorldModel.from_dict(data.get("world_model", {})),
-            inputs=dict(data.get("inputs", {})),
+            world_model=WorldModel.from_dict(world_model),
+            inputs=inputs,
             dependencies=GuardDependencies.from_dict(data.get("dependencies")),
             output_requirements=OutputRequirements.from_dict(data.get("output_requirements")),
             guard_purpose_declarations=tuple(

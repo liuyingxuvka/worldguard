@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.util
-import hashlib
 import json
 from pathlib import Path
 
@@ -9,17 +8,6 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-def _source_file_hash(path: Path) -> str:
-    body = path.read_bytes()
-    try:
-        text = body.decode("utf-8")
-    except UnicodeDecodeError:
-        pass
-    else:
-        body = text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
-    return hashlib.sha256(body).hexdigest().upper()
 SCRIPT = ROOT / "scripts" / "verify_guard_simulation_readiness.py"
 PRIMARY_ROOT = ROOT / "skills" / "worldguard"
 DEPTH_BRIDGE = PRIMARY_ROOT / ".skillguard/checks/emit_native_depth_evidence.py"
@@ -65,69 +53,113 @@ def _write_current_authority(root: Path, target_skill_id: str) -> None:
     )
 
 
-def test_expanded_residual_scan_blocks_generic_checker_and_mutable_report(tmp_path: Path) -> None:
+def _write_clean_consumer(audit, source: Path, installed: Path) -> None:
+    _write_current_authority(source, "worldguard")
+    (source / "runtime").mkdir()
+    (source / "runtime" / "engine.py").write_text("VALUE = 1\n", encoding="utf-8")
+    installed.mkdir()
+    for relative in ("SKILL.md", "runtime/engine.py"):
+        source_path = source / relative
+        target = installed / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(source_path.read_bytes())
+
+    files = [
+        {
+            "path": relative,
+            "content_hash": f"sha256:{audit._sha256(installed / relative)}",
+        }
+        for relative in ("SKILL.md", "runtime/engine.py")
+    ]
+    identity = {
+        "schema_version": audit.CONSUMER_RELEASE_SCHEMA,
+        "skill_id": "worldguard",
+        "projection_id": "projection:consumer-distribution",
+        "files": files,
+        "author_control_excluded": True,
+    }
+    manifest = {
+        **identity,
+        "release_id": audit._canonical_hash(identity),
+        "claim_boundary": (
+            "This manifest identifies target-owned consumer files only. It carries no "
+            "author contract, receipt, router, session, cache, or execution authority."
+        ),
+    }
+    manifest["manifest_hash"] = audit._canonical_hash(manifest)
+    (installed / audit.CONSUMER_RELEASE_FILE).write_text(
+        json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+
+
+def test_source_authority_blocks_former_author_paths(tmp_path: Path) -> None:
     audit = _load_audit_module()
     skill = tmp_path / "skill"
     _write_current_authority(skill, "target-skill")
-    assert audit._authority_status(skill, "target-skill")["ok"] is True
+    assert audit._source_authority_status(skill, "target-skill")["ok"] is True
 
     generic = skill / ".skillguard" / "checks" / "check_route.py"
     generic.parent.mkdir(parents=True)
     generic.write_text("raise SystemExit(0)\n", encoding="utf-8")
-    status = audit._authority_status(skill, "target-skill")
+    status = audit._source_authority_status(skill, "target-skill")
     assert status["ok"] is False
-    assert "checks/check_route.py" in status["former_v1_residuals"]
+    assert "checks/check_route.py" in status["former_author_residuals"]
 
     generic.unlink()
     mutable = skill / ".skillguard" / "reports" / "current_closure.json"
     mutable.parent.mkdir(parents=True)
     mutable.write_text("{}\n", encoding="utf-8")
-    status = audit._authority_status(skill, "target-skill")
+    status = audit._source_authority_status(skill, "target-skill")
     assert status["ok"] is False
-    assert "reports/**" in status["former_v1_residuals"]
+    assert "reports/**" in status["former_author_residuals"]
 
 
-def test_narrow_receipt_cannot_hide_residual_and_parity_is_exact(tmp_path: Path) -> None:
+def test_clean_consumer_projection_is_exact_and_author_control_free(
+    tmp_path: Path,
+) -> None:
     audit = _load_audit_module()
     source = tmp_path / "source"
     installed = tmp_path / "installed"
-    _write_current_authority(source, "target-skill")
-    _write_current_authority(installed, "target-skill")
-    assert audit._parity_status(source, installed)["ok"] is True
+    _write_clean_consumer(audit, source, installed)
 
-    installed.joinpath("SKILL.md").write_text("changed prompt\n", encoding="utf-8")
-    assert audit._parity_status(source, installed)["ok"] is False
-
-    residual = source / ".skillguard" / "skillguard_manifest.json"
-    residual.write_text("{}\n", encoding="utf-8")
-    status = audit._authority_status(source, "target-skill")
-    assert status["retirement_receipt"]["ok"] is True
-    assert status["ok"] is False
-    assert "skillguard_manifest.json" in status["former_v1_residuals"]
+    status = audit._consumer_projection_status(source, installed)
+    assert status["ok"] is True
+    assert status["installed_author_control_paths"] == []
+    assert not (installed / ".skillguard").exists()
 
 
-def test_former_v1_retirement_receipt_is_never_current_authority(tmp_path: Path) -> None:
+def test_consumer_projection_rejects_author_control_and_hash_drift(
+    tmp_path: Path,
+) -> None:
     audit = _load_audit_module()
-    skill = tmp_path / "skill"
-    _write_current_authority(skill, "target-skill")
-    current = skill / ".skillguard" / "retirement-completion-receipt.json"
-    current.unlink()
-    former = skill / ".skillguard" / "v1-retirement-completion-receipt.json"
-    former.write_text(
-        json.dumps(
-            {
-                "status": "retired",
-                "target_skill_id": "target-skill",
-                "receipt_id": "former-v1",
-                "residual_scan": {"residual_count": 0},
-            }
-        ),
-        encoding="utf-8",
-    )
+    source = tmp_path / "source"
+    installed = tmp_path / "installed"
+    _write_clean_consumer(audit, source, installed)
 
-    status = audit._authority_status(skill, "target-skill")
+    control = installed / ".skillguard"
+    control.mkdir()
+    (control / "contract-source.json").write_text("{}\n", encoding="utf-8")
+    installed.joinpath("SKILL.md").write_text("changed prompt\n", encoding="utf-8")
+    status = audit._consumer_projection_status(source, installed)
     assert status["ok"] is False
-    assert status["retirement_receipt"]["reason"] == "expanded_scope_retirement_receipt_missing"
+    assert any(
+        item.startswith("consumer_author_control_path_present:")
+        for item in status["findings"]
+    )
+    assert "consumer_file_hash_mismatch:SKILL.md" in status["findings"]
+
+
+def test_consumer_projection_rejects_source_inventory_drift(tmp_path: Path) -> None:
+    audit = _load_audit_module()
+    source = tmp_path / "source"
+    installed = tmp_path / "installed"
+    _write_clean_consumer(audit, source, installed)
+    (source / "alternate_runtime.py").write_text("VALUE = 2\n", encoding="utf-8")
+
+    status = audit._consumer_projection_status(source, installed)
+    assert status["ok"] is False
+    assert "source_projection_file_unexpected:alternate_runtime.py" in status["findings"]
 
 
 def test_primary_contract_uses_generic_supervision_and_binds_portable_runtime() -> None:
@@ -166,6 +198,13 @@ def test_primary_contract_uses_generic_supervision_and_binds_portable_runtime() 
         assert "source_root" not in text
         assert "portable_target_runtime" not in text
     assert "sys.path.insert(0, str(RUNTIME_ROOT))" in GUARD_MODEL_CHECK.read_text(encoding="utf-8")
+    assert not (PRIMARY_ROOT / "runtime/worldguard/skillguard_current_protocol.py").exists()
+    assert not (ROOT / "worldguard/skillguard_current_protocol.py").exists()
+    assert not any(
+        "skillguard_current_protocol.py" in str(row.get("path", ""))
+        for row in contract.get("content_role_overrides", [])
+        if isinstance(row, dict)
+    )
 
 
 def test_formal_depth_rejects_missing_bundled_runtime_without_source_fallback(
@@ -184,7 +223,7 @@ def test_formal_depth_selects_only_the_skill_bundled_runtime(tmp_path: Path) -> 
     skill_root = tmp_path / "installed-skill"
     package_root = skill_root / "runtime" / "worldguard"
     package_root.mkdir(parents=True)
-    for name in ("__init__.py", "execution_depth.py", "skillguard_current_protocol.py"):
+    for name in ("__init__.py", "execution_depth.py"):
         package_root.joinpath(name).write_text("# bundled\n", encoding="utf-8")
 
     assert bridge._activate_bundled_runtime(skill_root) == package_root.resolve()

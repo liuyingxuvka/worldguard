@@ -50,14 +50,14 @@ def _mesh(guard: str, inputs: dict, *, text: str = "bounded semantic claim") -> 
 NEGATIVE_PROBES = [
     (
         "EventGuard",
-        {"event_model": {"events": [{"event_id": "e1", "at": "t0"}]}},
+        {"events": [{"event_id": "e1", "at": "t0"}]},
         "SEM_EVENT_MISSING_AXIOM",
     ),
     (
         "AgentGuard",
         {
-            "beliefs": {"a1": ["ready"]},
-            "agent_model": {"agents": {"a1": {"beliefs": ["ready"]}}},
+            "beliefs": {"a1": {"beliefs": ["ready"]}},
+            "agent_model": {},
         },
         "SEM_AGENT_INCOMPLETE_BDI",
     ),

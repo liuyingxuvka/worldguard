@@ -1,8 +1,6 @@
-"""Portable FlowGuard export for WorldGuard's current declared-check contract."""
+"""Portable FlowGuard export for WorldGuard's current maintenance checks."""
 
 from __future__ import annotations
-
-import re
 
 import flowguard
 
@@ -10,238 +8,76 @@ import flowguard
 FLOWGUARD_MODEL_MARKER = "flowguard-executable-model"
 
 
-def _slug(value: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
-
-
-def _native_route(
-    route_id: str,
-    *,
-    function_id: str,
-    owner_id: str,
-    business_intent: str,
-) -> tuple[dict[str, object], dict[str, object], list[dict[str, object]]]:
-    slug = _slug(route_id)
-    execute = f"step:{slug}:execute"
-    passed = f"terminal:{slug}:pass"
-    blocked = f"terminal:{slug}:blocked"
-    steps: list[dict[str, object]] = [
-        {
-            "step_id": execute,
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "native",
-            "prerequisite_step_ids": [],
-            "required": True,
-            "terminal_kind": "",
-        },
-        {
-            "step_id": passed,
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "terminal",
-            "prerequisite_step_ids": [execute],
-            "required": True,
-            "terminal_kind": "success",
-        },
-        {
-            "step_id": blocked,
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "terminal",
-            "prerequisite_step_ids": [],
-            "required": True,
-            "terminal_kind": "blocked",
-        },
-    ]
-    return (
-        {
-            "function_id": function_id,
-            "business_intent": business_intent,
-            "owner_id": owner_id,
-            "route_ids": [route_id],
-            "composable_with": [],
-        },
-        {
-            "route_id": route_id,
-            "function_id": function_id,
-            "owner_id": owner_id,
-            "start_step_id": execute,
-            "step_ids": [row["step_id"] for row in steps],
-            "success_terminal_step_id": passed,
-            "blocked_terminal_step_id": blocked,
-            "handoffs": [],
-        },
-        steps,
-    )
-
-
-def _internal_guard_route(
-    guard_id: str,
-    *,
-    prediction_mode: str,
-) -> tuple[dict[str, object], dict[str, object], list[dict[str, object]]]:
-    """Model one complete internal Guard route without publishing a child skill."""
-
-    guard_slug = guard_id.removesuffix("Guard").lower()
-    route_id = f"internal:worldguard:{guard_slug}"
-    owner_id = f"worldguard.internal.{guard_id}"
-    expectation = f"step:internal-worldguard-{guard_slug}:prediction-boundary"
-    response = f"step:internal-worldguard-{guard_slug}:response"
-    validate = f"step:internal-worldguard-{guard_slug}:validate"
-    passed = f"terminal:internal-worldguard-{guard_slug}:pass"
-    blocked = f"terminal:internal-worldguard-{guard_slug}:blocked"
-    steps: list[dict[str, object]] = [
-        {
-            "step_id": expectation,
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "native",
-            "prerequisite_step_ids": [],
-            "required": True,
-            "terminal_kind": "",
-        },
-        {
-            "step_id": response,
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "native",
-            "prerequisite_step_ids": [expectation],
-            "required": True,
-            "terminal_kind": "",
-        },
-        {
-            "step_id": validate,
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "verifier",
-            "prerequisite_step_ids": [response],
-            "required": True,
-            "terminal_kind": "",
-        },
-        {
-            "step_id": passed,
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "terminal",
-            "prerequisite_step_ids": [validate],
-            "required": True,
-            "terminal_kind": "success",
-        },
-        {
-            "step_id": blocked,
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "terminal",
-            "prerequisite_step_ids": [],
-            "required": True,
-            "terminal_kind": "blocked",
-        },
-    ]
-    function_id = f"worldguard_internal_{guard_slug}_guard"
-    return (
-        {
-            "function_id": function_id,
-            "business_intent": (
-                f"preserve {guard_id} prediction boundary, response, "
-                f"validation, and terminal semantics ({prediction_mode})"
-            ),
-            "owner_id": owner_id,
-            "route_ids": [route_id],
-            "composable_with": [],
-        },
-        {
-            "route_id": route_id,
-            "function_id": function_id,
-            "owner_id": owner_id,
-            "start_step_id": expectation,
-            "step_ids": [row["step_id"] for row in steps],
-            "success_terminal_step_id": passed,
-            "blocked_terminal_step_id": blocked,
-            "handoffs": [],
-        },
-        steps,
-    )
-
-
 def export_contract_model() -> dict[str, object]:
-    owner_id = "worldguard.mesh.predictive_coverage"
+    """Expose maintenance validation ownership, not duplicate domain routes."""
+
     route_id = "route:worldguard-claim-derived-depth"
-    depth_steps = [
+    owner_id = "worldguard.maintenance_validation"
+    model_step = "step:derive-world-coverage-universe"
+    topology_step = "step:verify-worldguard-internal-topology"
+    guard_contract_step = "step:verify-world-guard-model-contract"
+    depth_step = "step:execute-world-semantic-depth"
+    template_step = "step:worldguard-template-pack-builder:execute"
+    success = "terminal:world-depth-pass"
+    blocked = "terminal:world-depth-blocked"
+
+    steps = [
         {
-            "step_id": "step:derive-world-coverage-universe",
+            "step_id": model_step,
             "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "native",
+            "owner_id": "worldguard.flowguard_contract",
+            "action_kind": "flowguard_model",
             "prerequisite_step_ids": [],
             "required": True,
             "terminal_kind": "",
         },
         {
-            "step_id": "step:verify-world-guard-model-contract",
+            "step_id": topology_step,
+            "route_id": route_id,
+            "owner_id": "worldguard.internal.topology",
+            "action_kind": "verifier",
+            "prerequisite_step_ids": [model_step],
+            "required": True,
+            "terminal_kind": "",
+        },
+        {
+            "step_id": guard_contract_step,
             "route_id": route_id,
             "owner_id": "worldguard.guard_model_contract",
             "action_kind": "verifier",
-            "prerequisite_step_ids": ["step:derive-world-coverage-universe"],
+            "prerequisite_step_ids": [topology_step],
             "required": True,
             "terminal_kind": "",
         },
         {
-            "step_id": "step:freeze-world-guard-purpose-contract",
+            "step_id": depth_step,
             "route_id": route_id,
-            "owner_id": "worldguard.guard_model_contract",
+            "owner_id": "worldguard.mesh.predictive_coverage",
             "action_kind": "native",
-            "prerequisite_step_ids": ["step:verify-world-guard-model-contract"],
+            "prerequisite_step_ids": [guard_contract_step],
             "required": True,
             "terminal_kind": "",
         },
         {
-            "step_id": "step:construct-world-guard-candidates",
+            "step_id": template_step,
             "route_id": route_id,
-            "owner_id": "worldguard.contracts",
+            "owner_id": "worldguard.template_packs",
             "action_kind": "native",
-            "prerequisite_step_ids": ["step:freeze-world-guard-purpose-contract"],
+            "prerequisite_step_ids": [depth_step],
             "required": True,
             "terminal_kind": "",
         },
         {
-            "step_id": "step:verify-world-guard-candidate-purpose-bindings",
-            "route_id": route_id,
-            "owner_id": "worldguard.guard_model_contract",
-            "action_kind": "verifier",
-            "prerequisite_step_ids": ["step:construct-world-guard-candidates"],
-            "required": True,
-            "terminal_kind": "",
-        },
-        {
-            "step_id": "step:execute-world-semantic-depth",
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "native",
-            "prerequisite_step_ids": ["step:verify-world-guard-candidate-purpose-bindings"],
-            "required": True,
-            "terminal_kind": "",
-        },
-        {
-            "step_id": "step:verify-world-depth-receipt",
-            "route_id": route_id,
-            "owner_id": owner_id,
-            "action_kind": "verifier",
-            "prerequisite_step_ids": ["step:execute-world-semantic-depth"],
-            "required": True,
-            "terminal_kind": "",
-        },
-        {
-            "step_id": "terminal:world-depth-pass",
+            "step_id": success,
             "route_id": route_id,
             "owner_id": owner_id,
             "action_kind": "terminal",
-            "prerequisite_step_ids": ["step:verify-world-depth-receipt"],
+            "prerequisite_step_ids": [template_step],
             "required": True,
             "terminal_kind": "success",
         },
         {
-            "step_id": "terminal:world-depth-blocked",
+            "step_id": blocked,
             "route_id": route_id,
             "owner_id": owner_id,
             "action_kind": "terminal",
@@ -250,105 +86,6 @@ def export_contract_model() -> dict[str, object]:
             "terminal_kind": "blocked",
         },
     ]
-    functions: list[dict[str, object]] = [
-        {
-            "function_id": "worldguard_claim_derived_depth",
-            "business_intent": "execute and verify WorldGuard-owned predictive depth",
-            "owner_id": owner_id,
-            "route_ids": [route_id],
-            "composable_with": [],
-        }
-    ]
-    routes: list[dict[str, object]] = [
-        {
-            "route_id": route_id,
-            "function_id": "worldguard_claim_derived_depth",
-            "owner_id": owner_id,
-            "start_step_id": "step:derive-world-coverage-universe",
-            "step_ids": [row["step_id"] for row in depth_steps],
-            "success_terminal_step_id": "terminal:world-depth-pass",
-            "blocked_terminal_step_id": "terminal:world-depth-blocked",
-            "handoffs": [],
-        }
-    ]
-    steps = list(depth_steps)
-    preserved_routes = [
-        (
-            "guard_investigation.claim_or_source_intake",
-            "worldguard_claim_or_source_intake",
-            "preserve the current claim, source, and world boundary",
-        ),
-        (
-            "guard_investigation.evidence_model",
-            "worldguard_evidence_model",
-            "build or load the native world evidence model",
-        ),
-        (
-            "guard_investigation.gap_review",
-            "worldguard_gap_review",
-            "review missing semantics and model-boundary gaps",
-        ),
-        (
-            "guard_investigation.closure",
-            "worldguard_closure",
-            "derive bounded or predictive native closure",
-        ),
-        (
-            "worldguard.semantic_rollout",
-            "worldguard_semantic_rollout",
-            "execute WorldGuard-owned semantic rollout",
-        ),
-    ]
-    for native_route_id, function_id, intent in preserved_routes:
-        function, route, route_steps = _native_route(
-            native_route_id,
-            function_id=function_id,
-            owner_id="worldguard",
-            business_intent=intent,
-        )
-        functions.append(function)
-        routes.append(route)
-        steps.extend(route_steps)
-
-    internal_guard_validate_steps: list[str] = []
-    for guard_id in (
-        "EventGuard",
-        "AgentGuard",
-        "SpaceGuard",
-        "ResourceGuard",
-        "CausalGuard",
-        "ConflictGuard",
-        "NormGuard",
-    ):
-        prediction_mode = (
-            "claim_derived_predictive_participant"
-            if guard_id in {"EventGuard", "CausalGuard"}
-            else "bounded_expectation_only"
-        )
-        function, route, route_steps = _internal_guard_route(
-            guard_id,
-            prediction_mode=prediction_mode,
-        )
-        functions.append(function)
-        routes.append(route)
-        steps.extend(route_steps)
-        internal_guard_validate_steps.append(
-            f"step:internal-worldguard-"
-            f"{guard_id.removesuffix('Guard').lower()}:validate"
-        )
-
-    template_function, template_route, template_steps = _native_route(
-        "worldguard.template_pack_builder",
-        function_id="worldguard_template_pack_builder",
-        owner_id="worldguard.template_packs",
-        business_intent=(
-            "select, compose, and validate WorldGuard-owned GuardContract or "
-            "ModelMeshContract scaffolding without deciding Guard semantics"
-        ),
-    )
-    functions.append(template_function)
-    routes.append(template_route)
-    steps.extend(template_steps)
 
     invariant_ids = [
         "worldguard_claim_routes_are_derived",
@@ -373,41 +110,49 @@ def export_contract_model() -> dict[str, object]:
         "worldguard_source_version_and_consumer_runtime_identity_are_frozen",
     ]
     obligations = [
-        ("obligation:worldguard-claim-routes", invariant_ids[0], ["step:execute-world-semantic-depth", "step:verify-world-depth-receipt"]),
-        ("obligation:worldguard-semantic-universe", invariant_ids[1], ["step:execute-world-semantic-depth", "step:verify-world-depth-receipt"]),
-        ("obligation:worldguard-timepoint-strata-depth", invariant_ids[2], ["step:execute-world-semantic-depth", "step:verify-world-depth-receipt"]),
-        ("obligation:worldguard-scenario-holdout-depth", invariant_ids[3], ["step:execute-world-semantic-depth", "step:verify-world-depth-receipt"]),
-        ("obligation:worldguard-predictive-axes", invariant_ids[4], ["step:execute-world-semantic-depth", "step:verify-world-depth-receipt"]),
-        ("obligation:worldguard-receipt-freshness", invariant_ids[5], ["step:verify-world-depth-receipt"]),
-        ("obligation:worldguard-guard-model-purpose", invariant_ids[6], ["step:verify-world-guard-model-contract"]),
-        ("obligation:worldguard-protected-failure-universe", invariant_ids[7], ["step:verify-world-guard-model-contract"]),
-        ("obligation:worldguard-native-failure-oracle", invariant_ids[8], ["step:verify-world-guard-model-contract"]),
-        ("obligation:worldguard-guard-candidate-purpose-binding", invariant_ids[9], ["step:freeze-world-guard-purpose-contract", "step:construct-world-guard-candidates", "step:verify-world-guard-candidate-purpose-bindings"]),
-        ("obligation:worldguard-template-selection", invariant_ids[10], ["step:worldguard-template-pack-builder:execute"]),
-        ("obligation:worldguard-template-field-ownership", invariant_ids[11], ["step:worldguard-template-pack-builder:execute"]),
-        ("obligation:worldguard-template-native-validation", invariant_ids[12], ["step:worldguard-template-pack-builder:execute"]),
-        ("obligation:worldguard-template-neutral-projection", invariant_ids[13], ["step:worldguard-template-pack-builder:execute"]),
-        ("obligation:worldguard-template-native-candidate-inventory", invariant_ids[14], ["step:worldguard-template-pack-builder:execute"]),
-        ("obligation:worldguard-template-projection-freshness", invariant_ids[15], ["step:worldguard-template-pack-builder:execute"]),
+        ("obligation:worldguard-claim-routes", invariant_ids[0], depth_step),
+        ("obligation:worldguard-semantic-universe", invariant_ids[1], depth_step),
+        ("obligation:worldguard-timepoint-strata-depth", invariant_ids[2], depth_step),
+        ("obligation:worldguard-scenario-holdout-depth", invariant_ids[3], depth_step),
+        ("obligation:worldguard-predictive-axes", invariant_ids[4], depth_step),
+        ("obligation:worldguard-receipt-freshness", invariant_ids[5], depth_step),
+        ("obligation:worldguard-guard-model-purpose", invariant_ids[6], guard_contract_step),
+        ("obligation:worldguard-protected-failure-universe", invariant_ids[7], guard_contract_step),
+        ("obligation:worldguard-native-failure-oracle", invariant_ids[8], guard_contract_step),
         (
-            "obligation:worldguard-internal-guard-topology",
-            invariant_ids[16],
-            internal_guard_validate_steps,
+            "obligation:worldguard-guard-candidate-purpose-binding",
+            invariant_ids[9],
+            guard_contract_step,
         ),
+        ("obligation:worldguard-template-selection", invariant_ids[10], template_step),
+        ("obligation:worldguard-template-field-ownership", invariant_ids[11], template_step),
+        ("obligation:worldguard-template-native-validation", invariant_ids[12], template_step),
+        ("obligation:worldguard-template-neutral-projection", invariant_ids[13], template_step),
+        (
+            "obligation:worldguard-template-native-candidate-inventory",
+            invariant_ids[14],
+            template_step,
+        ),
+        (
+            "obligation:worldguard-template-projection-freshness",
+            invariant_ids[15],
+            template_step,
+        ),
+        ("obligation:worldguard-internal-guard-topology", invariant_ids[16], topology_step),
         (
             "obligation:worldguard-internal-guard-completeness",
             invariant_ids[17],
-            internal_guard_validate_steps,
+            topology_step,
         ),
         (
             "obligation:worldguard-internal-guard-semantics",
             invariant_ids[18],
-            internal_guard_validate_steps,
+            topology_step,
         ),
         (
             "obligation:worldguard-source-version-identity",
             invariant_ids[19],
-            internal_guard_validate_steps,
+            topology_step,
         ),
     ]
     return {
@@ -415,26 +160,46 @@ def export_contract_model() -> dict[str, object]:
         "flowguard_schema_version": str(flowguard.SCHEMA_VERSION),
         "model_id": "worldguard-skillguard-declared-checks-current",
         "parent_model_id": "worldguard-claim-derived-semantic-coverage",
-        "functions": functions,
-        "routes": routes,
+        "functions": [
+            {
+                "function_id": "worldguard_claim_derived_depth",
+                "business_intent": (
+                    "execute the five exact WorldGuard maintenance validation owners"
+                ),
+                "owner_id": owner_id,
+                "route_ids": [route_id],
+                "composable_with": [],
+            }
+        ],
+        "routes": [
+            {
+                "route_id": route_id,
+                "function_id": "worldguard_claim_derived_depth",
+                "owner_id": owner_id,
+                "start_step_id": model_step,
+                "step_ids": [row["step_id"] for row in steps],
+                "success_terminal_step_id": success,
+                "blocked_terminal_step_id": blocked,
+                "handoffs": [],
+            }
+        ],
         "steps": steps,
         "obligations": [
             {
                 "obligation_id": obligation_id,
                 "invariant_id": invariant_id,
-                "owner_step_ids": owner_step_ids,
+                "owner_step_ids": [owner_step_id],
                 "required": True,
             }
-            for obligation_id, invariant_id, owner_step_ids in obligations
+            for obligation_id, invariant_id, owner_step_id in obligations
         ],
         "invariant_ids": invariant_ids,
         "claim_boundary": (
-            "WorldGuard owns Guard purposes, the finite protected-failure inventory, native "
-            "good/bad fixtures and reactions, claim routing, model execution, simulation, and judgment. "
-            "This export preserves the existing Guard-investigation and semantic-rollout "
-            "routes and adds only supervised target-native Guard-contract, template-construction, "
-            "target-owned neutral-projection, and predictive-depth checks. SkillGuard validates "
-            "and seals neutral projection shape only; template mechanics never transfer Guard semantics."
+            "This author-side export gives each of the five WorldGuard checks one "
+            "maintenance step and one execution owner. WorldGuard's public investigation, "
+            "semantic-rollout, template, and seven internal Guard runtime routes remain "
+            "target-owned in the skill/runtime and are verified by those checks; this "
+            "maintenance model does not duplicate them as alternate execution paths."
         ),
     }
 
@@ -442,4 +207,11 @@ def export_contract_model() -> dict[str, object]:
 if __name__ == "__main__":
     import json
 
-    print(json.dumps(export_contract_model(), ensure_ascii=False, indent=2, sort_keys=True))
+    print(
+        json.dumps(
+            export_contract_model(),
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+    )

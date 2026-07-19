@@ -9,7 +9,7 @@ from ._helpers import error, result, semantics_text
 def run(contract: GuardContract):
     guard = "EventGuard"
     text = semantics_text(contract)
-    events = contract.inputs.get("events") or contract.world_model.data.get("event_line") or []
+    events = contract.inputs.get("events", [])
     event_model = contract.inputs.get("event_model", {})
 
     if any(word in text for word in ["numeric", "dynamics", "thermodynamics", "continuous"]):
@@ -30,11 +30,11 @@ def run(contract: GuardContract):
             GuardStatus.GAP,
             channel="gap",
             impact="creates_gap",
-            missing_slots=[{"needed": "events or event_model"}],
+            missing_slots=[{"needed": "inputs.events or inputs.event_model metadata"}],
             errors=[error("EVENT_MISSING_EVENT_MODEL", "No event model was supplied.")],
         )
 
-    if event_model.get("exclusive_violation") or event_model.get("contradictory_fluents"):
+    if event_model.get("contradictory_fluents"):
         return result(
             contract,
             guard,
@@ -63,7 +63,7 @@ def run(contract: GuardContract):
         GuardStatus.PASS,
         channel="event",
         impact="supports_pass",
-        payload={"events_observed": len(events) or len(event_model.get("events", []))},
+        payload={"events_observed": len(events)},
         supported=True,
         consumed_inputs={"events": events, "event_model": event_model},
     )

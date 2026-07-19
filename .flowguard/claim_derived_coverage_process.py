@@ -15,12 +15,14 @@ class CoverageRequest:
     one_native_good_per_guard: bool = True
     one_native_bad_per_failure: bool = True
     native_failure_oracle_passed: bool = True
-    current_skillguard_authority: bool = True
-    former_skillguard_authority_absent: bool = True
+    author_skillguard_authority_current: bool = True
+    former_author_skillguard_authority_absent: bool = True
+    installed_consumer_projection_current: bool = True
+    installed_consumer_author_control_absent: bool = True
     receipt_only_verification: bool = True
-    scheduled_production_domain: bool = True
-    scheduled_production_identity_current: bool = True
-    scheduled_production_identity_target_owned: bool = True
+    release_gate_domain: bool = True
+    release_gate_binding_current: bool = True
+    release_gate_binding_target_owned: bool = True
     exact_single_mesh_input: bool = True
     fixture_calibration_isolated: bool = True
     structured_claim_atoms: bool = True
@@ -121,12 +123,14 @@ class State:
     one_native_good_per_guard: bool = False
     one_native_bad_per_failure: bool = False
     native_failure_oracle_passed: bool = False
-    current_skillguard_authority: bool = False
-    former_skillguard_authority_absent: bool = False
+    author_skillguard_authority_current: bool = False
+    former_author_skillguard_authority_absent: bool = False
+    installed_consumer_projection_current: bool = False
+    installed_consumer_author_control_absent: bool = False
     receipt_only_verification: bool = False
-    scheduled_production_domain: bool = False
-    scheduled_production_identity_current: bool = False
-    scheduled_production_identity_target_owned: bool = False
+    release_gate_domain: bool = False
+    release_gate_binding_current: bool = False
+    release_gate_binding_target_owned: bool = False
     exact_single_mesh_input: bool = False
     fixture_calibration_isolated: bool = False
     claim_routes_derived: bool = False
@@ -161,12 +165,14 @@ class DeriveClaimRoutes:
         "one_native_good_per_guard",
         "one_native_bad_per_failure",
         "native_failure_oracle_passed",
-        "current_skillguard_authority",
-        "former_skillguard_authority_absent",
+        "author_skillguard_authority_current",
+        "former_author_skillguard_authority_absent",
+        "installed_consumer_projection_current",
+        "installed_consumer_author_control_absent",
         "receipt_only_verification",
-        "scheduled_production_domain",
-        "scheduled_production_identity_current",
-        "scheduled_production_identity_target_owned",
+        "release_gate_domain",
+        "release_gate_binding_current",
+        "release_gate_binding_target_owned",
         "exact_single_mesh_input",
         "fixture_calibration_isolated",
         "claim_routes_derived",
@@ -209,29 +215,35 @@ class DeriveClaimRoutes:
                 "native_failure_oracle_blocked",
             )
             return
-        if not input_obj.current_skillguard_authority:
-            yield FunctionResult(Blocked("current_generic_skillguard_authority_required"), state, "skillguard_authority_blocked")
+        if not input_obj.author_skillguard_authority_current:
+            yield FunctionResult(Blocked("current_author_skillguard_authority_required"), state, "author_skillguard_authority_blocked")
             return
-        if not input_obj.former_skillguard_authority_absent:
-            yield FunctionResult(Blocked("former_skillguard_authority_residual_present"), state, "former_authority_residual_blocked")
+        if not input_obj.former_author_skillguard_authority_absent:
+            yield FunctionResult(Blocked("former_author_skillguard_authority_residual_present"), state, "former_authority_residual_blocked")
+            return
+        if not input_obj.installed_consumer_projection_current:
+            yield FunctionResult(Blocked("installed_consumer_projection_not_current"), state, "consumer_projection_blocked")
+            return
+        if not input_obj.installed_consumer_author_control_absent:
+            yield FunctionResult(Blocked("installed_consumer_author_control_present"), state, "consumer_author_control_blocked")
             return
         if not input_obj.receipt_only_verification:
             yield FunctionResult(Blocked("verification_consumer_must_not_execute_owner"), state, "receipt_only_verification_blocked")
             return
-        if not input_obj.scheduled_production_domain:
-            yield FunctionResult(Blocked("formal_depth_requires_scheduled_production_domain"), state, "production_domain_blocked")
+        if not input_obj.release_gate_domain:
+            yield FunctionResult(Blocked("formal_depth_requires_release_gate_domain"), state, "release_gate_domain_blocked")
             return
-        if not input_obj.scheduled_production_identity_current:
-            yield FunctionResult(Blocked("scheduled_production_identity_not_current"), state, "production_identity_blocked")
+        if not input_obj.release_gate_binding_current:
+            yield FunctionResult(Blocked("release_gate_binding_not_current"), state, "release_gate_binding_blocked")
             return
-        if not input_obj.scheduled_production_identity_target_owned:
-            yield FunctionResult(Blocked("scheduled_production_identity_not_target_owned"), state, "production_identity_source_blocked")
+        if not input_obj.release_gate_binding_target_owned:
+            yield FunctionResult(Blocked("release_gate_binding_not_target_owned"), state, "release_gate_binding_source_blocked")
             return
         if not input_obj.exact_single_mesh_input:
             yield FunctionResult(Blocked("exact_single_current_mesh_input_required"), state, "target_input_inventory_blocked")
             return
         if not input_obj.fixture_calibration_isolated:
-            yield FunctionResult(Blocked("fixture_calibration_cannot_close_production"), state, "fixture_as_production_blocked")
+            yield FunctionResult(Blocked("fixture_calibration_cannot_close_release_gate"), state, "fixture_as_release_gate_blocked")
             return
         if not input_obj.structured_claim_atoms:
             yield FunctionResult(Blocked("structured_claim_atoms_required"), state, "claim_atoms_blocked")
@@ -267,12 +279,14 @@ class DeriveClaimRoutes:
                 one_native_good_per_guard=True,
                 one_native_bad_per_failure=True,
                 native_failure_oracle_passed=True,
-                current_skillguard_authority=True,
-                former_skillguard_authority_absent=True,
+                author_skillguard_authority_current=True,
+                former_author_skillguard_authority_absent=True,
+                installed_consumer_projection_current=True,
+                installed_consumer_author_control_absent=True,
                 receipt_only_verification=True,
-                scheduled_production_domain=True,
-                scheduled_production_identity_current=True,
-                scheduled_production_identity_target_owned=True,
+                release_gate_domain=True,
+                release_gate_binding_current=True,
+                release_gate_binding_target_owned=True,
                 exact_single_mesh_input=True,
                 fixture_calibration_isolated=True,
                 claim_routes_derived=True,
@@ -487,12 +501,14 @@ EXTERNAL_INPUTS = (
     CoverageRequest(one_native_good_per_guard=False),
     CoverageRequest(one_native_bad_per_failure=False),
     CoverageRequest(native_failure_oracle_passed=False),
-    CoverageRequest(current_skillguard_authority=False),
-    CoverageRequest(former_skillguard_authority_absent=False),
+    CoverageRequest(author_skillguard_authority_current=False),
+    CoverageRequest(former_author_skillguard_authority_absent=False),
+    CoverageRequest(installed_consumer_projection_current=False),
+    CoverageRequest(installed_consumer_author_control_absent=False),
     CoverageRequest(receipt_only_verification=False),
-    CoverageRequest(scheduled_production_domain=False),
-    CoverageRequest(scheduled_production_identity_current=False),
-    CoverageRequest(scheduled_production_identity_target_owned=False),
+    CoverageRequest(release_gate_domain=False),
+    CoverageRequest(release_gate_binding_current=False),
+    CoverageRequest(release_gate_binding_target_owned=False),
     CoverageRequest(exact_single_mesh_input=False),
     CoverageRequest(fixture_calibration_isolated=False),
     CoverageRequest(structured_claim_atoms=False),
@@ -548,12 +564,14 @@ def predictive_license_requires_complete_executed_coverage(
         and state.one_native_good_per_guard
         and state.one_native_bad_per_failure
         and state.native_failure_oracle_passed
-        and state.current_skillguard_authority
-        and state.former_skillguard_authority_absent
+        and state.author_skillguard_authority_current
+        and state.former_author_skillguard_authority_absent
+        and state.installed_consumer_projection_current
+        and state.installed_consumer_author_control_absent
         and state.receipt_only_verification
-        and state.scheduled_production_domain
-        and state.scheduled_production_identity_current
-        and state.scheduled_production_identity_target_owned
+        and state.release_gate_domain
+        and state.release_gate_binding_current
+        and state.release_gate_binding_target_owned
         and state.exact_single_mesh_input
         and state.fixture_calibration_isolated
         and state.claim_routes_derived
@@ -584,7 +602,7 @@ def predictive_license_requires_complete_executed_coverage(
 INVARIANTS = (
     Invariant(
         "predictive_license_requires_complete_executed_coverage",
-        "Prediction requires declared Guard purposes, a complete finite Guard-owned failure universe, exactly one native good per Guard, exactly one native bad per failure class, a passing native reaction oracle, current generic SkillGuard supervision, complete former-authority retirement, receipt-only verification, a current target-owned scheduled-production identity carried by exactly one mesh, isolated fixture calibration, reconciled native object scope, square-root temporal floors, early/middle/late and maximum-gap coverage, per-variable depth, native floor receipts, executed children, and current fingerprints.",
+        "Prediction requires declared Guard purposes, a complete finite Guard-owned failure universe, exactly one native good per Guard, exactly one native bad per failure class, a passing native reaction oracle, current author-side SkillGuard supervision, complete former-authority retirement, an exact clean installed consumer projection, receipt-only verification, a current target-owned release-gate binding carried by exactly one mesh, isolated fixture calibration, reconciled native object scope, square-root temporal floors, early/middle/late and maximum-gap coverage, per-variable depth, native floor receipts, executed children, and current fingerprints.",
         predictive_license_requires_complete_executed_coverage,
     ),
 )

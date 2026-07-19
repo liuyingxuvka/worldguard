@@ -14,7 +14,7 @@ Route: `code_structure_recommendation`
 
 | FunctionBlock | Target module | Owns |
 |---|---|---|
-| Contract normalization | `worldguard.contracts` | `GuardContract`, claim/world/input/dependency/output fields, target_guard alias handling |
+| Contract validation | `worldguard.contracts` | Current `GuardContract` claim/world/input/dependency/output fields; retired aliases fail visibly |
 | Status semantics | `worldguard.status` | `GuardStatus`, aggregate priority |
 | Ledger accounting | `worldguard.ledgers` | `LedgerEntry`, ledger channels, read-only ledger defaults |
 | Result/report validation | `worldguard.reports` | `GuardResult`, non-pass evidence validation, `GuardedReport` |

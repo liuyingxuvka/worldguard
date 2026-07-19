@@ -139,7 +139,8 @@ BUILTIN_TEMPLATE_PARAMETER_TYPES = {
     "resource_inputs": "object",
     "causal_inputs": "object",
     "conflict_inputs": "object",
-    "norm_inputs": "object",
+    "norms": "array",
+    "facts": "array",
     "mesh_id": "string",
     "nodes": "array",
     "expected_model_node_ids": "array",
@@ -570,7 +571,7 @@ class TemplatePackRegistry:
         candidate_ids = tuple(item.pack_id for item in candidates)
         base_id = bases[0].pack_id if len(bases) == 1 else ""
         if len(candidates) == 0:
-            outcome = "base_template" if base_id else "no_match"
+            outcome = "no_match"
             selected_id = ""
         elif len(candidates) == 1:
             outcome = "selected"
@@ -951,10 +952,15 @@ def build_template_instance(
             "More than one template candidate matches; WorldGuard will not guess.",
             details={"candidate_pack_ids": list(selection.candidate_pack_ids)},
         )
-    if not selection.base_pack_id:
-        code = "TEMPLATE_NO_MATCH_AND_BASE_MISSING" if selection.outcome == "no_match" else "TEMPLATE_SELECTED_BASE_MISSING"
+    if selection.outcome == "no_match":
         raise TemplatePackError(
-            code,
+            "TEMPLATE_SELECTION_NO_MATCH",
+            "No current template candidate matches; WorldGuard will not activate the shared scaffold as a fallback.",
+            details={"contract_kind": contract_kind, "selection": selection.to_dict()},
+        )
+    if not selection.base_pack_id:
+        raise TemplatePackError(
+            "TEMPLATE_SELECTED_BASE_MISSING",
             "The requested contract kind has no unique current base template.",
             details={"contract_kind": contract_kind, "selection": selection.to_dict()},
         )
@@ -1392,17 +1398,10 @@ def _project_target_applicability_result(
     fact_set: frozenset[str],
 ) -> dict[str, Any]:
     if manifest.is_base:
-        eligible = (
-            selection.outcome == "base_template"
-            and selection.base_pack_id == manifest.pack_id
-        )
-        predicate_evidence = (
-            [f"worldguard.native-selection:{selection.selection_fingerprint}:base-no-match"]
-            if eligible
-            else []
-        )
+        eligible = False
+        predicate_evidence: list[str] = []
         forbidden_evidence: list[str] = []
-        reasons = [] if eligible else [f"worldguard.native-selection-outcome:{selection.outcome}"]
+        reasons = ["worldguard.shared-scaffold-is-not-a-selectable-fallback"]
     else:
         matched_by_manifest = manifest.matches(fact_set)
         matched_by_selection = manifest.pack_id in set(selection.candidate_pack_ids)
@@ -1688,7 +1687,6 @@ def builtin_template_registry() -> TemplatePackRegistry:
         "ResourceGuard": ("resources", "resource_inputs"),
         "CausalGuard": ("causal_model", "causal_inputs"),
         "ConflictGuard": ("game_model", "conflict_inputs"),
-        "NormGuard": ("norm_model", "norm_inputs"),
     }
     for guard, (field_id, slot_id) in guard_inputs.items():
         manifests.append(
@@ -1701,6 +1699,21 @@ def builtin_template_registry() -> TemplatePackRegistry:
                 payload={"inputs": {field_id: template_slot(slot_id)}},
             )
         )
+    manifests.append(
+        _manifest(
+            pack_id="worldguard.guard-contract.norm",
+            contract_kind=GUARD_CONTRACT_KIND,
+            is_base=False,
+            required_fact_ids=("guard:NormGuard",),
+            validator_ids=guard_validators,
+            payload={
+                "inputs": {
+                    "norms": template_slot("norms"),
+                    "facts": template_slot("facts"),
+                }
+            },
+        )
+    )
     for profile in ("bounded", "predictive"):
         manifests.append(
             _manifest(
@@ -1730,7 +1743,7 @@ def run_template_pack_contract() -> dict[str, Any]:
         )
 
     registry = builtin_template_registry()
-    observe("selection:zero", "base_template", registry.select(GUARD_CONTRACT_KIND).outcome)
+    observe("selection:zero", "no_match", registry.select(GUARD_CONTRACT_KIND).outcome)
     observe(
         "selection:one",
         "selected",
@@ -1817,23 +1830,16 @@ def run_template_pack_contract() -> dict[str, Any]:
         stale_native_identity_code,
     )
 
-    base_instance = build_template_instance(
-        registry,
-        contract_kind=GUARD_CONTRACT_KIND,
-        slot_bindings={
-            "contract_id": "template-oracle:guard",
-            "run_id": "template-oracle:guard-run",
-            "claim_id": "template-oracle:claim",
-            "claim_text": "construction-only base contract",
-            "target_guards": [],
-            "requested_semantics": [],
-            "claim_atoms": [],
-            "model_id": "template-oracle:model",
-            "model_version": "v1",
-            "guard_purpose_declarations": [],
-        },
-    )
-    observe("native:guard-base", 2, len(base_instance.receipt.validator_receipts))
+    try:
+        build_template_instance(
+            registry,
+            contract_kind=GUARD_CONTRACT_KIND,
+            slot_bindings={},
+        )
+        no_match_code = "<accepted>"
+    except TemplatePackError as exc:
+        no_match_code = exc.code
+    observe("native:guard-no-match", "TEMPLATE_SELECTION_NO_MATCH", no_match_code)
 
     mesh_instance = build_template_instance(
         registry,

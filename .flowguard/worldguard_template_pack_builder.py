@@ -74,7 +74,7 @@ class SelectTemplatePack:
     writes = ("selection_outcome", "base_selected", "candidate_selected")
     accepted_input_type = BuildRequest
     input_description = "Explicit applicability facts and current manifest inventory x initial state"
-    output_description = "SelectionReady(base_template|selected) or Blocked"
+    output_description = "SelectionReady(selected) or Blocked(no_match|ambiguous)"
     idempotency = "The same normalized facts and registry identity yield the same ordered candidate set and outcome."
 
     def apply(self, request: BuildRequest, state: State) -> Iterable[FunctionResult]:
@@ -104,17 +104,10 @@ class SelectTemplatePack:
             )
             return
         if request.candidate_count == 0:
-            if not request.base_present:
-                yield FunctionResult(
-                    Blocked("template_no_match_and_base_missing"),
-                    replace(state, selection_outcome="no_match"),
-                    "no_match_base_missing_blocked",
-                )
-                return
             yield FunctionResult(
-                SelectionReady(request, "base_template"),
-                replace(state, selection_outcome="base_template", base_selected=True),
-                "zero_candidates_select_base",
+                Blocked("template_selection_no_match"),
+                replace(state, selection_outcome="no_match"),
+                "zero_candidates_no_match_blocked",
             )
             return
         if not request.base_present:
@@ -188,8 +181,9 @@ class ComposeTemplatePack:
 
     def apply(self, selected: ProjectionReady, state: State) -> Iterable[FunctionResult]:
         if (
-            selected.outcome not in {"base_template", "selected"}
+            selected.outcome != "selected"
             or not state.base_selected
+            or not state.candidate_selected
             or not state.projection_emitted
         ):
             yield FunctionResult(Blocked("selection_not_buildable"), state, "selection_not_buildable_blocked")
@@ -247,8 +241,28 @@ def ambiguity_never_constructs(state: State, trace: object) -> InvariantResult:
     return InvariantResult.pass_()
 
 
+def no_match_never_constructs(state: State, trace: object) -> InvariantResult:
+    if state.selection_outcome == "no_match" and (
+        state.base_selected
+        or state.candidate_selected
+        or state.projection_emitted
+        or state.composed
+        or state.native_validated
+    ):
+        return InvariantResult.fail(
+            "A zero-candidate no-match activated the shared base or reached construction"
+        )
+    return InvariantResult.pass_()
+
+
 def ready_requires_worldguard_native_validation(state: State, trace: object) -> InvariantResult:
-    if state.native_validated and not (state.projection_emitted and state.composed and state.base_selected):
+    if state.native_validated and not (
+        state.projection_emitted
+        and state.composed
+        and state.base_selected
+        and state.candidate_selected
+        and state.selection_outcome == "selected"
+    ):
         return InvariantResult.fail("A template instance became ready without current target projection and composition")
     if state.semantic_authority != "worldguard":
         return InvariantResult.fail("Template or SkillGuard replaced WorldGuard semantic authority")
@@ -256,7 +270,7 @@ def ready_requires_worldguard_native_validation(state: State, trace: object) -> 
 
 
 def projection_preserves_native_authority(state: State, trace: object) -> InvariantResult:
-    if state.projection_emitted and state.selection_outcome not in {"base_template", "selected"}:
+    if state.projection_emitted and state.selection_outcome != "selected":
         return InvariantResult.fail("A neutral projection escaped a non-buildable native selection")
     if state.semantic_authority != "worldguard":
         return InvariantResult.fail("Neutral SkillGuard projection replaced WorldGuard applicability authority")
@@ -285,6 +299,11 @@ INVARIANTS = (
         "ambiguity_never_constructs",
         "More than one matching candidate is a visible blocker and never selects a winner.",
         ambiguity_never_constructs,
+    ),
+    Invariant(
+        "no_match_never_constructs",
+        "Zero matching candidates is a visible blocker and never activates the shared base fragment.",
+        no_match_never_constructs,
     ),
     Invariant(
         "ready_requires_worldguard_native_validation",
@@ -326,10 +345,9 @@ def review_template_pack_builder():
         max_sequence_length=MAX_SEQUENCE_LENGTH,
         terminal_predicate=terminal_predicate,
         required_labels=(
-            "zero_candidates_select_base",
+            "zero_candidates_no_match_blocked",
             "one_candidate_selected",
             "multiple_candidates_blocked",
-            "no_match_base_missing_blocked",
             "candidate_base_missing_blocked",
             "stale_manifest_blocked",
             "field_ownership_mismatch_blocked",

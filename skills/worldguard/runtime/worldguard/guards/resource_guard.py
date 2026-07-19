@@ -9,7 +9,7 @@ from ._helpers import error, result, semantics_text
 def run(contract: GuardContract):
     guard = "ResourceGuard"
     text = semantics_text(contract)
-    resources = contract.inputs.get("resources") or contract.world_model.data.get("resources") or {}
+    resources = contract.inputs.get("resources", {})
     places = resources.get("places", {}) if isinstance(resources, dict) else {}
     transitions = resources.get("transitions", []) if isinstance(resources, dict) else []
     capacities = resources.get("capacities", {}) if isinstance(resources, dict) else {}

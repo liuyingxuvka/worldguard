@@ -36,7 +36,7 @@ Boundary: WorldGuard-owned template manifest, selection, composition, slot, vali
 | `selection.contract_kind` | caller request | selector, receipt | build request | selects only the contract family |
 | `selection.fact_ids` | existing WorldGuard/caller context | selector, receipt | build request | normalized explicit facts; never inferred by template scoring |
 | `selection.candidate_pack_ids` | selector | builder, diagnostics | selector | exact sorted 0/1/many set |
-| `selection.outcome` | selector | builder, receipt | selector | `base_template`, `selected`, or `ambiguous` |
+| `selection.outcome` | selector | builder, receipt | selector | `no_match`, `selected`, or `ambiguous`; only `selected` may compose, while zero and many candidates block visibly |
 | `selection.selection_fingerprint` | `worldguard.template_packs` | builder, receipt | selector | binds registry, facts, candidates, and outcome |
 | `slot.$slot` | WorldGuard pack author | slot resolver | fragment payload | task-local placeholder; never supplies its own value |
 | `build.slot_bindings` | caller/AI task workflow | slot resolver, receipt | caller | task identity/evidence values; missing or unused blocks |
@@ -67,7 +67,7 @@ The projection boundary is intentionally closed. The rows below enumerate every 
 | `template.schema_version`, `template.template_id`, `template.revision`, `template.template_kind` | `worldguard.template_packs` | central manifest validator | projection adapter | exact one-to-one native manifest identity and base/profile kind |
 | `template.native_owner_id`, `template.family_id`, `template.route_ids` | `worldguard.template_packs` | central route/catalog validators | projection adapter | exact native owner/family and sole current template route |
 | `template.applicability_predicate_ids`, `template.forbidden_condition_ids` | `worldguard.template_packs` | central applicability validator | projection adapter from native required/excluded facts | neutral ids describe exact native predicates; they do not derive facts |
-| `template.dependencies`, `template.compatible_with`, `template.conflicts_with`, `template.dominates_template_ids` | `worldguard.template_packs` | central catalog/selector | projection adapter from native base/candidate policy | candidate depends on/accepts base; peer candidates conflict; no dominance fallback |
+| `template.dependencies`, `template.compatible_with`, `template.conflicts_with`, `template.dominates_template_ids` | `worldguard.template_packs` | central catalog/selector | projection adapter from native base/candidate policy | selected candidate depends on the shared base; peer candidates conflict; dominance never selects a candidate |
 | `template.composable`, `template.composition_order`, `template.is_validated_base` | `worldguard.template_packs` | central selector | projection adapter | mirrors native base-before-candidate construction and ambiguity blocking |
 | `template.field_ownership[]` | `worldguard.template_packs` | central composition validator | projection adapter from fragment ownership | non-empty unique exact native leaf paths |
 | `template.parameter_schema.type`, `template.parameter_schema.properties`, `template.parameter_schema.required`, `template.parameter_schema.additionalProperties` | `worldguard.template_packs` | central schema validator, builder consumer | projection adapter from explicit target slot-type map | closed JSON object; unknown slot type blocks instead of being guessed |
@@ -78,7 +78,7 @@ The projection boundary is intentionally closed. The rows below enumerate every 
 | `template.protected_failure_ids[]` | `worldguard.template_packs` | central fixture validator | projection adapter | target-owned projection integrity failures only |
 | `template.fixtures.known_good_ids`, `template.fixtures.known_bad_by_failure`, `template.fixtures.ambiguity_ids`, `template.fixtures.stale_ids` | `worldguard.template_packs` | native check, central fixture validator | projection adapter | exact target-owned regression ids; bad keys equal protected failures |
 | `template.claim_boundary` | WorldGuard pack author | central receipts, reports | projection adapter | construction/projection integrity only |
-| `applicability[].template_id`, `applicability[].eligible` | `worldguard.template_packs` | central applicability validator/selector | projection adapter from current native selector | one row per catalog member; boolean equals native match/base outcome |
+| `applicability[].template_id`, `applicability[].eligible` | `worldguard.template_packs` | central applicability validator/selector | projection adapter from current native selector | one row per catalog member; only native candidate matches are eligible and the shared base is always false |
 | `applicability[].predicate_evidence_ids`, `applicability[].forbidden_clearance_evidence_ids`, `applicability[].reasons` | `worldguard.template_packs` | central applicability validator | projection adapter from exact fact-set membership and native outcome | eligible rows carry native evidence; rejected rows carry explicit reasons |
 
 ## Existing Field Disposition

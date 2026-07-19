@@ -1,0 +1,33 @@
+{
+  "artifact_type": "worldguard_behavior_commitment_validation",
+  "schema_version": "2.0",
+  "shard_id": "template",
+  "command": "python -m pytest -q tests/test_template_packs.py",
+  "status": "passed",
+  "exit_code": 0,
+  "started_at": "2026-07-19T08:44:45.879651+00:00",
+  "finished_at": "2026-07-19T08:44:47.056699+00:00",
+  "artifact_fingerprints": {
+    ".flowguard/behavior_commitment_ledger/ledger.json": "sha256:5cb37d6a8961edf758dc46f86e855d8838a835db813c1c31b66443d8c387c801",
+    ".flowguard/behavior_commitment_ledger/model.py": "sha256:a714837f05860958cfb099fa91d65b6e21e901bc0be1a788b91f9784e90bf7d4",
+    ".flowguard/behavior_commitment_ledger/run_checks.py": "sha256:99f119b90cd5e2bc71bff61fbc67157d49fef8aaed3dc864f43dc8e1efdca556",
+    "worldguard/template_packs.py": "sha256:93f014bccaa6403b63046fe017d5080707e2070ce6f98386cfb8b3cd2c0554bf",
+    "tests/test_template_packs.py": "sha256:916e9bc9d026bea2549fcc3e0f13a9d64ee6db16142832e657baec830126c339",
+    ".flowguard/worldguard_template_pack_builder.py": "sha256:67219114efdaae7723da52cf4c20f00643fb5dc552d2f3c0c8b9c87646b820e1",
+    ".flowguard/worldguard_template_pack_field_lifecycle.md": "sha256:42aefa037aecec06205f49509b37b426b162ae772e2b3a95aa0c148facebd170",
+    "skills/worldguard/SKILL.md": "sha256:a44bf63ac3a15455dbe17bdec3dfdfe021f8423d3f14dfc1b1e3d30bd9feca3a"
+  },
+  "toolchain_identity": {
+    "python_executable": "C:\\Users\\liu_y\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+    "python_implementation": "cpython",
+    "python_version": [
+      3,
+      12,
+      10
+    ],
+    "pytest_version": "9.0.3"
+  },
+  "stdout": "...................                                                      [100%]\n19 passed in 0.44s\n",
+  "stderr": "",
+  "receipt_hash": "sha256:e9ee4dd62a730bd3e6225036e02fab89fc637459f37ac2d40931871431051e20"
+}

@@ -26,7 +26,7 @@ class Action:
 
 @dataclass(frozen=True)
 class FieldState:
-    legacy_status_preserved: bool = False
+    aggregate_status_preserved: bool = False
     component_statuses_added: bool = False
     bindings_added: bool = False
     receipt_added: bool = False
@@ -39,8 +39,11 @@ class FieldLifecycleBlock:
     name = "FieldLifecycleBlock"
 
     def apply(self, _input: Tick, state: FieldState) -> Iterable[FunctionResult]:
-        if not state.legacy_status_preserved:
-            yield _result("legacy_status_preserved", replace(state, legacy_status_preserved=True))
+        if not state.aggregate_status_preserved:
+            yield _result(
+                "aggregate_status_preserved",
+                replace(state, aggregate_status_preserved=True),
+            )
         elif not state.component_statuses_added:
             yield _result("component_statuses_added", replace(state, component_statuses_added=True))
         elif not state.bindings_added:
@@ -92,8 +95,10 @@ def _result(label: str, state: object) -> FunctionResult:
 
 
 def _field_invariant(state: FieldState, _trace) -> InvariantResult:
-    if state.component_statuses_added and not state.legacy_status_preserved:
-        return InvariantResult.fail("component statuses replaced rather than preserved legacy status")
+    if state.component_statuses_added and not state.aggregate_status_preserved:
+        return InvariantResult.fail(
+            "component statuses replaced rather than preserved aggregate status"
+        )
     if state.bindings_added and not state.component_statuses_added:
         return InvariantResult.fail("bindings exist before component status ownership")
     if state.receipt_added and not state.bindings_added:
@@ -141,7 +146,7 @@ def _explore(block, initial_state, invariant, labels, success):
 
 def run_checks() -> dict[str, object]:
     field_labels = (
-        "legacy_status_preserved",
+        "aggregate_status_preserved",
         "component_statuses_added",
         "typed_bindings_added",
         "native_receipt_added",
@@ -182,7 +187,11 @@ def run_checks() -> dict[str, object]:
         ),
         "receipt_without_binding": bool(
             not _field_invariant(
-                FieldState(legacy_status_preserved=True, component_statuses_added=True, receipt_added=True),
+                FieldState(
+                    aggregate_status_preserved=True,
+                    component_statuses_added=True,
+                    receipt_added=True,
+                ),
                 (),
             ).ok
         ),
