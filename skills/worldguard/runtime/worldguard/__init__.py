@@ -63,7 +63,7 @@ from .template_packs import (
     validate_target_template_interchange,
 )
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 __all__ = [
     "__version__",

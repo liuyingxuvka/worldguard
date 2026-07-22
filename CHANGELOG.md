@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.1 - 2026-07-22
+
+- Adopt SkillGuard 0.4 bounded evidence lifecycle without changing WorldGuard's target-owned semantic checks.
+- Remove copied FlowGuard author-control surfaces from the consumer repository and keep one WorldGuard maintenance unit.
+- Preserve exact consumer projection parity and fail closed on stale installation evidence.
+
 ## v0.4.0 - 2026-07-19
 
 - Corrected release-readiness validation so author-side SkillGuard control stays

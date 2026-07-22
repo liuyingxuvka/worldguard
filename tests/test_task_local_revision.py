@@ -348,6 +348,6 @@ def test_bundled_task_local_runtime_matches_source_and_version() -> None:
         assert (ROOT / "worldguard" / relative_path).read_bytes() == (
             bundled_root / relative_path
         ).read_bytes()
-    assert '__version__ = "0.4.0"' in (
+    assert '__version__ = "0.4.1"' in (
         bundled_root / "__init__.py"
     ).read_text(encoding="utf-8")
