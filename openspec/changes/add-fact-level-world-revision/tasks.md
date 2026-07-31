@@ -14,4 +14,4 @@
 
 - [x] 3.1 Update SkillGuard contracts and run affected/full validation after freeze.
 - [x] 3.2 Update installation, README/changelog/version, and zero-retired-path checks.
-- [ ] 3.3 Publish v0.5.0.
+- [x] 3.3 Publish v0.5.0.

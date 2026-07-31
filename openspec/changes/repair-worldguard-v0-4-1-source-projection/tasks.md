@@ -8,4 +8,4 @@
 
 - [x] 2.1 Bootstrap and audit the observed FlowGuard model-system snapshot.
 - [x] 2.2 Run frozen full validation and installed currentness.
-- [ ] 2.3 Update release records and publish the combined v0.5.0 candidate.
+- [x] 2.3 Update release records and publish the combined v0.5.0 candidate.
