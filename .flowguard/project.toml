@@ -1,8 +1,8 @@
 [flowguard]
 repository = "https://github.com/liuyingxuvka/FlowGuard"
-adopted_package_version = "0.66.0"
+adopted_package_version = "0.67.0"
 schema_version = "1.0"
-last_verified_at = "2026-07-31T12:15:30+00:00"
+last_verified_at = "2026-07-31T14:54:41+00:00"
 last_verified_by = "FlowGuard project-upgrade"
 agents_path = "AGENTS.md"
 
@@ -15,12 +15,12 @@ require_model_update_for_behavior_changes = true
 
 [model_authority]
 system_id = "flowguard"
-observed_snapshot_path = ".flowguard/model-mesh/snapshots/84e24292f202eead33fd58eae475f74a9f64659f391b69cf35aac175646bcd21.json"
-observed_snapshot_fingerprint = "sha256:84e24292f202eead33fd58eae475f74a9f64659f391b69cf35aac175646bcd21"
-subject_revision = "source-inventory:0a68f00d052154f56cda8b6cfcc316bc78e6b1bbf9d65bdfca0930ebc8e64a94"
+observed_snapshot_path = ".flowguard/model-mesh/snapshots/27c3ea5900910d514e7743ade338a09b80a84f8c76c3cf24da02673dd8d9fce7.json"
+observed_snapshot_fingerprint = "sha256:27c3ea5900910d514e7743ade338a09b80a84f8c76c3cf24da02673dd8d9fce7"
+subject_revision = "source-inventory:979d9a895ce7be7fd64afe0856b28793de0dabf6175a92e32bc50f302ec32c82"
 coverage_status = "complete_within_declared_boundary"
-generation = 2
-accepted_revision_set_fingerprint = "sha256:d59e6b1222ea86995da2144aa900d6457877195739496d9ac8c6bfaa2b6c67ca"
-previous_snapshot_fingerprint = "sha256:8787c059dbbafa4b0b74e8dcc3e1ad158685aadced09371436be3d45188577b1"
-activation_receipt_fingerprint = "sha256:2c7b0eb08e6569dbf8af8a437e33ab120d21ee89e21d377e96f847d8bd0515a8"
-head_fingerprint = "sha256:f6d48ca65558bf81cfc3c7a33947f7af9a39bb1692ce57eacf304b95555d1cfb"
+generation = 3
+accepted_revision_set_fingerprint = "sha256:179687d5fa5ac7d2f22b85d144cf778e1adae3f5541d6df02e837fc5e641b5e3"
+previous_snapshot_fingerprint = "sha256:84e24292f202eead33fd58eae475f74a9f64659f391b69cf35aac175646bcd21"
+activation_receipt_fingerprint = "sha256:ec2f0ff13a831eb8d137d0488249a5a68a1e6c5ffb7a00ab66d25bbc2cbb4f68"
+head_fingerprint = "sha256:2e6f488e02f23d1e82aaed99df9546d1762c8b99959c8bb3a699b1f9324c5216"
