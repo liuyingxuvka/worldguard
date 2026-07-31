@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Mapping, Sequence
 
+from .task_local_revision import TASK_LOCAL_REVISION_OWNER_ID
 
-FACT_REVISION_SCHEMA_VERSION = "worldguard.fact_revision.v1"
+
+FACT_REVISION_SCHEMA_VERSION = "worldguard.fact_revision.v2"
+ITERATION_FINGERPRINT_RE = re.compile(r"^sha256:[0-9a-fA-F]{64}$")
 
 
 def _text(value: Any, label: str) -> str:
@@ -23,6 +27,12 @@ def _strict(data: Mapping[str, Any], allowed: set[str], label: str) -> None:
     unknown = sorted(set(data) - allowed)
     if unknown:
         raise ValueError(f"{label} has unknown fields: {', '.join(unknown)}")
+
+
+def _require(data: Mapping[str, Any], required: set[str], label: str) -> None:
+    missing = sorted(required - set(data))
+    if missing:
+        raise ValueError(f"{label} is missing current fields: {', '.join(missing)}")
 
 
 def _fingerprint(value: Any) -> str:
@@ -352,11 +362,9 @@ class FactRevisionTransaction:
     preserved_fact_ids: tuple[str, ...] = ()
     expected_terminal_deltas: tuple[FactStateExpectation, ...] = ()
     task_id: str = ""
+    task_local_owner_id: str = ""
     iteration: int = 0
-    max_iterations: int = 8
-    remaining_predictive_gap_ids: tuple[str, ...] = ()
-    next_actions: tuple[str, ...] = ()
-    terminal_reason: str = "continue_iteration"
+    predecessor_iteration_fingerprint: str = ""
 
     def __post_init__(self) -> None:
         object.__setattr__(
@@ -369,14 +377,27 @@ class FactRevisionTransaction:
             "base_fingerprint",
             _text(self.base_fingerprint, "base_fingerprint"),
         )
-        object.__setattr__(self, "task_id", str(self.task_id).strip())
+        object.__setattr__(self, "task_id", _text(self.task_id, "task_id"))
+        object.__setattr__(
+            self,
+            "task_local_owner_id",
+            _text(self.task_local_owner_id, "task_local_owner_id"),
+        )
+        if self.task_local_owner_id != TASK_LOCAL_REVISION_OWNER_ID:
+            raise ValueError("fact revision must return to the sole task-local owner")
         object.__setattr__(self, "iteration", int(self.iteration))
-        object.__setattr__(self, "max_iterations", max(1, int(self.max_iterations)))
-        object.__setattr__(self, "remaining_predictive_gap_ids", tuple(sorted({_text(item, "remaining_predictive_gap_ids") for item in self.remaining_predictive_gap_ids})))
-        object.__setattr__(self, "next_actions", tuple(sorted({_text(item, "next_actions") for item in self.next_actions})))
-        object.__setattr__(self, "terminal_reason", str(self.terminal_reason).strip() or "continue_iteration")
         if self.iteration < 0:
             raise ValueError("iteration must be non-negative")
+        predecessor = _text(
+            self.predecessor_iteration_fingerprint,
+            "predecessor_iteration_fingerprint",
+        )
+        if self.iteration == 0:
+            if predecessor != "root":
+                raise ValueError("iteration zero fact revision requires predecessor 'root'")
+        elif not ITERATION_FINGERPRINT_RE.fullmatch(predecessor):
+            raise ValueError("later fact revision requires a sha256 predecessor fingerprint")
+        object.__setattr__(self, "predecessor_iteration_fingerprint", predecessor)
         additions = tuple(
             sorted(self.additions, key=lambda item: item.support_id)
         )
@@ -404,9 +425,7 @@ class FactRevisionTransaction:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "FactRevisionTransaction":
-        _strict(
-            data,
-            {
+        allowed = {
                 "transaction_id",
                 "base_fingerprint",
                 "additions",
@@ -414,14 +433,12 @@ class FactRevisionTransaction:
                 "preserved_fact_ids",
                 "expected_terminal_deltas",
                 "task_id",
+                "task_local_owner_id",
                 "iteration",
-                "max_iterations",
-                "remaining_predictive_gap_ids",
-                "next_actions",
-                "terminal_reason",
-            },
-            "fact revision transaction",
-        )
+                "predecessor_iteration_fingerprint",
+            }
+        _strict(data, allowed, "fact revision transaction")
+        _require(data, allowed, "fact revision transaction")
         return cls(
             transaction_id=data.get("transaction_id", ""),
             base_fingerprint=data.get("base_fingerprint", ""),
@@ -441,11 +458,12 @@ class FactRevisionTransaction:
                 for item in data.get("expected_terminal_deltas", [])
             ),
             task_id=data.get("task_id", ""),
+            task_local_owner_id=data.get("task_local_owner_id", ""),
             iteration=data.get("iteration", 0),
-            max_iterations=data.get("max_iterations", 8),
-            remaining_predictive_gap_ids=tuple(str(item) for item in data.get("remaining_predictive_gap_ids", [])),
-            next_actions=tuple(str(item) for item in data.get("next_actions", [])),
-            terminal_reason=data.get("terminal_reason", "continue_iteration"),
+            predecessor_iteration_fingerprint=data.get(
+                "predecessor_iteration_fingerprint",
+                "",
+            ),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -459,11 +477,9 @@ class FactRevisionTransaction:
                 item.to_dict() for item in self.expected_terminal_deltas
             ],
             "task_id": self.task_id,
+            "task_local_owner_id": self.task_local_owner_id,
             "iteration": self.iteration,
-            "max_iterations": self.max_iterations,
-            "remaining_predictive_gap_ids": list(self.remaining_predictive_gap_ids),
-            "next_actions": list(self.next_actions),
-            "terminal_reason": self.terminal_reason,
+            "predecessor_iteration_fingerprint": self.predecessor_iteration_fingerprint,
         }
 
 
@@ -517,11 +533,11 @@ class FactRevisionPreview:
     closure_terminated: bool
     finding_codes: tuple[str, ...]
     status: str
-    task_id: str = ""
-    iteration: int = 0
-    remaining_predictive_gap_ids: tuple[str, ...] = ()
-    next_actions: tuple[str, ...] = ()
-    terminal_reason: str = "continue_iteration"
+    task_id: str
+    task_local_owner_id: str
+    iteration: int
+    predecessor_iteration_fingerprint: str
+    terminal_reason: str
 
     def identity_payload(self) -> dict[str, Any]:
         return {
@@ -544,15 +560,15 @@ class FactRevisionPreview:
             "finding_codes": list(self.finding_codes),
             "status": self.status,
             "task_id": self.task_id,
+            "task_local_owner_id": self.task_local_owner_id,
             "iteration": self.iteration,
-            "remaining_predictive_gap_ids": list(self.remaining_predictive_gap_ids),
-            "next_actions": list(self.next_actions),
+            "predecessor_iteration_fingerprint": self.predecessor_iteration_fingerprint,
             "terminal_reason": self.terminal_reason,
             "claim_boundary": (
                 "This preview is a copy-based task-local fact revision. Four-"
                 "valued states describe support inside the supplied snapshot; "
                 "they are not WorldGuard Guard terminal statuses and do not "
-                "establish factual truth."
+                "establish factual truth or close the task-local model."
             ),
         }
 
@@ -625,7 +641,10 @@ class FactRevisionEvidenceBinding:
 @dataclass(frozen=True)
 class FactRevisionActivationRequest:
     activation_id: str
+    task_id: str
+    task_local_owner_id: str
     expected_preview_fingerprint: str
+    expected_candidate_model_fingerprint: str
     acknowledged_contradiction_fact_ids: tuple[str, ...]
     evidence: tuple[FactRevisionEvidenceBinding, ...]
     prior_activation_transaction_ids: tuple[str, ...] = ()
@@ -636,12 +655,28 @@ class FactRevisionActivationRequest:
             "activation_id",
             _text(self.activation_id, "activation_id"),
         )
+        object.__setattr__(self, "task_id", _text(self.task_id, "task_id"))
+        object.__setattr__(
+            self,
+            "task_local_owner_id",
+            _text(self.task_local_owner_id, "task_local_owner_id"),
+        )
+        if self.task_local_owner_id != TASK_LOCAL_REVISION_OWNER_ID:
+            raise ValueError("activation must return to the sole task-local owner")
         object.__setattr__(
             self,
             "expected_preview_fingerprint",
             _text(
                 self.expected_preview_fingerprint,
                 "expected_preview_fingerprint",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "expected_candidate_model_fingerprint",
+            _text(
+                self.expected_candidate_model_fingerprint,
+                "expected_candidate_model_fingerprint",
             ),
         )
         for name in (
@@ -665,21 +700,28 @@ class FactRevisionActivationRequest:
         cls,
         data: Mapping[str, Any],
     ) -> "FactRevisionActivationRequest":
-        _strict(
-            data,
-            {
+        allowed = {
                 "activation_id",
+                "task_id",
+                "task_local_owner_id",
                 "expected_preview_fingerprint",
+                "expected_candidate_model_fingerprint",
                 "acknowledged_contradiction_fact_ids",
                 "evidence",
                 "prior_activation_transaction_ids",
-            },
-            "fact revision activation request",
-        )
+            }
+        _strict(data, allowed, "fact revision activation request")
+        _require(data, allowed, "fact revision activation request")
         return cls(
             activation_id=data.get("activation_id", ""),
+            task_id=data.get("task_id", ""),
+            task_local_owner_id=data.get("task_local_owner_id", ""),
             expected_preview_fingerprint=data.get(
                 "expected_preview_fingerprint",
+                "",
+            ),
+            expected_candidate_model_fingerprint=data.get(
+                "expected_candidate_model_fingerprint",
                 "",
             ),
             acknowledged_contradiction_fact_ids=tuple(
@@ -707,6 +749,10 @@ class FactRevisionActivationRequest:
 class FactRevisionActivationReceipt:
     activation_id: str
     transaction_id: str
+    task_id: str
+    task_local_owner_id: str
+    iteration: int
+    predecessor_iteration_fingerprint: str
     base_fingerprint: str
     preview_fingerprint: str
     candidate_fingerprint: str
@@ -715,7 +761,8 @@ class FactRevisionActivationReceipt:
     finding_codes: tuple[str, ...]
     status: str
     activated: bool
-    terminal_reason: str = "continue_iteration"
+    revalidation_required: bool
+    terminal_reason: str
 
     def identity_payload(self) -> dict[str, Any]:
         return {
@@ -723,6 +770,10 @@ class FactRevisionActivationReceipt:
             "schema_version": FACT_REVISION_SCHEMA_VERSION,
             "activation_id": self.activation_id,
             "transaction_id": self.transaction_id,
+            "task_id": self.task_id,
+            "task_local_owner_id": self.task_local_owner_id,
+            "iteration": self.iteration,
+            "predecessor_iteration_fingerprint": self.predecessor_iteration_fingerprint,
             "base_fingerprint": self.base_fingerprint,
             "preview_fingerprint": self.preview_fingerprint,
             "candidate_fingerprint": self.candidate_fingerprint,
@@ -731,11 +782,14 @@ class FactRevisionActivationReceipt:
             "finding_codes": list(self.finding_codes),
             "status": self.status,
             "activated": self.activated,
+            "revalidation_required": self.revalidation_required,
             "terminal_reason": self.terminal_reason,
             "claim_boundary": (
                 "Activation accepts only this task-local fact snapshot and does "
                 "not mutate WorldGuard rules, reusable defaults, installed "
-                "skills, or any global truth library."
+                "skills, or any global truth library. Activation is only an "
+                "intermediate candidate handoff; the same task-local owner must "
+                "rerun prediction, native depth, original, and holdout checks."
             ),
         }
 
@@ -1031,14 +1085,11 @@ def preview_fact_revision(
         finding_codes=unique_findings,
         status="ready" if not unique_findings else "blocked",
         task_id=transaction.task_id,
+        task_local_owner_id=transaction.task_local_owner_id,
         iteration=transaction.iteration,
-        remaining_predictive_gap_ids=transaction.remaining_predictive_gap_ids,
-        next_actions=transaction.next_actions,
+        predecessor_iteration_fingerprint=transaction.predecessor_iteration_fingerprint,
         terminal_reason=(
-            "iteration_limit"
-            if transaction.remaining_predictive_gap_ids
-            and transaction.iteration >= transaction.max_iterations
-            else transaction.terminal_reason
+            "fact_candidate_ready" if not unique_findings else "fact_revision_blocked"
         ),
     )
 
@@ -1050,8 +1101,17 @@ def activate_fact_revision(
 ) -> FactRevisionActivationResult:
     preview = preview_fact_revision(current_base, transaction)
     findings = list(preview.finding_codes)
+    if request.task_id != transaction.task_id:
+        findings.append("activation_task_mismatch")
+    if request.task_local_owner_id != transaction.task_local_owner_id:
+        findings.append("activation_task_local_owner_mismatch")
     if request.expected_preview_fingerprint != preview.fingerprint:
         findings.append("preview_fingerprint_stale")
+    if (
+        request.expected_candidate_model_fingerprint
+        != preview.candidate_snapshot.fingerprint
+    ):
+        findings.append("candidate_model_fingerprint_stale")
     if transaction.transaction_id in request.prior_activation_transaction_ids:
         findings.append("transaction_already_activated")
     if (
@@ -1070,6 +1130,8 @@ def activate_fact_revision(
     for kind in FactRevisionEvidenceKind:
         if not evidence_by_kind[kind]:
             findings.append(f"missing_{kind.value}_evidence")
+        elif len(evidence_by_kind[kind]) != 1:
+            findings.append(f"duplicate_{kind.value}_evidence")
     for evidence in request.evidence:
         if (
             evidence.status != "pass"
@@ -1082,6 +1144,10 @@ def activate_fact_revision(
     receipt = FactRevisionActivationReceipt(
         activation_id=request.activation_id,
         transaction_id=transaction.transaction_id,
+        task_id=transaction.task_id,
+        task_local_owner_id=transaction.task_local_owner_id,
+        iteration=transaction.iteration,
+        predecessor_iteration_fingerprint=transaction.predecessor_iteration_fingerprint,
         base_fingerprint=current_base.fingerprint,
         preview_fingerprint=preview.fingerprint,
         candidate_fingerprint=preview.candidate_snapshot.fingerprint,
@@ -1090,15 +1156,11 @@ def activate_fact_revision(
         finding_codes=unique_findings,
         status="activated" if activated else "blocked",
         activated=activated,
+        revalidation_required=activated,
         terminal_reason=(
-            "iteration_limit"
-            if preview.remaining_predictive_gap_ids
-            and preview.iteration >= transaction.max_iterations
-            else (
-                preview.terminal_reason
-                if preview.remaining_predictive_gap_ids
-                else "model_closed_for_task"
-            )
+            "task_local_revalidation_required"
+            if activated
+            else "fact_revision_blocked"
         ),
     )
     return FactRevisionActivationResult(

@@ -149,13 +149,19 @@ depth. It freezes:
   left/relation/right content; and
 - explicit weakening conditions.
 
-For iterative task-local use it also freezes a task id, purpose, independent
-coverage ids, assumptions, unknowns, iteration number/budget, and prior gap
-fingerprints. A current comparison returns open gap ids, gap transitions, next
-actions, and one terminal reason. `model_closed_for_task` is the only normal
-closure; `external_input_required`, `scope_excluded`, `progress_stalled`, and
-`iteration_limit` are explicit non-closure terminals. A self-reported
-understanding field, a fact-only update, or a prose summary cannot close a gap.
+The current 0.7 shape always freezes a non-empty task id and purpose, an
+independently owned coverage-universe id/source/inventory/fingerprint,
+non-empty assumptions and unknowns, a finite iteration budget, and an exact
+predecessor. Iteration zero uses the explicit `root` predecessor; later
+iterations bind a content-addressed predecessor, exact prior gap ids, and the
+latest fingerprint of that exact gap set. Missing
+current fields, former shapes, defaulted empty fields, aliases, and fallback
+readers are rejected.
+
+A current comparison returns content-addressed observation evidence and input
+gaps but never closes the task by itself. It does not accept a gap-transition
+map or progress boolean. Exact external-input rows must name their owner,
+reason, blocked gap ids, and affected claims.
 
 Every expected value or relationship declares one mismatch category:
 `initial_state`, `transition`, `causal_relation`, `resource`, `agent`,
@@ -163,9 +169,10 @@ Every expected value or relationship declares one mismatch category:
 it does not infer an owner from a target name.
 
 `ObservedWorldSnapshot` must name the prediction, use a strictly later sequence,
-retain a non-empty source reference, and carry at least one actual finite value
-or typed relationship. Missing declared expectations are mismatches; they
-cannot be silently treated as unobserved success.
+retain a non-empty source reference, and carry actual finite values, typed
+relationships, or an exact external-input boundary. Its evidence fingerprint
+is recomputed from that complete payload. Missing declared expectations are
+mismatches; they cannot be silently treated as unobserved success.
 
 `CandidateWorldModelRevision` binds separate current base and candidate
 artifacts. A candidate path or content hash equal to v1 is invalid because it
@@ -175,10 +182,28 @@ revalidation inventory containing both:
 - `original_scenario`; and
 - `real_holdout_observation`.
 
-Each revalidation must bind the exact candidate identity and show both
-WorldGuard semantic rollout and a `worldguard_observed_world_comparison_receipt`
-passing. Semantic execution without a real-observation comparison is not
-empirical validation.
+Candidate evaluation also consumes one
+`worldguard_task_local_native_depth_receipt`. WorldGuard creates this binding
+from the exact native `worldguard.native_depth.v2` receipt plus the task,
+candidate, and independent coverage fingerprint. State, transition, branch,
+perturbation, intervention, counterfactual, and holdout gaps are derived from
+that receipt. Caller-authored remaining-gap lists have no authority, and a
+native receipt with `predictive_claim_licensed: false` remains open even if its
+raw gap list is empty.
+
+Each revalidation binds the exact task/candidate, a typed content-addressed
+semantic receipt, and a sealed `worldguard_observed_world_comparison_receipt`.
+There must be exactly one original and one real holdout. Their observation id,
+source, evidence fingerprint, content fingerprint, and semantic source
+fingerprint must differ, and
+the holdout fingerprint cannot appear in candidate-construction evidence.
+Semantic `PASS` text without the typed source receipt is invalid.
+
+The evaluator computes input, resolved, persisted, introduced, and current gap
+ids. A new gap continues, an unchanged or repeated gap fingerprint stalls, and
+the finite iteration limit blocks. `model_closed_for_task` is emitted only by
+the sole task-local owner after native predictive license, zero current gaps,
+and both independent revalidations pass.
 
 The evaluator is read-only. A passing candidate is `accepted`; a failed
 unapplied candidate is `rejected`; a failed applied candidate is `rolled_back`
@@ -201,3 +226,9 @@ closure status, and preview fingerprint. Activation requires that fingerprint,
 the exact visible contradiction set, and current `regression` plus `holdout`
 evidence bound to the preview. A stale base, changed preserved fact, missing
 evidence, or prior activation of the transaction remains blocked.
+
+The fact transaction and activation request also bind the same task, the sole
+`worldguard.task_local_world_revision` owner, iteration, predecessor, preview,
+and candidate fingerprint. Successful activation ends only at
+`task_local_revalidation_required`; the task-local owner must rerun prediction,
+native depth, original, and independent holdout evidence before closure.

@@ -10,7 +10,7 @@
 </p>
 <!-- README HERO END -->
 
-**Source version:** `v0.6.0`<br>
+**Source version:** `v0.7.0`<br>
 **Package:** `worldguard`<br>
 **Release type:** source-only Python package and Codex skill workflow
 
@@ -74,6 +74,28 @@ facts, explicit contradiction acknowledgement, and current regression plus
 holdout evidence. A stale base, missing evidence, or repeated transaction id
 blocks visibly.
 
+Fact activation is deliberately not task closure. A successful activation
+returns `task_local_revalidation_required` and hands the exact candidate back
+to the same task-local prediction owner for current native depth, original
+scenario, and independent real-holdout checks.
+
+## Task-local predictive revision
+
+The current task-local route rejects former shallow snapshots. Every prediction
+binds one task and purpose, an independently owned and fingerprinted coverage
+universe, explicit assumptions and unknowns, and an exact predecessor. Later
+iterations also bind the exact prior gap ids and the fingerprint of that set. Native
+state, transition, branch, perturbation, intervention, counterfactual, and
+holdout gaps come from one content-addressed execution-depth receipt rather
+than a caller-authored gap list.
+
+Candidate closure requires typed semantic and empirical receipts for exactly
+one original scenario and one genuinely independent holdout; renamed copies
+are caught by an id-independent observation-content fingerprint. WorldGuard
+computes resolved, persisted, and introduced gaps itself; unchanged evidence
+stalls, a finite iteration limit blocks, and missing external evidence must name
+the exact gaps, owner, reason, and affected claims.
+
 ## Quick Start
 
 ```powershell
@@ -136,7 +158,7 @@ assets/readme-hero/          README visual assets
 
 ## Release Notes
 
-See [CHANGELOG.md](./CHANGELOG.md). The current source candidate is `v0.6.0`;
+See [CHANGELOG.md](./CHANGELOG.md). The current source candidate is `v0.7.0`;
 the first source-only release was `v0.1.0`.
 
 ## License
@@ -147,7 +169,7 @@ No license file is included yet. Treat this repository as source-visible but not
 
 # WorldGuard 中文说明
 
-**源码版本：** `v0.6.0`<br>
+**源码版本：** `v0.7.0`<br>
 **包名：** `worldguard`<br>
 **发布类型：** 源码版 Python 包 + Codex 技能工作流
 
@@ -206,6 +228,23 @@ WorldGuard 现在可以预览并激活一次显式的事实支持修订，但这
 真正激活时，还必须绑定同一个预览指纹、保护声明为不可变的事实、明确确认
 矛盾，并提供当前的回归与留出验证证据。基础快照过期、证据不完整或重复使用
 事务编号时都会明确阻断。
+
+事实激活不是任务关闭。成功激活只会返回
+`task_local_revalidation_required`，把这个精确候选重新交回同一个任务本地
+预测 owner，重新运行当前原生深度、原场景和独立真实留出验证。
+
+## 任务本地预测修订
+
+当前任务本地入口会直接拒绝旧的浅层快照。每个预测都必须绑定一个任务和
+目的、由独立 owner 给出的覆盖全集及其指纹、显式假设和未知边界，以及精确
+前序迭代；后续迭代还要绑定上一轮精确 gap 集合及其指纹。状态、转移、分支、扰动、干预、反事实和留出 gap 都只能从一份
+内容寻址的原生执行深度收据产生，调用方不能自己填写“没有 gap”。
+
+候选关闭需要恰好一份原场景和一份真正独立的留出场景语义与经验收据；
+不依赖名称的观察内容指纹会拦住“改名后重复使用同一证据”。
+WorldGuard 自己计算已解决、仍存在和新引入的 gap；证据没有变化就停在
+`progress_stalled`，迭代上限会阻断，外部缺失输入必须精确说明 gap、owner、
+原因和受影响声明。
 
 ## 快速开始
 

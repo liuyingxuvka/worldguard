@@ -1,4 +1,4 @@
 interface:
   display_name: "WorldGuard"
   short_description: "One entry for seven complete world-model Guards"
-  default_prompt: "Use $worldguard as the single entrypoint, derive the required internal Guards from the claim, preserve each Guard's bounded prediction, response, validation, and terminal semantics, keep any four-valued fact revision subordinate and transactional, and do not turn a child Guard or fact engine into a separate skill or fallback."
+  default_prompt: "Use $worldguard as the single entrypoint, derive the required internal Guards from the claim, and preserve each Guard's bounded prediction, response, validation, and terminal semantics. For a task-local reality check, require the current task/purpose/independent-coverage/assumption/unknown/predecessor shape, bind current native depth plus typed independent original and holdout evidence, and let WorldGuard derive gaps, progress, and terminals. Keep four-valued fact revision subordinate: activation only returns to the same task-local owner for revalidation and never closes the task. Do not use a child Guard, legacy shape, caller self-report, alias, or fallback."

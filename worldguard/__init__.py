@@ -42,20 +42,30 @@ from .semantic import (
 )
 from .status import GuardStatus
 from .task_local_revision import (
+    TASK_LOCAL_REVISION_OWNER_ID,
+    TASK_LOCAL_REVISION_SCHEMA_VERSION,
     CandidateWorldModelRevision,
     ExpectedWorldRelationship,
     ExpectedWorldValue,
+    ExternalInputRequirement,
     ObservedWorldRelationship,
     ObservedWorldSnapshot,
     PredictionSnapshot,
     RevalidationRole,
+    SemanticRolloutReceipt,
+    TaskLocalNativeDepthReceipt,
     WorldMismatchCategory,
     WorldModelIdentity,
     WorldRevisionKind,
     WorldRevalidationReceipt,
+    bind_semantic_rollout_receipt,
+    bind_task_local_native_depth_receipt,
+    bind_world_revalidation_receipt,
     compare_observed_world,
+    coverage_universe_fingerprint,
     evaluate_candidate_world_revision,
     freeze_prediction_snapshot,
+    observation_evidence_fingerprint,
 )
 from .template_packs import (
     BUILTIN_TEMPLATE_PARAMETER_TYPES,
@@ -85,7 +95,7 @@ from .template_packs import (
     validate_target_template_interchange,
 )
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 __all__ = [
     "__version__",
@@ -107,19 +117,29 @@ __all__ = [
     "run_model_mesh",
     "run_worldguard",
     "CandidateWorldModelRevision",
+    "TASK_LOCAL_REVISION_OWNER_ID",
+    "TASK_LOCAL_REVISION_SCHEMA_VERSION",
     "ExpectedWorldRelationship",
     "ExpectedWorldValue",
+    "ExternalInputRequirement",
     "ObservedWorldRelationship",
     "ObservedWorldSnapshot",
     "PredictionSnapshot",
     "RevalidationRole",
+    "SemanticRolloutReceipt",
+    "TaskLocalNativeDepthReceipt",
     "WorldMismatchCategory",
     "WorldModelIdentity",
     "WorldRevisionKind",
     "WorldRevalidationReceipt",
+    "bind_semantic_rollout_receipt",
+    "bind_task_local_native_depth_receipt",
+    "bind_world_revalidation_receipt",
     "compare_observed_world",
+    "coverage_universe_fingerprint",
     "evaluate_candidate_world_revision",
     "freeze_prediction_snapshot",
+    "observation_evidence_fingerprint",
     "claim_predictive_intent",
     "derive_required_guards",
     "FACT_REVISION_SCHEMA_VERSION",

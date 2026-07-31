@@ -1,6 +1,6 @@
 {
   "schema_version": "worldguard.skillguard_validation_plan.v1",
-  "plan_id": "worldguard-skillguard-0.4-current-five-check-validation",
+  "plan_id": "worldguard-skillguard-0.7-current-seven-check-validation",
   "status": "frozen_pending_execution",
   "maintenance_unit_id": "unit:worldguard",
   "member_skill_ids": [
@@ -8,17 +8,17 @@
   ],
   "source_authority": {
     "contract_source_path": "skills/worldguard/.skillguard/contract-source.json",
-    "contract_source_file_sha256": "1C8BCC7C9CFA1BC981D397340107EE22473964EBB3AC901A0C9E344BCBF1BB5E",
+    "contract_source_file_sha256": "E66B38719B9CF66154AAC378DC0098B100DE361AD41C9EEF5A977C1227FEE39D",
     "compiled_contract_path": "skills/worldguard/.skillguard/compiled-contract.json",
-    "compiled_contract_hash": "7DE52ACD7CBB743FEED9AAD1E3BBFA436800DC93F77B6961CEAE4FD405827DD9",
+    "compiled_contract_hash": "FBA778D8C7ECD514319838D26A6D9DE2EC451B919EDF2AD9F16C2B5DD95B2672",
     "check_manifest_path": "skills/worldguard/.skillguard/check-manifest.json",
-    "check_manifest_hash": "B6622F5806E28C48A9F223CAF5A80C4FA191B2721246D9F2B2B76B0FE6A25911",
-    "content_impact_graph_hash": "sha256:6bd5ae091a44108b7a61bb48bf2b4dfe7b65df1c8d6964d375d8a6b03fe764aa"
+    "check_manifest_hash": "1972059FDD7C94EEBF398AB38F6F21C4FACE0B9D17D3D75A895BC2DA6679DEB8",
+    "content_impact_graph_hash": "sha256:bc7f32a536286e50085698151cb793d71fa159dbef120503cc206d3503d7e9f8"
   },
   "execution_identity": {
     "execution_owner": "skillguard-supervisor-single-foreground-owner",
-    "run_state_root": "work/skillguard/v0.4.0-current/run-state",
-    "owner_evidence_root": "work/verification/skillguard-v0.4.0-current/owner-evidence",
+    "run_state_root": "work/skillguard/v0.7.0-current/run-state",
+    "owner_evidence_root": "work/verification/skillguard-v0.7.0-current/owner-evidence",
     "packet_path": "work/skillguard/packets/worldguard.json",
     "closure_profiles": [
       "enforced"
@@ -89,6 +89,36 @@
     },
     {
       "order": 5,
+      "check_id": "check:worldguard:task-local-model-closure",
+      "semantic_check_id": "semantic:worldguard:task-local-model-closure",
+      "execution_owner_id": "owner:worldguard:task-local-model-closure",
+      "evidence_subject_id": "subject:check:worldguard:task-local-model-closure",
+      "evidence_domain_id": "worldguard:native-validation",
+      "depends_on_check_ids": [
+        "check:worldguard:native-depth"
+      ],
+      "covered_obligation_ids": [
+        "obligation:worldguard-task-local-current-shape",
+        "obligation:worldguard-task-local-native-depth-binding",
+        "obligation:worldguard-task-local-derived-gap-transitions",
+        "obligation:worldguard-task-local-independent-holdout",
+        "obligation:worldguard-task-local-sole-closure-owner"
+      ]
+    },
+    {
+      "order": 6,
+      "check_id": "check:worldguard:fact-revision",
+      "semantic_check_id": "semantic:worldguard:fact-revision",
+      "execution_owner_id": "owner:worldguard:fact-revision",
+      "evidence_subject_id": "subject:check:worldguard:fact-revision",
+      "evidence_domain_id": "worldguard:native-validation",
+      "depends_on_check_ids": [],
+      "covered_obligation_ids": [
+        "obligation:worldguard-fact-revision"
+      ]
+    },
+    {
+      "order": 7,
       "check_id": "check:worldguard:template-packs",
       "semantic_check_id": "semantic:worldguard:template-packs",
       "execution_owner_id": "owner:worldguard:template-packs",
@@ -107,16 +137,16 @@
   ],
   "inventory_assertions": {
     "member_count": 1,
-    "check_count": 5,
-    "unique_execution_owner_count": 5,
-    "unique_evidence_subject_count": 5,
-    "unique_obligation_count": 20,
+    "check_count": 7,
+    "unique_execution_owner_count": 7,
+    "unique_evidence_subject_count": 7,
+    "unique_obligation_count": 26,
     "foreign_unit_receipt_reuse": false,
     "skillguard_added_domain_checks": 0
   },
   "closure_boundary": {
     "source_maintenance": "requires current compile parity and maintainer audit",
-    "declared_validation": "requires five current terminal-success producer receipts and enforced closure",
+    "declared_validation": "requires seven current terminal-success producer receipts and enforced closure",
     "consumer_projection": "read-only exact source parity plus author-state exclusion",
     "installation": "not_run",
     "commit": "not_run",

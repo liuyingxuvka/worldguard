@@ -44,6 +44,22 @@ Boundary: public runtime dataclass/dict fields, fixture fields, CLI payload fiel
 | `ledgers` | `worldguard.reports` | Kernel, tests | Guard runners | new | traceability |
 | `read_only_for_downstream` | `worldguard.ledgers` | Kernel, tests | ledger helpers | new | handoff invariant |
 
+## Task-Local Prediction And Revision Fields
+
+| Field id | Owner | Readers | Writers | Lifecycle | Projection |
+|---|---|---|---|---|---|
+| `task_id` / `purpose` | `worldguard.task_local_world_revision` | prediction freezer, candidate evaluator, fact handoff | current task author | required current | binds every receipt to one finite question instead of an AI self-report |
+| `coverage_universe_*` / `coverage_ids` | independent task coverage inventory | prediction freezer, comparisons, native-depth binding | independent coverage owner | required current | fingerprint is recomputed and ids must exactly equal declared expectation ids |
+| `assumptions` / `unknowns` | current task author | prediction and claim-boundary reviewers | current task author | required non-empty | makes the model boundary explicit without recording an understanding level |
+| `predecessor_iteration_fingerprint` | task-local revision owner | later iteration evaluator | prior terminal receipt owner | `root` at iteration zero, content hash later | preserves exact lineage |
+| `prior_gap_ids` / `prior_gap_fingerprints` | task-local revision owner | gap transition evaluator | prior terminal receipt owner | empty at iteration zero; exact ids plus bound fingerprint later | replaces caller-authored progress and transition maps |
+| `observation_evidence_fingerprint` | observation provider | comparison and revalidation | canonical observation hasher | required current | binds ids, source, sequence, values, relations, and external inputs |
+| `observation_content_fingerprint` | comparison owner | holdout independence check | canonical content hasher | derived current | detects renamed original/holdout content aliases |
+| `native_depth_receipt` | WorldGuard native-depth owner | candidate evaluator | task-local depth binder | exact `worldguard.native_depth.v2` only | binds task, candidate, coverage, seven-category gaps, quantitative coverage, and predictive license |
+| `required_revalidation_ids` | task-local revision owner | candidate evaluator | current candidate plan | exactly original plus real holdout | rejects renamed or extra pseudo-checks |
+| `semantic_receipt` / `empirical_comparison` | WorldGuard semantic and empirical owners | candidate evaluator | typed binding helpers | current content-addressed | replaces a bare `PASS` string |
+| `terminal_reason` | task-local revision owner | caller and fact handoff | deterministic evaluator | derived only | only this owner can emit `model_closed_for_task` |
+
 ## SkillGuard Execution Authority Fields
 
 | Field id | Owner | Readers | Writers | Lifecycle | Projection |
@@ -68,6 +84,8 @@ Boundary: public runtime dataclass/dict fields, fixture fields, CLI payload fiel
 - `claim.target_guard`: rejected in normal runtime. Upgrade AI must rewrite old files directly to `claim.target_guards` before activation.
 - `claim.target_guards`: current execution declaration. Structured semantics own required-route derivation; missing semantic structure or derived routes fails closed.
 - Root `evidence/` fixture paths: preserved as historical input sources, copied into `examples/fuel_cell/` for productized use, and excluded from Git/package core surface.
+- Former optional task fields, `remaining_predictive_gap_ids`, caller-authored transition maps, and boolean progress fields: rejected in normal runtime; no compatibility reader or migration fallback exists.
+- Fact activation `model_closed_for_task`: retired. Current activation emits only `task_local_revalidation_required` to the same task owner.
 
 ## Handoffs
 

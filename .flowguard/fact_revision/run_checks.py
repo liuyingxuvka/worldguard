@@ -74,6 +74,10 @@ def _native_findings() -> list[str]:
         transaction_id="tx",
         base_fingerprint=base.fingerprint,
         additions=(negative_rain,),
+        task_id="task:flowguard-fact-revision",
+        task_local_owner_id="worldguard.task_local_world_revision",
+        iteration=0,
+        predecessor_iteration_fingerprint="root",
     )
     preview = preview_fact_revision(base, transaction)
     findings: list[str] = []

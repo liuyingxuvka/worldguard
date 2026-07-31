@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from worldguard.fact_revision import (
     FactPolarity,
     FactRevisionActivationRequest,
@@ -16,6 +18,7 @@ from worldguard.fact_revision import (
     activate_fact_revision,
     preview_fact_revision,
 )
+from worldguard.task_local_revision import TASK_LOCAL_REVISION_OWNER_ID
 
 
 def _base() -> FactWorldSnapshot:
@@ -60,6 +63,16 @@ def _base() -> FactWorldSnapshot:
     )
 
 
+def _transaction(**kwargs) -> FactRevisionTransaction:
+    return FactRevisionTransaction(
+        task_id="task-1",
+        task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
+        iteration=0,
+        predecessor_iteration_fingerprint="root",
+        **kwargs,
+    )
+
+
 def _state(preview, fact_id: str) -> FactTruthState:
     return next(
         item.state for item in preview.after_states if item.fact_id == fact_id
@@ -68,7 +81,7 @@ def _state(preview, fact_id: str) -> FactTruthState:
 
 def test_positive_and_negative_support_yield_both_without_explosion() -> None:
     base = _base()
-    transaction = FactRevisionTransaction(
+    transaction = _transaction(
         transaction_id="revision:add-negative-a",
         base_fingerprint=base.fingerprint,
         additions=(
@@ -98,7 +111,7 @@ def test_positive_and_negative_support_yield_both_without_explosion() -> None:
 
 def test_retraction_recomputes_strict_closure_and_preserves_independent_fact() -> None:
     base = _base()
-    transaction = FactRevisionTransaction(
+    transaction = _transaction(
         transaction_id="revision:retract-a",
         base_fingerprint=base.fingerprint,
         retraction_support_ids=("support:a-positive",),
@@ -118,7 +131,7 @@ def test_retraction_recomputes_strict_closure_and_preserves_independent_fact() -
 
 def test_preserved_fact_change_blocks_with_support_delta() -> None:
     base = _base()
-    transaction = FactRevisionTransaction(
+    transaction = _transaction(
         transaction_id="revision:break-preservation",
         base_fingerprint=base.fingerprint,
         additions=(
@@ -142,7 +155,7 @@ def test_preserved_fact_change_blocks_with_support_delta() -> None:
 
 def test_stale_base_fingerprint_blocks_preview() -> None:
     base = _base()
-    old_transaction = FactRevisionTransaction(
+    old_transaction = _transaction(
         transaction_id="revision:stale",
         base_fingerprint=base.fingerprint,
     )
@@ -168,7 +181,7 @@ def test_stale_base_fingerprint_blocks_preview() -> None:
 
 def test_activation_requires_current_regression_and_holdout_evidence() -> None:
     base = _base()
-    transaction = FactRevisionTransaction(
+    transaction = _transaction(
         transaction_id="revision:activate-both",
         base_fingerprint=base.fingerprint,
         additions=(
@@ -201,7 +214,10 @@ def test_activation_requires_current_regression_and_holdout_evidence() -> None:
         transaction,
         FactRevisionActivationRequest(
             activation_id="activation:one",
+            task_id="task-1",
+            task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
             expected_preview_fingerprint=preview.fingerprint,
+            expected_candidate_model_fingerprint=preview.candidate_snapshot.fingerprint,
             acknowledged_contradiction_fact_ids=("fact:a",),
             evidence=evidence,
         ),
@@ -210,11 +226,14 @@ def test_activation_requires_current_regression_and_holdout_evidence() -> None:
     assert result.receipt.activated is True
     assert result.activated_snapshot is not None
     assert result.receipt.contradiction_fact_ids == ("fact:a",)
+    assert result.receipt.terminal_reason == "task_local_revalidation_required"
+    assert result.receipt.revalidation_required is True
+    assert result.receipt.task_local_owner_id == TASK_LOCAL_REVISION_OWNER_ID
 
 
 def test_missing_holdout_evidence_keeps_activation_blocked() -> None:
     base = _base()
-    transaction = FactRevisionTransaction(
+    transaction = _transaction(
         transaction_id="revision:missing-holdout",
         base_fingerprint=base.fingerprint,
     )
@@ -224,7 +243,10 @@ def test_missing_holdout_evidence_keeps_activation_blocked() -> None:
         transaction,
         FactRevisionActivationRequest(
             activation_id="activation:blocked",
+            task_id="task-1",
+            task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
             expected_preview_fingerprint=preview.fingerprint,
+            expected_candidate_model_fingerprint=preview.candidate_snapshot.fingerprint,
             acknowledged_contradiction_fact_ids=(),
             evidence=(
                 FactRevisionEvidenceBinding(
@@ -242,9 +264,56 @@ def test_missing_holdout_evidence_keeps_activation_blocked() -> None:
     assert "missing_holdout_evidence" in result.receipt.finding_codes
 
 
+def test_duplicate_fact_evidence_kind_cannot_substitute_for_exact_pair() -> None:
+    base = _base()
+    transaction = _transaction(
+        transaction_id="revision:duplicate-regression",
+        base_fingerprint=base.fingerprint,
+    )
+    preview = preview_fact_revision(base, transaction)
+    evidence = (
+        FactRevisionEvidenceBinding(
+            evidence_id="evidence:regression-one",
+            kind=FactRevisionEvidenceKind.REGRESSION,
+            status="pass",
+            current=True,
+            subject_fingerprint=preview.fingerprint,
+        ),
+        FactRevisionEvidenceBinding(
+            evidence_id="evidence:regression-two",
+            kind=FactRevisionEvidenceKind.REGRESSION,
+            status="pass",
+            current=True,
+            subject_fingerprint=preview.fingerprint,
+        ),
+        FactRevisionEvidenceBinding(
+            evidence_id="evidence:holdout",
+            kind=FactRevisionEvidenceKind.HOLDOUT,
+            status="pass",
+            current=True,
+            subject_fingerprint=preview.fingerprint,
+        ),
+    )
+    result = activate_fact_revision(
+        base,
+        transaction,
+        FactRevisionActivationRequest(
+            activation_id="activation:duplicate-regression",
+            task_id="task-1",
+            task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
+            expected_preview_fingerprint=preview.fingerprint,
+            expected_candidate_model_fingerprint=preview.candidate_snapshot.fingerprint,
+            acknowledged_contradiction_fact_ids=(),
+            evidence=evidence,
+        ),
+    )
+    assert result.receipt.status == "blocked"
+    assert "duplicate_regression_evidence" in result.receipt.finding_codes
+
+
 def test_prior_activation_transaction_id_blocks_duplicate_activation() -> None:
     base = _base()
-    transaction = FactRevisionTransaction(
+    transaction = _transaction(
         transaction_id="revision:already-used",
         base_fingerprint=base.fingerprint,
     )
@@ -264,7 +333,10 @@ def test_prior_activation_transaction_id_blocks_duplicate_activation() -> None:
         transaction,
         FactRevisionActivationRequest(
             activation_id="activation:duplicate",
+            task_id="task-1",
+            task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
             expected_preview_fingerprint=preview.fingerprint,
+            expected_candidate_model_fingerprint=preview.candidate_snapshot.fingerprint,
             acknowledged_contradiction_fact_ids=(),
             evidence=evidence,
             prior_activation_transaction_ids=("revision:already-used",),
@@ -272,3 +344,59 @@ def test_prior_activation_transaction_id_blocks_duplicate_activation() -> None:
     )
     assert result.receipt.status == "blocked"
     assert "transaction_already_activated" in result.receipt.finding_codes
+
+
+def test_fact_activation_cannot_claim_model_closed_for_task() -> None:
+    base = _base()
+    transaction = _transaction(
+        transaction_id="revision:no-direct-close",
+        base_fingerprint=base.fingerprint,
+    )
+    preview = preview_fact_revision(base, transaction)
+    evidence = tuple(
+        FactRevisionEvidenceBinding(
+            evidence_id=f"evidence:{kind.value}",
+            kind=kind,
+            status="pass",
+            current=True,
+            subject_fingerprint=preview.fingerprint,
+        )
+        for kind in FactRevisionEvidenceKind
+    )
+    result = activate_fact_revision(
+        base,
+        transaction,
+        FactRevisionActivationRequest(
+            activation_id="activation:no-direct-close",
+            task_id="task-1",
+            task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
+            expected_preview_fingerprint=preview.fingerprint,
+            expected_candidate_model_fingerprint=preview.candidate_snapshot.fingerprint,
+            acknowledged_contradiction_fact_ids=(),
+            evidence=evidence,
+        ),
+    )
+    assert result.receipt.activated is True
+    assert result.receipt.terminal_reason == "task_local_revalidation_required"
+    assert "model_closed_for_task" not in result.receipt.to_dict().values()
+
+
+def test_legacy_fact_transaction_shape_is_rejected() -> None:
+    base = _base()
+    with pytest.raises(ValueError, match="unknown fields|missing current fields"):
+        FactRevisionTransaction.from_dict(
+            {
+                "transaction_id": "revision:legacy",
+                "base_fingerprint": base.fingerprint,
+                "additions": [],
+                "retraction_support_ids": [],
+                "preserved_fact_ids": [],
+                "expected_terminal_deltas": [],
+                "task_id": "task-1",
+                "iteration": 0,
+                "max_iterations": 8,
+                "remaining_predictive_gap_ids": [],
+                "next_actions": [],
+                "terminal_reason": "model_closed_for_task",
+            }
+        )

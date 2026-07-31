@@ -18,6 +18,7 @@ def export_contract_model() -> dict[str, object]:
     guard_contract_step = "step:verify-world-guard-model-contract"
     depth_step = "step:execute-world-semantic-depth"
     template_step = "step:worldguard-template-pack-builder:execute"
+    task_local_step = "step:worldguard-task-local-model-closure:execute"
     fact_revision_step = "step:worldguard-fact-revision:execute"
     success = "terminal:world-depth-pass"
     blocked = "terminal:world-depth-blocked"
@@ -69,11 +70,20 @@ def export_contract_model() -> dict[str, object]:
             "terminal_kind": "",
         },
         {
+            "step_id": task_local_step,
+            "route_id": route_id,
+            "owner_id": "worldguard.task_local_world_revision",
+            "action_kind": "native",
+            "prerequisite_step_ids": [template_step],
+            "required": True,
+            "terminal_kind": "",
+        },
+        {
             "step_id": fact_revision_step,
             "route_id": route_id,
             "owner_id": "worldguard.task_local_fact_revision",
             "action_kind": "native",
-            "prerequisite_step_ids": [template_step],
+            "prerequisite_step_ids": [task_local_step],
             "required": True,
             "terminal_kind": "",
         },
@@ -118,6 +128,11 @@ def export_contract_model() -> dict[str, object]:
         "worldguard_internal_guard_routes_are_complete",
         "worldguard_internal_guard_prediction_response_validation_terminal_semantics_are_preserved",
         "worldguard_source_version_and_consumer_runtime_identity_are_frozen",
+        "worldguard_task_local_shape_is_current_and_task_bound",
+        "worldguard_task_local_native_depth_is_exactly_bound",
+        "worldguard_task_local_gap_transitions_are_evidence_derived",
+        "worldguard_task_local_holdout_is_typed_and_independent",
+        "worldguard_task_local_owner_is_the_only_model_closure_owner",
         "worldguard_fact_revision_is_four_valued_transactional_and_evidence_bound",
     ]
     obligations = [
@@ -166,8 +181,33 @@ def export_contract_model() -> dict[str, object]:
             topology_step,
         ),
         (
-            "obligation:worldguard-fact-revision",
+            "obligation:worldguard-task-local-current-shape",
             invariant_ids[20],
+            task_local_step,
+        ),
+        (
+            "obligation:worldguard-task-local-native-depth-binding",
+            invariant_ids[21],
+            task_local_step,
+        ),
+        (
+            "obligation:worldguard-task-local-derived-gap-transitions",
+            invariant_ids[22],
+            task_local_step,
+        ),
+        (
+            "obligation:worldguard-task-local-independent-holdout",
+            invariant_ids[23],
+            task_local_step,
+        ),
+        (
+            "obligation:worldguard-task-local-sole-closure-owner",
+            invariant_ids[24],
+            task_local_step,
+        ),
+        (
+            "obligation:worldguard-fact-revision",
+            invariant_ids[25],
             fact_revision_step,
         ),
     ]
@@ -180,7 +220,7 @@ def export_contract_model() -> dict[str, object]:
             {
                 "function_id": "worldguard_claim_derived_depth",
                 "business_intent": (
-                    "execute the six exact WorldGuard maintenance validation owners"
+                    "execute the seven exact WorldGuard maintenance validation owners"
                 ),
                 "owner_id": owner_id,
                 "route_ids": [route_id],
@@ -211,9 +251,9 @@ def export_contract_model() -> dict[str, object]:
         ],
         "invariant_ids": invariant_ids,
         "claim_boundary": (
-            "This author-side export gives each of the six WorldGuard checks one "
+            "This author-side export gives each of the seven WorldGuard checks one "
             "maintenance step and one execution owner. WorldGuard's public investigation, "
-            "semantic-rollout, template, fact-revision, and seven internal Guard runtime routes remain "
+            "semantic-rollout, task-local revision, template, fact-revision, and seven internal Guard runtime routes remain "
             "target-owned in the skill/runtime and are verified by those checks; this "
             "maintenance model does not duplicate them as alternate execution paths."
         ),

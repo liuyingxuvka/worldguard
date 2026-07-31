@@ -104,9 +104,13 @@ non-pass result; it never triggers another Guard as a replacement route.
 
 7. For a non-trivial task that asks whether the world model matches reality, keep
    this WorldGuard task fully independent and run its native task-local loop:
-   - freeze a task id, purpose, independent coverage inventory, assumptions,
-     unknowns, and iteration budget. Do not ask the model whether it understands
-     and do not record an understanding level;
+   - use only `worldguard.task_local_revision.v2`. Freeze a non-empty task id
+     and purpose, an independently owned coverage-universe
+     id/source/inventory/fingerprint, non-empty assumptions and unknowns, a
+     finite iteration budget, and the exact `root` or content-addressed
+     predecessor. Later iterations must bind exact prior gap ids and the
+     fingerprint of that set. Reject old/defaulted shapes; do not ask the model whether it
+     understands and do not record an understanding level;
    - freeze a `PredictionSnapshot` against the exact current model id, version,
      path, SHA-256, and sequence before reading the new observation;
    - preserve actual finite values and typed left/relation/right records in an
@@ -119,19 +123,31 @@ non-pass result; it never triggers another Guard as a replacement route.
      passing in each, before accepting the candidate;
    - reject an unapplied failure or roll an applied failure back only to the
      exact still-current v1 identity.
-   - after each comparison or candidate revalidation, carry forward every open
-     mismatch or native predictive gap with a prediction, falsifier, gap
-     transition, and next action. Continue addressable model/evidence edits until
-     `model_closed_for_task`; stop only with an explicit
-     `external_input_required`, `scope_excluded`, `progress_stalled`, or
-     `iteration_limit` terminal reason. A fact-only change cannot close an open
-     predictive gap.
+   - bind one exact current native execution-depth receipt to the same task,
+     independent coverage universe, and candidate. Derive state, transition,
+     branch, perturbation, intervention, counterfactual, and holdout gaps from
+     that receipt; never accept a caller-authored remaining-gap list;
+   - bind exactly one typed original-scenario receipt and one typed real-holdout
+     receipt. Each contains a content-addressed semantic source result and
+     empirical comparison. Their observation identities, sources, evidence
+     fingerprints, observation-content fingerprints, and semantic result
+     fingerprints must be independent, and
+     the holdout cannot appear in candidate-construction evidence;
+   - let the runtime compute input, resolved, persisted, introduced, and current
+     gaps. Continue on a new gap, stop on an unchanged/repeated fingerprint as
+     `progress_stalled`, and block at `iteration_limit`. Exact external stops
+     name the input, owner, reason, blocked gaps, and affected claims. Only the
+     same task-local owner may emit `model_closed_for_task` after native
+     predictive license, zero current gaps, and both independent revalidations
+     pass.
 
    Native commands:
 
    ```powershell
    python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard.py" task-model freeze <prediction.yaml>
    python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard.py" task-model compare <prediction.yaml> <observation.yaml>
+   python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard.py" task-model depth-bind <prediction.yaml> <candidate-identity.yaml> <native-depth.json> --binding-id <id>
+   python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard.py" task-model revalidation-bind <prediction.yaml> <candidate-identity.yaml> <role> <semantic-result.json> <comparison.json> --check-id <id> --semantic-receipt-id <id> --semantic-status <status> --evidence-ref <ref>
    python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard.py" task-model revision <candidate-revision.yaml>
    ```
 
@@ -140,7 +156,10 @@ non-pass result; it never triggers another Guard as a replacement route.
    independent; apply only declared strict signed rules; preview additions and
    support-id retractions on a copy; preserve named facts; and activate only an
    exact current preview with visible contradictions plus current regression
-   and holdout evidence. The four fact states (`true`, `false`, `both`,
+   and holdout evidence. Bind the transaction and activation to the same task,
+   sole task-local owner, predecessor, preview, and candidate fingerprint.
+   Successful activation ends only at `task_local_revalidation_required`; it
+   never closes the task. The four fact states (`true`, `false`, `both`,
    `neither`) never replace Guard terminals and never create a second
    WorldGuard owner.
 
@@ -187,6 +206,10 @@ non-pass result; it never triggers another Guard as a replacement route.
   candidate transitions, and holdout evidence must be current in the same
   iteration receipt. Addressable gaps cannot be relabeled as scope exclusions,
   and an AI self-report is never evidence of understanding.
+- A semantic `PASS` string, caller-authored gap list, caller-authored transition
+  map, boolean progress claim, tampered evidence fingerprint, reused holdout,
+  or former task-local schema is invalid current input. Do not migrate or
+  default it inside normal runtime.
 - Task-local revision may change only the separate current-task model candidate.
   It must not edit WorldGuard source, a Guard rule, a predictive-depth floor, an
   installed skill, or a reusable default. It must not call another Guard to
@@ -196,6 +219,9 @@ non-pass result; it never triggers another Guard as a replacement route.
   overwrite the accepted base during preview, hide changed preserved facts, or
   activate without exact current regression and holdout evidence bound to the
   preview.
+- Fact activation is never `model_closed_for_task`. Its successful receipt must
+  require same-task/same-owner prediction, native-depth, original, and
+  independent holdout revalidation.
 - Repository FlowGuard/pytest regressions are engine-health calibration only. They never replace `python -m worldguard mesh-check --mesh <current-target-mesh>` and its current per-target native depth receipt.
 - For every non-trivial or predictive conclusion, a current target-native WorldGuard receipt is required. A local executor PASS, one-off spot check, repository regression, or bounded single-event/equation check can support only a bounded conclusion. Author-side maintenance records may prove the skill was checked before installation, but ordinary WorldGuard use neither reads nor requires them.
 - Treat the built-in event, BDI, RCC8, resource, causal, conflict, and norm executors as deliberately narrow. Their `PASS` licenses only the declared supported subset, never universal world understanding.

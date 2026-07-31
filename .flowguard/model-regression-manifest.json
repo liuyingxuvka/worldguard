@@ -1,6 +1,21 @@
 {
   "schema_version": "flowguard.model_regression_manifest.v3",
   "governed_input_globs": [
+    ".flowguard/task_local_revision/model.py",
+    ".flowguard/task_local_revision/run_checks.py",
+    "worldguard/task_local_revision.py",
+    "skills/worldguard/runtime/worldguard/task_local_revision.py",
+    "skills/worldguard/references/worldguard-contracts.md",
+    "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py",
+    "skills/worldguard/.skillguard/contract-source.json",
+    "skills/worldguard/.skillguard/contract_model.py",
+    "tests/test_task_local_revision.py",
+    "openspec/changes/make-world-model-deepening-iterative/**/*.md",
+    ".flowguard/worldguard_field_lifecycle.md",
+    "README.md",
+    "CHANGELOG.md",
+    "VERSION",
+    "pyproject.toml",
     ".flowguard/fact_revision/model.py",
     ".flowguard/fact_revision/run_checks.py",
     "worldguard/fact_revision.py",
@@ -40,6 +55,115 @@
   "shared_input_groups": [],
   "models": [
     {
+      "model_id": "task_local_revision",
+      "model_path": ".flowguard/task_local_revision/model.py",
+      "runner": [
+        "{python}",
+        ".flowguard/task_local_revision/run_checks.py"
+      ],
+      "tier": "full",
+      "timeout_seconds": 120,
+      "shard_safe": true,
+      "mutation_policy": "none",
+      "input_globs": [
+        ".flowguard/task_local_revision/model.py",
+        ".flowguard/task_local_revision/run_checks.py",
+        "worldguard/task_local_revision.py",
+        "worldguard/fact_revision.py",
+        "worldguard/__init__.py",
+        "worldguard/cli.py",
+        "skills/worldguard/runtime/worldguard/task_local_revision.py",
+        "skills/worldguard/runtime/worldguard/fact_revision.py",
+        "skills/worldguard/runtime/worldguard/__init__.py",
+        "skills/worldguard/runtime/worldguard/cli.py",
+        "skills/worldguard/SKILL.md",
+        "skills/worldguard/agents/openai.yaml",
+        "skills/worldguard/references/worldguard-contracts.md",
+        "skills/worldguard/references/fact-revision.md",
+        "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py",
+        "skills/worldguard/.skillguard/contract-source.json",
+        "skills/worldguard/.skillguard/contract_model.py",
+        "tests/test_task_local_revision.py",
+        "tests/test_fact_revision.py",
+        "openspec/changes/make-world-model-deepening-iterative/**/*.md",
+        ".flowguard/worldguard_field_lifecycle.md",
+        "README.md",
+        "CHANGELOG.md",
+        "VERSION",
+        "pyproject.toml"
+      ],
+      "expected_artifacts": [],
+      "exclusion_reason": "",
+      "distribution_policy": "required_public",
+      "absence_reason": "",
+      "model_kind": "executable_workflow",
+      "purpose_closure": {
+        "schema_version": "flowguard.model_purpose_closure.v1",
+        "model_instance_id": "regression:task_local_revision:0.7.0",
+        "reusable_model_type_id": "task_local_revision",
+        "task_intent_id": "worldguard-regression:strict-task-local-predictive-depth",
+        "declaration_phase": "before_candidate",
+        "guarded_purpose": "Prevent legacy task shapes, self-reported progress, unbound native depth, dependent holdouts, hidden predictive gaps, or fact activation from being accepted as current task-local model closure.",
+        "protected_failure_ids": [
+          "worldguard:legacy-task-shape",
+          "worldguard:caller-authored-progress",
+          "worldguard:unbound-native-depth",
+          "worldguard:dependent-holdout",
+          "worldguard:hidden-predictive-gap",
+          "worldguard:caller-self-reported-closure",
+          "worldguard:fact-activation-second-owner"
+        ],
+        "claim_boundary": "This closure covers only strict finite task-local predictive revision, typed original and independent holdout revalidation, and same-owner fact handoff; factual truth, installation, publication, and release require separate evidence.",
+        "adoption_scope": "current_candidate_only",
+        "known_good_case_id": "scenario:wtl01-strict-current-candidate-closes",
+        "failure_bindings": [
+          {
+            "failure_id": "worldguard:legacy-task-shape",
+            "known_bad_case_id": "scenario:wtl02-legacy-shape-blocks",
+            "oracle_id": "native:worldguard-task-local-flowguard"
+          },
+          {
+            "failure_id": "worldguard:caller-authored-progress",
+            "known_bad_case_id": "scenario:wtl13-unbound-prior-gap-set-blocks",
+            "oracle_id": "native:worldguard-task-local-flowguard"
+          },
+          {
+            "failure_id": "worldguard:unbound-native-depth",
+            "known_bad_case_id": "scenario:wtl12-unbound-native-depth-blocks",
+            "oracle_id": "native:worldguard-task-local-flowguard"
+          },
+          {
+            "failure_id": "worldguard:dependent-holdout",
+            "known_bad_case_id": "scenario:wtl10-holdout-reuse-blocks",
+            "oracle_id": "native:worldguard-task-local-flowguard"
+          },
+          {
+            "failure_id": "worldguard:hidden-predictive-gap",
+            "known_bad_case_id": "scenario:wtl11-unlicensed-prediction-continues",
+            "oracle_id": "native:worldguard-task-local-flowguard"
+          },
+          {
+            "failure_id": "worldguard:caller-self-reported-closure",
+            "known_bad_case_id": "scenario:wtl08-self-report-close-is-counterexample",
+            "oracle_id": "native:worldguard-task-local-flowguard"
+          },
+          {
+            "failure_id": "worldguard:fact-activation-second-owner",
+            "known_bad_case_id": "scenario:wtl09-fact-activation-close-is-counterexample",
+            "oracle_id": "native:worldguard-task-local-flowguard"
+          }
+        ],
+        "evidence_check_ids": [
+          "check:model-regression:task-local-revision",
+          "check:worldguard:task-local-model-closure"
+        ],
+        "model_sha256": "sha256:dca76bc35d021a65bfd520fc264d3d4d315275fb782f0bc481ae4cea9e607a9a",
+        "runner_sha256": "sha256:6318e4cf7cdacca7abfe3e3effd6f9f9915c29cdc959f9d31ceae2af67740923",
+        "declaration_fingerprint": "sha256:7d0f76277160232488d8a201bf5a1e895117dc24f25791d804f7f284d8ee5f27",
+        "closure_fingerprint": "sha256:a6c0fd2a84f41d068bbd3a564f5968785b35bd5577356812a3f605a011cc263b"
+      }
+    },
+    {
       "model_id": "fact_revision",
       "model_path": ".flowguard/fact_revision/model.py",
       "runner": [
@@ -71,50 +195,62 @@
       "model_kind": "executable_workflow",
       "purpose_closure": {
         "schema_version": "flowguard.model_purpose_closure.v1",
-        "model_instance_id": "regression:fact_revision:0.5.0",
+        "model_instance_id": "regression:fact_revision:0.7.0",
         "reusable_model_type_id": "fact_revision",
-        "task_intent_id": "worldguard-regression:task-local-fact-revision",
+        "task_intent_id": "worldguard-regression:task-local-fact-revision-handoff",
         "declaration_phase": "before_candidate",
-        "guarded_purpose": "Prevent stale-base, preservation-breaking, contradiction-hiding, or evidence-free fact revisions from being accepted as current WorldGuard behavior.",
+        "guarded_purpose": "Prevent stale-base, preservation-breaking, contradiction-hiding, duplicate-evidence, evidence-free, or foreign-owner fact revisions from being accepted as a current same-task model-closure result.",
         "protected_failure_ids": [
           "worldguard:stale-fact-base",
           "worldguard:preserved-fact-changed",
           "worldguard:hidden-contradiction",
-          "worldguard:activation-without-current-evidence"
+          "worldguard:duplicate-fact-evidence-kind",
+          "worldguard:activation-without-current-evidence",
+          "worldguard:fact-activation-second-owner"
         ],
-        "claim_boundary": "This closure covers only task-local four-valued fact revision preview and activation; factual truth, general Guard terminal claims, installation, and release require separate evidence.",
+        "claim_boundary": "This closure covers only task-local four-valued fact revision preview, activation, and mandatory return to the same task-local model owner; factual truth, general Guard terminal claims, installation, and release require separate evidence.",
         "adoption_scope": "current_candidate_only",
         "known_good_case_id": "scenario:wfr01-current-revision-activates",
         "failure_bindings": [
           {
             "failure_id": "worldguard:stale-fact-base",
             "known_bad_case_id": "scenario:wfr03-stale-base-blocks",
-            "oracle_id": "native:worldguard-fact-revision:flowguard"
+            "oracle_id": "native:worldguard-fact-revision-flowguard"
           },
           {
             "failure_id": "worldguard:preserved-fact-changed",
             "known_bad_case_id": "scenario:wfr04-preservation-change-blocks",
-            "oracle_id": "native:worldguard-fact-revision:flowguard"
+            "oracle_id": "native:worldguard-fact-revision-flowguard"
           },
           {
             "failure_id": "worldguard:hidden-contradiction",
             "known_bad_case_id": "scenario:wfr02-contradiction-needs-acknowledgement",
-            "oracle_id": "native:worldguard-fact-revision:flowguard"
+            "oracle_id": "native:worldguard-fact-revision-flowguard"
+          },
+          {
+            "failure_id": "worldguard:duplicate-fact-evidence-kind",
+            "known_bad_case_id": "scenario:wfr07-duplicate-evidence-kind-blocks",
+            "oracle_id": "native:worldguard-fact-revision-flowguard"
           },
           {
             "failure_id": "worldguard:activation-without-current-evidence",
             "known_bad_case_id": "scenario:wfr06-unsafe-activation-is-counterexample",
-            "oracle_id": "native:worldguard-fact-revision:flowguard"
+            "oracle_id": "native:worldguard-fact-revision-flowguard"
+          },
+          {
+            "failure_id": "worldguard:fact-activation-second-owner",
+            "known_bad_case_id": "invariant:fact-revision-activation-returns-to-same-task-owner",
+            "oracle_id": "native:worldguard-fact-revision-flowguard"
           }
         ],
         "evidence_check_ids": [
           "check:model-regression:fact-revision",
           "check:worldguard:fact-revision"
         ],
-        "model_sha256": "sha256:01ed8b094f66cb85bcec723a92c6d882c33b901cbc6820b4e0318fe5b19910a6",
-        "runner_sha256": "sha256:bd9f01bf345715d5feeda43fba35968a152e631e216f3f71a0d4ff7cecd17ebe",
-        "declaration_fingerprint": "sha256:21dfefc012d4b739d2cce97f8a63542923c883bf9cf7ce5cee3e3e48abf459a1",
-        "closure_fingerprint": "sha256:7cd81ba4de7d939e8c90ac969bce6fba6edc97ccbdc83db84cb2db9074b7847b"
+        "model_sha256": "sha256:d0e25f54a0cc2d0197bc5327af58c4fed4ef628720931ea7683ee57035514103",
+        "runner_sha256": "sha256:89cd62bde9cbc83b5692a1c8be7d2ed6521d5ee5e07d0a4fded48171b2d05298",
+        "declaration_fingerprint": "sha256:c99070b2202618788407289c8b491702f67865006769a2f379d623996de449d7",
+        "closure_fingerprint": "sha256:c1dd9f4da82ecb0439860cecdd9232fcafedbbc09b2c08d3ef25fb6a614f82fd"
       }
     },
     {

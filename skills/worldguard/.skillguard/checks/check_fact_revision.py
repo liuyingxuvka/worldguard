@@ -27,6 +27,7 @@ from worldguard.fact_revision import (  # noqa: E402
     activate_fact_revision,
     preview_fact_revision,
 )
+from worldguard.task_local_revision import TASK_LOCAL_REVISION_OWNER_ID  # noqa: E402
 
 
 def _base() -> FactWorldSnapshot:
@@ -71,6 +72,10 @@ def main() -> int:
     transaction = FactRevisionTransaction(
         transaction_id="transaction:native-both",
         base_fingerprint=base.fingerprint,
+        task_id="task:native-fact-revision",
+        task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
+        iteration=0,
+        predecessor_iteration_fingerprint="root",
         additions=(
             FactSupport(
                 "support:a-negative",
@@ -102,14 +107,44 @@ def main() -> int:
         transaction,
         FactRevisionActivationRequest(
             activation_id="activation:native",
+            task_id=transaction.task_id,
+            task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
             expected_preview_fingerprint=preview.fingerprint,
+            expected_candidate_model_fingerprint=preview.candidate_snapshot.fingerprint,
             acknowledged_contradiction_fact_ids=("fact:a",),
             evidence=evidence,
+        ),
+    )
+    duplicate_evidence = (
+        *evidence,
+        FactRevisionEvidenceBinding(
+            evidence_id="evidence:regression-duplicate",
+            kind=FactRevisionEvidenceKind.REGRESSION,
+            status="pass",
+            current=True,
+            subject_fingerprint=preview.fingerprint,
+        ),
+    )
+    duplicate = activate_fact_revision(
+        base,
+        transaction,
+        FactRevisionActivationRequest(
+            activation_id="activation:duplicate-evidence",
+            task_id=transaction.task_id,
+            task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
+            expected_preview_fingerprint=preview.fingerprint,
+            expected_candidate_model_fingerprint=preview.candidate_snapshot.fingerprint,
+            acknowledged_contradiction_fact_ids=("fact:a",),
+            evidence=duplicate_evidence,
         ),
     )
     broken_transaction = FactRevisionTransaction(
         transaction_id="transaction:break-preservation",
         base_fingerprint=base.fingerprint,
+        task_id="task:native-fact-revision",
+        task_local_owner_id=TASK_LOCAL_REVISION_OWNER_ID,
+        iteration=0,
+        predecessor_iteration_fingerprint="root",
         additions=(
             FactSupport(
                 "support:b-negative",
@@ -131,6 +166,15 @@ def main() -> int:
             item.support_id != "support:a-negative" for item in base.supports
         ),
         "activation_bound": activated.receipt.activated,
+        "activation_is_intermediate": (
+            activated.receipt.terminal_reason == "task_local_revalidation_required"
+            and activated.receipt.revalidation_required
+            and activated.receipt.task_local_owner_id == TASK_LOCAL_REVISION_OWNER_ID
+        ),
+        "duplicate_evidence_kind_blocks": (
+            duplicate.receipt.status == "blocked"
+            and "duplicate_regression_evidence" in duplicate.receipt.finding_codes
+        ),
         "preservation_blocks": (
             broken.status == "blocked"
             and "preserved_fact_changed" in broken.finding_codes

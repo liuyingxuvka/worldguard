@@ -1,9 +1,9 @@
-"""Task-local empirical prediction and reversible world-model revision.
+"""Strict task-local prediction and reversible world-model revision.
 
-This module deliberately sits beside, rather than inside, WorldGuard's
-structural and semantic executors.  It freezes one exact task model before an
-observation, compares only explicitly declared values and relationships, and
-evaluates a separate candidate model without writing either artifact.
+The current route has one owner.  It freezes an independently bounded task
+prediction before observation, binds immutable native depth and revalidation
+evidence to a separate candidate, derives gap transitions, and refuses to
+close while any current predictive obligation remains open.
 """
 
 from __future__ import annotations
@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Any, Mapping
 
 
+TASK_LOCAL_REVISION_SCHEMA_VERSION = "worldguard.task_local_revision.v2"
+TASK_LOCAL_REVISION_OWNER_ID = "worldguard.task_local_world_revision"
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 
 
@@ -47,14 +49,25 @@ class RevalidationRole(StrEnum):
 
 
 _REVALIDATION_STATUSES = {"pass", "fail", "gap", "blocked", "not_run"}
-_ITERATION_TERMINALS = {
+_CURRENT_TERMINALS = {
     "continue_iteration",
     "model_closed_for_task",
     "external_input_required",
-    "scope_excluded",
     "progress_stalled",
     "iteration_limit",
+    "candidate_rejected",
+    "candidate_rolled_back",
+    "blocked",
 }
+_PREDICTIVE_GAP_PREFIXES = (
+    "state",
+    "transition",
+    "branch",
+    "perturbation",
+    "intervention",
+    "counterfactual",
+    "holdout",
+)
 
 
 def _strict_fields(data: Mapping[str, Any], allowed: set[str], label: str) -> None:
@@ -63,10 +76,23 @@ def _strict_fields(data: Mapping[str, Any], allowed: set[str], label: str) -> No
         raise ValueError(f"{label} has unknown fields: {', '.join(unknown)}")
 
 
+def _require_fields(data: Mapping[str, Any], required: set[str], label: str) -> None:
+    missing = sorted(required - set(data))
+    if missing:
+        raise ValueError(f"{label} is missing current fields: {', '.join(missing)}")
+
+
 def _text(value: Any, label: str) -> str:
     result = str(value or "").strip()
     if not result:
         raise ValueError(f"{label} must be non-empty")
+    return result
+
+
+def _sha256_text(value: Any, label: str) -> str:
+    result = _text(value, label).lower()
+    if not SHA256_RE.fullmatch(result):
+        raise ValueError(f"{label} must contain exactly 64 hexadecimal characters")
     return result
 
 
@@ -92,6 +118,55 @@ def _resolve_path(base_dir: Path, path_text: str) -> Path:
     return path if path.is_absolute() else base_dir / path
 
 
+def _unique_texts(raw: Any, label: str, *, non_empty: bool = False) -> tuple[str, ...]:
+    if not isinstance(raw, list):
+        raise ValueError(f"{label} must be a list")
+    values = tuple(_text(item, label) for item in raw)
+    if len(values) != len(set(values)):
+        raise ValueError(f"{label} must be unique")
+    if non_empty and not values:
+        raise ValueError(f"{label} must be non-empty")
+    return values
+
+
+def _seal_receipt(payload: Mapping[str, Any]) -> dict[str, Any]:
+    body = dict(payload)
+    return {**body, "receipt_fingerprint": _fingerprint(body)}
+
+
+def _verify_sealed_receipt(
+    data: Mapping[str, Any],
+    *,
+    artifact_kind: str,
+    label: str,
+) -> dict[str, Any]:
+    if str(data.get("artifact_kind", "")) != artifact_kind:
+        raise ValueError(f"{label} artifact_kind is not current")
+    supplied = _sha256_text(data.get("receipt_fingerprint"), f"{label} receipt_fingerprint")
+    body = {key: value for key, value in data.items() if key != "receipt_fingerprint"}
+    if _fingerprint(body) != supplied:
+        raise ValueError(f"{label} receipt fingerprint is stale or tampered")
+    return body
+
+
+def coverage_universe_fingerprint(
+    *,
+    universe_id: str,
+    owner_id: str,
+    source_ref: str,
+    coverage_ids: tuple[str, ...] | list[str],
+) -> str:
+    return _fingerprint(
+        {
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+            "universe_id": _text(universe_id, "coverage_universe_id"),
+            "owner_id": _text(owner_id, "coverage_universe_owner_id"),
+            "source_ref": _text(source_ref, "coverage_universe_source_ref"),
+            "coverage_ids": sorted(_text(item, "coverage id") for item in coverage_ids),
+        }
+    )
+
+
 @dataclass(frozen=True)
 class WorldModelIdentity:
     model_id: str
@@ -101,19 +176,12 @@ class WorldModelIdentity:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "WorldModelIdentity":
-        _strict_fields(
-            data,
-            {"model_id", "model_version", "path", "sha256"},
-            "world model identity",
-        )
-        sha256 = _text(data.get("sha256"), "sha256").lower()
-        if not SHA256_RE.fullmatch(sha256):
-            raise ValueError("sha256 must contain exactly 64 hexadecimal characters")
+        _strict_fields(data, {"model_id", "model_version", "path", "sha256"}, "world model identity")
         return cls(
             model_id=_text(data.get("model_id"), "model_id"),
             model_version=_text(data.get("model_version"), "model_version"),
             path=_text(data.get("path"), "path"),
-            sha256=sha256,
+            sha256=_sha256_text(data.get("sha256"), "sha256"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -138,23 +206,14 @@ class ExpectedWorldValue:
     def from_dict(cls, data: Mapping[str, Any]) -> "ExpectedWorldValue":
         _strict_fields(
             data,
-            {
-                "expectation_id",
-                "target_id",
-                "expected_value",
-                "tolerance",
-                "mismatch_category",
-                "weakening_condition",
-            },
+            {"expectation_id", "target_id", "expected_value", "tolerance", "mismatch_category", "weakening_condition"},
             "expected world value",
         )
-        tolerance = _finite(data.get("tolerance", 0.0), "tolerance")
+        tolerance = _finite(data.get("tolerance"), "tolerance")
         if tolerance < 0:
             raise ValueError("tolerance must be non-negative")
         try:
-            category = WorldMismatchCategory(
-                _text(data.get("mismatch_category"), "mismatch_category")
-            )
+            category = WorldMismatchCategory(_text(data.get("mismatch_category"), "mismatch_category"))
         except ValueError as exc:
             raise ValueError("mismatch_category is not a WorldGuard-native category") from exc
         return cls(
@@ -163,9 +222,7 @@ class ExpectedWorldValue:
             expected_value=_finite(data.get("expected_value"), "expected_value"),
             tolerance=tolerance,
             mismatch_category=category,
-            weakening_condition=_text(
-                data.get("weakening_condition"), "weakening_condition"
-            ),
+            weakening_condition=_text(data.get("weakening_condition"), "weakening_condition"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -193,21 +250,11 @@ class ExpectedWorldRelationship:
     def from_dict(cls, data: Mapping[str, Any]) -> "ExpectedWorldRelationship":
         _strict_fields(
             data,
-            {
-                "expectation_id",
-                "relationship_id",
-                "left",
-                "relation",
-                "right",
-                "mismatch_category",
-                "weakening_condition",
-            },
+            {"expectation_id", "relationship_id", "left", "relation", "right", "mismatch_category", "weakening_condition"},
             "expected world relationship",
         )
         try:
-            category = WorldMismatchCategory(
-                _text(data.get("mismatch_category"), "mismatch_category")
-            )
+            category = WorldMismatchCategory(_text(data.get("mismatch_category"), "mismatch_category"))
         except ValueError as exc:
             raise ValueError("mismatch_category is not a WorldGuard-native category") from exc
         return cls(
@@ -217,9 +264,7 @@ class ExpectedWorldRelationship:
             relation=_text(data.get("relation"), "relation"),
             right=_text(data.get("right"), "right"),
             mismatch_category=category,
-            weakening_condition=_text(
-                data.get("weakening_condition"), "weakening_condition"
-            ),
+            weakening_condition=_text(data.get("weakening_condition"), "weakening_condition"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -235,8 +280,53 @@ class ExpectedWorldRelationship:
 
 
 @dataclass(frozen=True)
+class ExternalInputRequirement:
+    input_id: str
+    owner_id: str
+    reason: str
+    blocked_gap_ids: tuple[str, ...]
+    affected_claim_ids: tuple[str, ...]
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "ExternalInputRequirement":
+        allowed = {"input_id", "owner_id", "reason", "blocked_gap_ids", "affected_claim_ids"}
+        _strict_fields(data, allowed, "external input requirement")
+        _require_fields(data, allowed, "external input requirement")
+        return cls(
+            input_id=_text(data.get("input_id"), "external input id"),
+            owner_id=_text(data.get("owner_id"), "external input owner id"),
+            reason=_text(data.get("reason"), "external input reason"),
+            blocked_gap_ids=_unique_texts(data.get("blocked_gap_ids"), "blocked_gap_ids", non_empty=True),
+            affected_claim_ids=_unique_texts(data.get("affected_claim_ids"), "affected_claim_ids", non_empty=True),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "input_id": self.input_id,
+            "owner_id": self.owner_id,
+            "reason": self.reason,
+            "blocked_gap_ids": list(self.blocked_gap_ids),
+            "affected_claim_ids": list(self.affected_claim_ids),
+        }
+
+
+@dataclass(frozen=True)
 class PredictionSnapshot:
     prediction_id: str
+    task_id: str
+    purpose: str
+    coverage_universe_id: str
+    coverage_universe_owner_id: str
+    coverage_universe_source_ref: str
+    coverage_universe_fingerprint: str
+    coverage_ids: tuple[str, ...]
+    assumptions: tuple[str, ...]
+    unknowns: tuple[str, ...]
+    iteration: int
+    max_iterations: int
+    predecessor_iteration_fingerprint: str
+    prior_gap_ids: tuple[str, ...]
+    prior_gap_fingerprints: tuple[str, ...]
     model: WorldModelIdentity
     prediction_sequence: int
     initial_state: dict[str, Any]
@@ -244,147 +334,137 @@ class PredictionSnapshot:
     expected_values: tuple[ExpectedWorldValue, ...]
     expected_relationships: tuple[ExpectedWorldRelationship, ...]
     weakening_conditions: tuple[str, ...]
-    task_id: str = ""
-    purpose: str = ""
-    coverage_ids: tuple[str, ...] = ()
-    assumptions: tuple[str, ...] = ()
-    unknowns: tuple[str, ...] = ()
-    iteration: int = 0
-    max_iterations: int = 8
-    prior_gap_fingerprints: tuple[str, ...] = ()
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "PredictionSnapshot":
-        _strict_fields(
-            data,
-            {
-                "prediction_id",
-                "model",
-                "prediction_sequence",
-                "initial_state",
-                "intervention",
-                "expected_values",
-                "expected_relationships",
-                "weakening_conditions",
-                "task_id",
-                "purpose",
-                "coverage_ids",
-                "assumptions",
-                "unknowns",
-                "iteration",
-                "max_iterations",
-                "prior_gap_fingerprints",
-            },
-            "prediction snapshot",
-        )
+        allowed = {
+            "schema_version", "prediction_id", "task_id", "purpose",
+            "coverage_universe_id", "coverage_universe_owner_id", "coverage_universe_source_ref",
+            "coverage_universe_fingerprint", "coverage_ids", "assumptions", "unknowns",
+            "iteration", "max_iterations", "predecessor_iteration_fingerprint", "prior_gap_ids",
+            "prior_gap_fingerprints",
+            "model", "prediction_sequence", "initial_state", "intervention", "expected_values",
+            "expected_relationships", "weakening_conditions",
+        }
+        _strict_fields(data, allowed, "prediction snapshot")
+        _require_fields(data, allowed, "prediction snapshot")
+        if data.get("schema_version") != TASK_LOCAL_REVISION_SCHEMA_VERSION:
+            raise ValueError("prediction snapshot schema_version is not current")
         model = data.get("model")
         if not isinstance(model, Mapping):
             raise ValueError("prediction model must be a mapping")
-        initial_state = data.get("initial_state", {})
-        intervention = data.get("intervention", {})
+        initial_state = data.get("initial_state")
+        intervention = data.get("intervention")
         if not isinstance(initial_state, Mapping) or not isinstance(intervention, Mapping):
             raise ValueError("initial_state and intervention must be mappings")
         try:
             sequence = int(data.get("prediction_sequence"))
+            iteration = int(data.get("iteration"))
+            max_iterations = int(data.get("max_iterations"))
         except (TypeError, ValueError) as exc:
-            raise ValueError("prediction_sequence must be a non-negative integer") from exc
-        if sequence < 0 or isinstance(data.get("prediction_sequence"), bool):
+            raise ValueError("prediction sequence and iteration fields must be integers") from exc
+        if (
+            sequence < 0
+            or isinstance(data.get("prediction_sequence"), bool)
+            or isinstance(data.get("iteration"), bool)
+            or isinstance(data.get("max_iterations"), bool)
+        ):
             raise ValueError("prediction_sequence must be a non-negative integer")
-        value_rows = data.get("expected_values", [])
-        relationship_rows = data.get("expected_relationships", [])
+        if iteration < 0 or max_iterations < 1 or iteration >= max_iterations:
+            raise ValueError("iteration must be inside the finite max_iterations budget")
+        value_rows = data.get("expected_values")
+        relationship_rows = data.get("expected_relationships")
         if not isinstance(value_rows, list) or not isinstance(relationship_rows, list):
             raise ValueError("expected_values and expected_relationships must be lists")
-        expected_values = tuple(
-            ExpectedWorldValue.from_dict(row)
-            for row in value_rows
-            if isinstance(row, Mapping)
-        )
-        expected_relationships = tuple(
-            ExpectedWorldRelationship.from_dict(row)
-            for row in relationship_rows
-            if isinstance(row, Mapping)
-        )
-        if len(expected_values) != len(value_rows) or len(expected_relationships) != len(
-            relationship_rows
-        ):
+        expected_values = tuple(ExpectedWorldValue.from_dict(row) for row in value_rows if isinstance(row, Mapping))
+        expected_relationships = tuple(ExpectedWorldRelationship.from_dict(row) for row in relationship_rows if isinstance(row, Mapping))
+        if len(expected_values) != len(value_rows) or len(expected_relationships) != len(relationship_rows):
             raise ValueError("prediction expectations must be mappings")
         if not expected_values and not expected_relationships:
             raise ValueError("prediction requires at least one expected value or relationship")
-        expectation_ids = [
-            *(row.expectation_id for row in expected_values),
-            *(row.expectation_id for row in expected_relationships),
-        ]
+        expectation_ids = [*(row.expectation_id for row in expected_values), *(row.expectation_id for row in expected_relationships)]
         if len(expectation_ids) != len(set(expectation_ids)):
             raise ValueError("expectation ids must be unique")
-        weakening = data.get("weakening_conditions", [])
-        if not isinstance(weakening, list):
-            raise ValueError("weakening_conditions must be a list")
-        weakening_conditions = tuple(
-            _text(item, "weakening condition") for item in weakening
+        coverage_ids = _unique_texts(data.get("coverage_ids"), "coverage_ids", non_empty=True)
+        if set(coverage_ids) != set(expectation_ids):
+            raise ValueError("coverage_ids must exactly equal the independently bounded expectation ids")
+        assumptions = _unique_texts(data.get("assumptions"), "assumptions", non_empty=True)
+        unknowns = _unique_texts(data.get("unknowns"), "unknowns", non_empty=True)
+        prior_gap_ids = _unique_texts(data.get("prior_gap_ids"), "prior_gap_ids")
+        prior = tuple(_sha256_text(item, "prior gap fingerprint") for item in _unique_texts(data.get("prior_gap_fingerprints"), "prior_gap_fingerprints"))
+        predecessor = _text(data.get("predecessor_iteration_fingerprint"), "predecessor_iteration_fingerprint")
+        if iteration == 0:
+            if predecessor != "root" or prior or prior_gap_ids:
+                raise ValueError("iteration zero requires predecessor 'root' and no prior gaps")
+        else:
+            predecessor = _sha256_text(predecessor, "predecessor_iteration_fingerprint")
+            if not prior or not prior_gap_ids:
+                raise ValueError("later iterations require exact prior gap ids and fingerprints")
+            if _fingerprint(sorted(prior_gap_ids)) != prior[-1]:
+                raise ValueError("latest prior gap fingerprint does not bind prior_gap_ids")
+        universe_id = _text(data.get("coverage_universe_id"), "coverage_universe_id")
+        universe_owner = _text(data.get("coverage_universe_owner_id"), "coverage_universe_owner_id")
+        universe_source = _text(data.get("coverage_universe_source_ref"), "coverage_universe_source_ref")
+        supplied_universe_fingerprint = _sha256_text(data.get("coverage_universe_fingerprint"), "coverage_universe_fingerprint")
+        expected_universe_fingerprint = coverage_universe_fingerprint(
+            universe_id=universe_id,
+            owner_id=universe_owner,
+            source_ref=universe_source,
+            coverage_ids=coverage_ids,
         )
-        if not weakening_conditions or len(weakening_conditions) != len(
-            set(weakening_conditions)
-        ):
-            raise ValueError("weakening_conditions must be non-empty and unique")
-        task_id = str(data.get("task_id", "")).strip()
-        purpose = str(data.get("purpose", "")).strip()
-        coverage = data.get("coverage_ids", [])
-        assumptions = data.get("assumptions", [])
-        unknowns = data.get("unknowns", [])
-        prior = data.get("prior_gap_fingerprints", [])
-        if not all(isinstance(items, list) for items in (coverage, assumptions, unknowns, prior)):
-            raise ValueError("coverage_ids, assumptions, unknowns, and prior_gap_fingerprints must be lists")
-        coverage_ids = tuple(_text(item, "coverage id") for item in coverage)
-        if len(coverage_ids) != len(set(coverage_ids)):
-            raise ValueError("coverage_ids must be unique")
-        if task_id and not coverage_ids:
-            raise ValueError("task-local predictions require an independent coverage_ids inventory")
-        try:
-            iteration = int(data.get("iteration", 0))
-            max_iterations = int(data.get("max_iterations", 8))
-        except (TypeError, ValueError) as exc:
-            raise ValueError("iteration and max_iterations must be integers") from exc
-        if iteration < 0 or max_iterations < 1:
-            raise ValueError("iteration must be non-negative and max_iterations must be positive")
+        if supplied_universe_fingerprint != expected_universe_fingerprint:
+            raise ValueError("coverage_universe_fingerprint does not match the independent inventory")
+        weakening = _unique_texts(data.get("weakening_conditions"), "weakening_conditions", non_empty=True)
         return cls(
             prediction_id=_text(data.get("prediction_id"), "prediction_id"),
+            task_id=_text(data.get("task_id"), "task_id"),
+            purpose=_text(data.get("purpose"), "purpose"),
+            coverage_universe_id=universe_id,
+            coverage_universe_owner_id=universe_owner,
+            coverage_universe_source_ref=universe_source,
+            coverage_universe_fingerprint=supplied_universe_fingerprint,
+            coverage_ids=coverage_ids,
+            assumptions=assumptions,
+            unknowns=unknowns,
+            iteration=iteration,
+            max_iterations=max_iterations,
+            predecessor_iteration_fingerprint=predecessor,
+            prior_gap_ids=prior_gap_ids,
+            prior_gap_fingerprints=prior,
             model=WorldModelIdentity.from_dict(model),
             prediction_sequence=sequence,
             initial_state=dict(initial_state),
             intervention=dict(intervention),
             expected_values=expected_values,
             expected_relationships=expected_relationships,
-            weakening_conditions=weakening_conditions,
-            task_id=task_id,
-            purpose=purpose,
-            coverage_ids=coverage_ids,
-            assumptions=tuple(_text(item, "assumption") for item in assumptions),
-            unknowns=tuple(_text(item, "unknown") for item in unknowns),
-            iteration=iteration,
-            max_iterations=max_iterations,
-            prior_gap_fingerprints=tuple(_text(item, "prior gap fingerprint") for item in prior),
+            weakening_conditions=weakening,
         )
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
             "prediction_id": self.prediction_id,
-            "model": self.model.to_dict(),
-            "prediction_sequence": self.prediction_sequence,
-            "initial_state": self.initial_state,
-            "intervention": self.intervention,
-            "expected_values": [item.to_dict() for item in self.expected_values],
-            "expected_relationships": [
-                item.to_dict() for item in self.expected_relationships
-            ],
-            "weakening_conditions": list(self.weakening_conditions),
             "task_id": self.task_id,
             "purpose": self.purpose,
+            "coverage_universe_id": self.coverage_universe_id,
+            "coverage_universe_owner_id": self.coverage_universe_owner_id,
+            "coverage_universe_source_ref": self.coverage_universe_source_ref,
+            "coverage_universe_fingerprint": self.coverage_universe_fingerprint,
             "coverage_ids": list(self.coverage_ids),
             "assumptions": list(self.assumptions),
             "unknowns": list(self.unknowns),
             "iteration": self.iteration,
             "max_iterations": self.max_iterations,
+            "predecessor_iteration_fingerprint": self.predecessor_iteration_fingerprint,
+            "prior_gap_ids": list(self.prior_gap_ids),
             "prior_gap_fingerprints": list(self.prior_gap_fingerprints),
+            "model": self.model.to_dict(),
+            "prediction_sequence": self.prediction_sequence,
+            "initial_state": self.initial_state,
+            "intervention": self.intervention,
+            "expected_values": [item.to_dict() for item in self.expected_values],
+            "expected_relationships": [item.to_dict() for item in self.expected_relationships],
+            "weakening_conditions": list(self.weakening_conditions),
         }
 
 
@@ -397,11 +477,7 @@ class ObservedWorldRelationship:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "ObservedWorldRelationship":
-        _strict_fields(
-            data,
-            {"relationship_id", "left", "relation", "right"},
-            "observed world relationship",
-        )
+        _strict_fields(data, {"relationship_id", "left", "relation", "right"}, "observed world relationship")
         return cls(
             relationship_id=_text(data.get("relationship_id"), "relationship_id"),
             left=_text(data.get("left"), "left"),
@@ -410,12 +486,49 @@ class ObservedWorldRelationship:
         )
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "relationship_id": self.relationship_id,
-            "left": self.left,
-            "relation": self.relation,
-            "right": self.right,
+        return {"relationship_id": self.relationship_id, "left": self.left, "relation": self.relation, "right": self.right}
+
+
+def observation_evidence_fingerprint(
+    *,
+    observation_id: str,
+    prediction_id: str,
+    observation_sequence: int,
+    source_ref: str,
+    values: Mapping[str, float],
+    relationships: tuple[ObservedWorldRelationship, ...] | list[ObservedWorldRelationship],
+    external_inputs: tuple[ExternalInputRequirement, ...] | list[ExternalInputRequirement],
+) -> str:
+    return _fingerprint(
+        {
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+            "observation_id": observation_id,
+            "prediction_id": prediction_id,
+            "observation_sequence": observation_sequence,
+            "source_ref": source_ref,
+            "values": dict(values),
+            "relationships": [item.to_dict() for item in relationships],
+            "external_inputs": [item.to_dict() for item in external_inputs],
         }
+    )
+
+
+def observation_content_fingerprint(
+    *,
+    values: Mapping[str, float],
+    relationships: tuple[ObservedWorldRelationship, ...] | list[ObservedWorldRelationship],
+    external_inputs: tuple[ExternalInputRequirement, ...] | list[ExternalInputRequirement],
+) -> str:
+    """Fingerprint observation content independently of renameable ids and refs."""
+
+    return _fingerprint(
+        {
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+            "values": dict(values),
+            "relationships": [item.to_dict() for item in relationships],
+            "external_inputs": [item.to_dict() for item in external_inputs],
+        }
+    )
 
 
 @dataclass(frozen=True)
@@ -426,83 +539,72 @@ class ObservedWorldSnapshot:
     source_ref: str
     values: dict[str, float]
     relationships: tuple[ObservedWorldRelationship, ...]
-    evidence_id: str = ""
-    evidence_fingerprint: str = ""
-    gap_transitions: dict[str, str] | None = None
-    external_input_ids: tuple[str, ...] = ()
+    evidence_id: str
+    evidence_fingerprint: str
+    external_inputs: tuple[ExternalInputRequirement, ...]
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "ObservedWorldSnapshot":
-        _strict_fields(
-            data,
-            {
-                "observation_id",
-                "prediction_id",
-                "observation_sequence",
-                "source_ref",
-                "values",
-                "relationships",
-                "evidence_id",
-                "evidence_fingerprint",
-                "gap_transitions",
-                "external_input_ids",
-            },
-            "observed world snapshot",
-        )
+        allowed = {
+            "schema_version", "observation_id", "prediction_id", "observation_sequence", "source_ref",
+            "values", "relationships", "evidence_id", "evidence_fingerprint", "external_inputs",
+        }
+        _strict_fields(data, allowed, "observed world snapshot")
+        _require_fields(data, allowed, "observed world snapshot")
+        if data.get("schema_version") != TASK_LOCAL_REVISION_SCHEMA_VERSION:
+            raise ValueError("observed world snapshot schema_version is not current")
         try:
             sequence = int(data.get("observation_sequence"))
         except (TypeError, ValueError) as exc:
             raise ValueError("observation_sequence must be a non-negative integer") from exc
         if sequence < 0 or isinstance(data.get("observation_sequence"), bool):
             raise ValueError("observation_sequence must be a non-negative integer")
-        values = data.get("values", {})
-        relationships = data.get("relationships", [])
-        if not isinstance(values, Mapping) or not isinstance(relationships, list):
-            raise ValueError("observation values must be a mapping and relationships a list")
-        normalized_values = {
-            _text(key, "observed value target"): _finite(
-                value, f"observed value for {key}"
-            )
-            for key, value in values.items()
-        }
-        normalized_relationships = tuple(
-            ObservedWorldRelationship.from_dict(row)
-            for row in relationships
-            if isinstance(row, Mapping)
-        )
-        if len(normalized_relationships) != len(relationships):
-            raise ValueError("observed relationships must be mappings")
-        relationship_ids = [item.relationship_id for item in normalized_relationships]
-        if len(relationship_ids) != len(set(relationship_ids)):
+        raw_values = data.get("values")
+        raw_relationships = data.get("relationships")
+        raw_external = data.get("external_inputs")
+        if not isinstance(raw_values, Mapping) or not isinstance(raw_relationships, list) or not isinstance(raw_external, list):
+            raise ValueError("observation values must be a mapping and relationships/external_inputs lists")
+        values = {_text(key, "observed value target"): _finite(value, f"observed value for {key}") for key, value in raw_values.items()}
+        relationships = tuple(ObservedWorldRelationship.from_dict(row) for row in raw_relationships if isinstance(row, Mapping))
+        external_inputs = tuple(ExternalInputRequirement.from_dict(row) for row in raw_external if isinstance(row, Mapping))
+        if len(relationships) != len(raw_relationships) or len(external_inputs) != len(raw_external):
+            raise ValueError("observed relationships and external inputs must be mappings")
+        if len({item.relationship_id for item in relationships}) != len(relationships):
             raise ValueError("observed relationship ids must be unique")
-        if not normalized_values and not normalized_relationships:
-            raise ValueError("observation requires at least one actual value or relationship")
-        gap_transitions = data.get("gap_transitions", {})
-        external_input_ids = data.get("external_input_ids", [])
-        if not isinstance(gap_transitions, Mapping) or not isinstance(external_input_ids, list):
-            raise ValueError("gap_transitions must be a mapping and external_input_ids a list")
-        normalized_transitions = {
-            _text(key, "gap transition id"): _text(value, "gap transition disposition")
-            for key, value in gap_transitions.items()
-        }
-        normalized_external = tuple(_text(item, "external input id") for item in external_input_ids)
-        if len(normalized_external) != len(set(normalized_external)):
-            raise ValueError("external_input_ids must be unique")
-        return cls(
-            observation_id=_text(data.get("observation_id"), "observation_id"),
-            prediction_id=_text(data.get("prediction_id"), "prediction_id"),
+        if len({item.input_id for item in external_inputs}) != len(external_inputs):
+            raise ValueError("external input ids must be unique")
+        if not values and not relationships and not external_inputs:
+            raise ValueError("observation requires actual evidence or an exact external input requirement")
+        observation_id = _text(data.get("observation_id"), "observation_id")
+        prediction_id = _text(data.get("prediction_id"), "prediction_id")
+        source_ref = _text(data.get("source_ref"), "source_ref")
+        supplied = _sha256_text(data.get("evidence_fingerprint"), "evidence_fingerprint")
+        expected = observation_evidence_fingerprint(
+            observation_id=observation_id,
+            prediction_id=prediction_id,
             observation_sequence=sequence,
-            source_ref=_text(data.get("source_ref"), "source_ref"),
-            values=normalized_values,
-            relationships=normalized_relationships,
-            evidence_id=str(data.get("evidence_id", "")).strip(),
-            evidence_fingerprint=str(data.get("evidence_fingerprint", "")).strip(),
-            gap_transitions=normalized_transitions,
-            external_input_ids=normalized_external,
+            source_ref=source_ref,
+            values=values,
+            relationships=relationships,
+            external_inputs=external_inputs,
+        )
+        if supplied != expected:
+            raise ValueError("observation evidence_fingerprint is stale or tampered")
+        return cls(
+            observation_id=observation_id,
+            prediction_id=prediction_id,
+            observation_sequence=sequence,
+            source_ref=source_ref,
+            values=values,
+            relationships=relationships,
+            evidence_id=_text(data.get("evidence_id"), "evidence_id"),
+            evidence_fingerprint=supplied,
+            external_inputs=external_inputs,
         )
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
             "observation_id": self.observation_id,
             "prediction_id": self.prediction_id,
             "observation_sequence": self.observation_sequence,
@@ -511,8 +613,164 @@ class ObservedWorldSnapshot:
             "relationships": [item.to_dict() for item in self.relationships],
             "evidence_id": self.evidence_id,
             "evidence_fingerprint": self.evidence_fingerprint,
-            "gap_transitions": dict(self.gap_transitions or {}),
-            "external_input_ids": list(self.external_input_ids),
+            "external_inputs": [item.to_dict() for item in self.external_inputs],
+        }
+
+
+@dataclass(frozen=True)
+class TaskLocalNativeDepthReceipt:
+    binding_id: str
+    task_id: str
+    candidate_model: WorldModelIdentity
+    coverage_universe_fingerprint: str
+    source_receipt: dict[str, Any]
+    source_receipt_fingerprint: str
+    binding_fingerprint: str
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "TaskLocalNativeDepthReceipt":
+        allowed = {
+            "artifact_kind", "schema_version", "binding_id", "task_id", "candidate_model",
+            "coverage_universe_fingerprint", "source_receipt", "source_receipt_fingerprint", "binding_fingerprint",
+        }
+        _strict_fields(data, allowed, "task-local native depth receipt")
+        _require_fields(data, allowed, "task-local native depth receipt")
+        if data.get("artifact_kind") != "worldguard_task_local_native_depth_receipt" or data.get("schema_version") != TASK_LOCAL_REVISION_SCHEMA_VERSION:
+            raise ValueError("task-local native depth receipt shape is not current")
+        candidate = data.get("candidate_model")
+        source = data.get("source_receipt")
+        if not isinstance(candidate, Mapping) or not isinstance(source, Mapping):
+            raise ValueError("candidate_model and source_receipt must be mappings")
+        source_receipt = dict(source)
+        required_source = {"receipt_id", "receipt_version", "mesh_fingerprint", "coverage_fingerprint", "predictive_gaps", "quantitative_coverage", "predictive_claim_licensed"}
+        _require_fields(source_receipt, required_source, "native execution-depth source receipt")
+        if source_receipt.get("receipt_version") != "worldguard.native_depth.v2":
+            raise ValueError("native execution-depth receipt_version is not current")
+        _text(source_receipt.get("receipt_id"), "native depth receipt_id")
+        _text(source_receipt.get("mesh_fingerprint"), "native depth mesh_fingerprint")
+        _text(source_receipt.get("coverage_fingerprint"), "native depth coverage_fingerprint")
+        predictive_gaps = _unique_texts(source_receipt.get("predictive_gaps"), "native predictive_gaps")
+        invalid_gaps = sorted(
+            gap
+            for gap in predictive_gaps
+            if gap.split(":", 1)[0] not in _PREDICTIVE_GAP_PREFIXES
+            or ":" not in gap
+            or not gap.split(":", 1)[1].strip()
+        )
+        if invalid_gaps:
+            raise ValueError("native predictive gaps must use one of the seven current category prefixes")
+        if not isinstance(source_receipt.get("quantitative_coverage"), Mapping) or not isinstance(source_receipt.get("predictive_claim_licensed"), bool):
+            raise ValueError("native depth quantitative_coverage and predictive_claim_licensed are invalid")
+        if not source_receipt.get("quantitative_coverage"):
+            raise ValueError("native depth quantitative_coverage must be non-empty")
+        if source_receipt.get("predictive_claim_licensed") and predictive_gaps:
+            raise ValueError("native depth cannot license a predictive claim while gaps remain")
+        source_fingerprint = _sha256_text(data.get("source_receipt_fingerprint"), "source_receipt_fingerprint")
+        if _fingerprint(source_receipt) != source_fingerprint:
+            raise ValueError("native depth source receipt fingerprint is stale or tampered")
+        body = {key: value for key, value in data.items() if key != "binding_fingerprint"}
+        binding_fingerprint = _sha256_text(data.get("binding_fingerprint"), "binding_fingerprint")
+        if _fingerprint(body) != binding_fingerprint:
+            raise ValueError("native depth binding fingerprint is stale or tampered")
+        return cls(
+            binding_id=_text(data.get("binding_id"), "binding_id"),
+            task_id=_text(data.get("task_id"), "task_id"),
+            candidate_model=WorldModelIdentity.from_dict(candidate),
+            coverage_universe_fingerprint=_sha256_text(data.get("coverage_universe_fingerprint"), "coverage_universe_fingerprint"),
+            source_receipt=source_receipt,
+            source_receipt_fingerprint=source_fingerprint,
+            binding_fingerprint=binding_fingerprint,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "artifact_kind": "worldguard_task_local_native_depth_receipt",
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+            "binding_id": self.binding_id,
+            "task_id": self.task_id,
+            "candidate_model": self.candidate_model.to_dict(),
+            "coverage_universe_fingerprint": self.coverage_universe_fingerprint,
+            "source_receipt": self.source_receipt,
+            "source_receipt_fingerprint": self.source_receipt_fingerprint,
+            "binding_fingerprint": self.binding_fingerprint,
+        }
+
+
+@dataclass(frozen=True)
+class SemanticRolloutReceipt:
+    receipt_id: str
+    task_id: str
+    role: RevalidationRole
+    candidate_model: WorldModelIdentity
+    semantic_status: str
+    source_result: dict[str, Any]
+    source_result_fingerprint: str
+    evidence_ref: str
+    binding_fingerprint: str
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "SemanticRolloutReceipt":
+        allowed = {
+            "artifact_kind", "schema_version", "receipt_id", "task_id", "role", "candidate_model",
+            "semantic_status", "source_result", "source_result_fingerprint", "evidence_ref", "binding_fingerprint",
+        }
+        _strict_fields(data, allowed, "semantic rollout receipt")
+        _require_fields(data, allowed, "semantic rollout receipt")
+        if data.get("artifact_kind") != "worldguard_semantic_rollout_receipt" or data.get("schema_version") != TASK_LOCAL_REVISION_SCHEMA_VERSION:
+            raise ValueError("semantic rollout receipt shape is not current")
+        candidate = data.get("candidate_model")
+        source = data.get("source_result")
+        if not isinstance(candidate, Mapping) or not isinstance(source, Mapping):
+            raise ValueError("semantic candidate_model and source_result must be mappings")
+        try:
+            role = RevalidationRole(_text(data.get("role"), "role"))
+        except ValueError as exc:
+            raise ValueError("semantic rollout role is not supported") from exc
+        status = _text(data.get("semantic_status"), "semantic_status").lower()
+        if status not in _REVALIDATION_STATUSES:
+            raise ValueError("semantic_status is not supported")
+        required_source = {"artifact_kind", "status", "scenario", "candidate_sha256"}
+        _require_fields(source, required_source, "semantic source result")
+        if source.get("artifact_kind") != "worldguard.semantic_execution":
+            raise ValueError("semantic source result artifact_kind is not current")
+        if str(source.get("status", "")).strip().lower() != status:
+            raise ValueError("semantic source result status does not match its typed receipt")
+        if str(source.get("scenario", "")).strip() != role.value:
+            raise ValueError("semantic source result scenario does not match its role")
+        if _sha256_text(source.get("candidate_sha256"), "semantic source candidate_sha256") != str(candidate.get("sha256", "")).lower():
+            raise ValueError("semantic source result does not bind the candidate model")
+        source_fingerprint = _sha256_text(data.get("source_result_fingerprint"), "source_result_fingerprint")
+        if _fingerprint(source) != source_fingerprint:
+            raise ValueError("semantic source result fingerprint is stale or tampered")
+        body = {key: value for key, value in data.items() if key != "binding_fingerprint"}
+        binding_fingerprint = _sha256_text(data.get("binding_fingerprint"), "binding_fingerprint")
+        if _fingerprint(body) != binding_fingerprint:
+            raise ValueError("semantic rollout binding fingerprint is stale or tampered")
+        return cls(
+            receipt_id=_text(data.get("receipt_id"), "semantic receipt_id"),
+            task_id=_text(data.get("task_id"), "semantic task_id"),
+            role=role,
+            candidate_model=WorldModelIdentity.from_dict(candidate),
+            semantic_status=status,
+            source_result=dict(source),
+            source_result_fingerprint=source_fingerprint,
+            evidence_ref=_text(data.get("evidence_ref"), "semantic evidence_ref"),
+            binding_fingerprint=binding_fingerprint,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "artifact_kind": "worldguard_semantic_rollout_receipt",
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+            "receipt_id": self.receipt_id,
+            "task_id": self.task_id,
+            "role": self.role.value,
+            "candidate_model": self.candidate_model.to_dict(),
+            "semantic_status": self.semantic_status,
+            "source_result": self.source_result,
+            "source_result_fingerprint": self.source_result_fingerprint,
+            "evidence_ref": self.evidence_ref,
+            "binding_fingerprint": self.binding_fingerprint,
         }
 
 
@@ -521,54 +779,50 @@ class WorldRevalidationReceipt:
     check_id: str
     role: RevalidationRole
     candidate_model: WorldModelIdentity
-    semantic_rollout_status: str
+    semantic_receipt: SemanticRolloutReceipt
     empirical_comparison: dict[str, Any]
-    evidence_ref: str
+    receipt_fingerprint: str
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "WorldRevalidationReceipt":
-        _strict_fields(
-            data,
-            {
-                "check_id",
-                "role",
-                "candidate_model",
-                "semantic_rollout_status",
-                "empirical_comparison",
-                "evidence_ref",
-            },
-            "world revalidation receipt",
-        )
+        allowed = {"artifact_kind", "schema_version", "check_id", "role", "candidate_model", "semantic_receipt", "empirical_comparison", "receipt_fingerprint"}
+        _strict_fields(data, allowed, "world revalidation receipt")
+        _require_fields(data, allowed, "world revalidation receipt")
+        _verify_sealed_receipt(data, artifact_kind="worldguard_world_revalidation_receipt", label="world revalidation")
+        if data.get("schema_version") != TASK_LOCAL_REVISION_SCHEMA_VERSION:
+            raise ValueError("world revalidation receipt schema_version is not current")
         candidate = data.get("candidate_model")
+        semantic = data.get("semantic_receipt")
         comparison = data.get("empirical_comparison")
-        if not isinstance(candidate, Mapping) or not isinstance(comparison, Mapping):
-            raise ValueError("candidate_model and empirical_comparison must be mappings")
+        if not isinstance(candidate, Mapping) or not isinstance(semantic, Mapping) or not isinstance(comparison, Mapping):
+            raise ValueError("revalidation candidate, semantic receipt, and comparison must be mappings")
         try:
             role = RevalidationRole(_text(data.get("role"), "role"))
         except ValueError as exc:
             raise ValueError("revalidation role is not supported") from exc
-        status = _text(
-            data.get("semantic_rollout_status"), "semantic_rollout_status"
-        ).lower()
-        if status not in _REVALIDATION_STATUSES:
-            raise ValueError("semantic_rollout_status is not supported")
+        semantic_receipt = SemanticRolloutReceipt.from_dict(semantic)
+        candidate_model = WorldModelIdentity.from_dict(candidate)
+        if semantic_receipt.role != role or semantic_receipt.candidate_model != candidate_model:
+            raise ValueError("semantic receipt does not bind the revalidation role and candidate")
         return cls(
             check_id=_text(data.get("check_id"), "check_id"),
             role=role,
-            candidate_model=WorldModelIdentity.from_dict(candidate),
-            semantic_rollout_status=status,
+            candidate_model=candidate_model,
+            semantic_receipt=semantic_receipt,
             empirical_comparison=dict(comparison),
-            evidence_ref=_text(data.get("evidence_ref"), "evidence_ref"),
+            receipt_fingerprint=_sha256_text(data.get("receipt_fingerprint"), "receipt_fingerprint"),
         )
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "artifact_kind": "worldguard_world_revalidation_receipt",
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
             "check_id": self.check_id,
             "role": self.role.value,
             "candidate_model": self.candidate_model.to_dict(),
-            "semantic_rollout_status": self.semantic_rollout_status,
+            "semantic_receipt": self.semantic_receipt.to_dict(),
             "empirical_comparison": self.empirical_comparison,
-            "evidence_ref": self.evidence_ref,
+            "receipt_fingerprint": self.receipt_fingerprint,
         }
 
 
@@ -579,180 +833,106 @@ class CandidateWorldModelRevision:
     base_model: WorldModelIdentity
     candidate_model: WorldModelIdentity
     revision_kind: WorldRevisionKind
-    triggering_mismatch_ids: tuple[str, ...]
+    prediction_receipt: dict[str, Any]
+    comparison_receipt: dict[str, Any]
+    native_depth_receipt: TaskLocalNativeDepthReceipt
+    candidate_build_evidence_fingerprints: tuple[str, ...]
     required_revalidation_ids: tuple[str, ...]
     revalidations: tuple[WorldRevalidationReceipt, ...]
     candidate_applied: bool
     rollback_model: WorldModelIdentity | None
-    task_id: str = ""
-    iteration: int = 0
-    max_iterations: int = 8
-    remaining_gap_ids: tuple[str, ...] = ()
-    remaining_predictive_gap_ids: tuple[str, ...] = ()
-    gap_transitions: dict[str, str] | None = None
-    next_actions: tuple[str, ...] = ()
-    terminal_reason: str = "continue_iteration"
-    external_input_ids: tuple[str, ...] = ()
+    external_inputs: tuple[ExternalInputRequirement, ...]
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "CandidateWorldModelRevision":
-        _strict_fields(
-            data,
-            {
-                "revision_id",
-                "prediction_id",
-                "base_model",
-                "candidate_model",
-                "revision_kind",
-                "triggering_mismatch_ids",
-                "required_revalidation_ids",
-                "revalidations",
-                "candidate_applied",
-                "rollback_model",
-                "task_id",
-                "iteration",
-                "max_iterations",
-                "remaining_gap_ids",
-                "remaining_predictive_gap_ids",
-                "gap_transitions",
-                "next_actions",
-                "terminal_reason",
-                "external_input_ids",
-            },
-            "candidate world-model revision",
-        )
+        allowed = {
+            "schema_version", "revision_id", "prediction_id", "base_model", "candidate_model", "revision_kind",
+            "prediction_receipt", "comparison_receipt", "native_depth_receipt", "candidate_build_evidence_fingerprints",
+            "required_revalidation_ids", "revalidations", "candidate_applied", "rollback_model", "external_inputs",
+        }
+        _strict_fields(data, allowed, "candidate world-model revision")
+        _require_fields(data, allowed, "candidate world-model revision")
+        if data.get("schema_version") != TASK_LOCAL_REVISION_SCHEMA_VERSION:
+            raise ValueError("candidate revision schema_version is not current")
         base = data.get("base_model")
         candidate = data.get("candidate_model")
-        if not isinstance(base, Mapping) or not isinstance(candidate, Mapping):
-            raise ValueError("base_model and candidate_model must be mappings")
+        prediction_receipt = data.get("prediction_receipt")
+        comparison_receipt = data.get("comparison_receipt")
+        native_depth = data.get("native_depth_receipt")
+        if not all(isinstance(item, Mapping) for item in (base, candidate, prediction_receipt, comparison_receipt, native_depth)):
+            raise ValueError("candidate revision identities and receipts must be mappings")
         try:
-            revision_kind = WorldRevisionKind(
-                _text(data.get("revision_kind"), "revision_kind")
-            )
+            revision_kind = WorldRevisionKind(_text(data.get("revision_kind"), "revision_kind"))
         except ValueError as exc:
             raise ValueError("revision_kind is not a task-local WorldGuard operation") from exc
-        mismatch_rows = data.get("triggering_mismatch_ids", [])
-        required_rows = data.get("required_revalidation_ids", [])
-        revalidation_rows = data.get("revalidations", [])
-        if not all(
-            isinstance(rows, list)
-            for rows in (mismatch_rows, required_rows, revalidation_rows)
-        ):
-            raise ValueError(
-                "triggering_mismatch_ids, required_revalidation_ids, and revalidations must be lists"
-            )
-        mismatch_ids = tuple(_text(item, "mismatch id") for item in mismatch_rows)
-        required_ids = tuple(
-            _text(item, "required revalidation id") for item in required_rows
-        )
-        if not mismatch_ids or len(mismatch_ids) != len(set(mismatch_ids)):
-            raise ValueError("triggering_mismatch_ids must be non-empty and unique")
-        if not required_ids or len(required_ids) != len(set(required_ids)):
-            raise ValueError("required_revalidation_ids must be non-empty and unique")
-        revalidations = tuple(
-            WorldRevalidationReceipt.from_dict(row)
-            for row in revalidation_rows
-            if isinstance(row, Mapping)
-        )
-        if len(revalidations) != len(revalidation_rows):
+        required_ids = _unique_texts(data.get("required_revalidation_ids"), "required_revalidation_ids", non_empty=True)
+        current_revalidation_ids = {
+            RevalidationRole.ORIGINAL_SCENARIO.value,
+            RevalidationRole.REAL_HOLDOUT_OBSERVATION.value,
+        }
+        if set(required_ids) != current_revalidation_ids or len(required_ids) != 2:
+            raise ValueError("required_revalidation_ids must be the two current typed roles")
+        rows = data.get("revalidations")
+        if not isinstance(rows, list):
+            raise ValueError("revalidations must be a list")
+        revalidations = tuple(WorldRevalidationReceipt.from_dict(row) for row in rows if isinstance(row, Mapping))
+        if len(revalidations) != len(rows):
             raise ValueError("revalidations must be mappings")
-        check_ids = [item.check_id for item in revalidations]
+        check_ids = tuple(item.check_id for item in revalidations)
         if len(check_ids) != len(set(check_ids)) or set(check_ids) != set(required_ids):
-            raise ValueError(
-                "revalidations must be unique and exactly equal required_revalidation_ids"
-            )
-        roles = {item.role for item in revalidations}
-        if not {
-            RevalidationRole.ORIGINAL_SCENARIO,
-            RevalidationRole.REAL_HOLDOUT_OBSERVATION,
-        }.issubset(roles):
-            raise ValueError(
-                "candidate revision requires original_scenario and real_holdout_observation"
-            )
-        candidate_applied = data.get("candidate_applied", False)
-        if not isinstance(candidate_applied, bool):
+            raise ValueError("revalidations must exactly equal required_revalidation_ids")
+        roles = [item.role for item in revalidations]
+        if roles.count(RevalidationRole.ORIGINAL_SCENARIO) != 1 or roles.count(RevalidationRole.REAL_HOLDOUT_OBSERVATION) != 1 or len(roles) != 2:
+            raise ValueError("candidate revision requires exactly one original and one real holdout receipt")
+        applied = data.get("candidate_applied")
+        if not isinstance(applied, bool):
             raise ValueError("candidate_applied must be boolean")
         rollback = data.get("rollback_model")
-        if candidate_applied and not isinstance(rollback, Mapping):
+        if applied and not isinstance(rollback, Mapping):
             raise ValueError("an applied candidate requires rollback_model")
-        if not candidate_applied and rollback is not None:
+        if not applied and rollback is not None:
             raise ValueError("rollback_model is only valid after candidate application")
-        task_id = str(data.get("task_id", "")).strip()
-        try:
-            iteration = int(data.get("iteration", 0))
-            max_iterations = int(data.get("max_iterations", 8))
-        except (TypeError, ValueError) as exc:
-            raise ValueError("iteration and max_iterations must be integers") from exc
-        if iteration < 0 or max_iterations < 1:
-            raise ValueError("iteration must be non-negative and max_iterations must be positive")
-
-        def _unique_texts(name: str) -> tuple[str, ...]:
-            raw = data.get(name, [])
-            if not isinstance(raw, list):
-                raise ValueError(f"{name} must be a list")
-            values = tuple(_text(item, name) for item in raw)
-            if len(values) != len(set(values)):
-                raise ValueError(f"{name} must be unique")
-            return values
-
-        gap_transitions = data.get("gap_transitions", {})
-        if not isinstance(gap_transitions, Mapping):
-            raise ValueError("gap_transitions must be a mapping")
-        terminal_reason = str(data.get("terminal_reason", "continue_iteration"))
-        if terminal_reason not in _ITERATION_TERMINALS:
-            raise ValueError("terminal_reason is not a supported task-local terminal")
+        build_evidence = tuple(_sha256_text(item, "candidate build evidence fingerprint") for item in _unique_texts(data.get("candidate_build_evidence_fingerprints"), "candidate_build_evidence_fingerprints", non_empty=True))
+        external_rows = data.get("external_inputs")
+        if not isinstance(external_rows, list):
+            raise ValueError("external_inputs must be a list")
+        external = tuple(ExternalInputRequirement.from_dict(row) for row in external_rows if isinstance(row, Mapping))
+        if len(external) != len(external_rows) or len({item.input_id for item in external}) != len(external):
+            raise ValueError("external_inputs must be unique mappings")
         return cls(
             revision_id=_text(data.get("revision_id"), "revision_id"),
             prediction_id=_text(data.get("prediction_id"), "prediction_id"),
             base_model=WorldModelIdentity.from_dict(base),
             candidate_model=WorldModelIdentity.from_dict(candidate),
             revision_kind=revision_kind,
-            triggering_mismatch_ids=mismatch_ids,
+            prediction_receipt=dict(prediction_receipt),
+            comparison_receipt=dict(comparison_receipt),
+            native_depth_receipt=TaskLocalNativeDepthReceipt.from_dict(native_depth),
+            candidate_build_evidence_fingerprints=build_evidence,
             required_revalidation_ids=required_ids,
             revalidations=revalidations,
-            candidate_applied=candidate_applied,
-            rollback_model=(
-                WorldModelIdentity.from_dict(rollback)
-                if isinstance(rollback, Mapping)
-                else None
-            ),
-            task_id=task_id,
-            iteration=iteration,
-            max_iterations=max_iterations,
-            remaining_gap_ids=_unique_texts("remaining_gap_ids"),
-            remaining_predictive_gap_ids=_unique_texts("remaining_predictive_gap_ids"),
-            gap_transitions={
-                _text(key, "gap transition id"): _text(value, "gap transition disposition")
-                for key, value in gap_transitions.items()
-            },
-            next_actions=_unique_texts("next_actions"),
-            terminal_reason=terminal_reason,
-            external_input_ids=_unique_texts("external_input_ids"),
+            candidate_applied=applied,
+            rollback_model=WorldModelIdentity.from_dict(rollback) if isinstance(rollback, Mapping) else None,
+            external_inputs=external,
         )
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
             "revision_id": self.revision_id,
             "prediction_id": self.prediction_id,
             "base_model": self.base_model.to_dict(),
             "candidate_model": self.candidate_model.to_dict(),
             "revision_kind": self.revision_kind.value,
-            "triggering_mismatch_ids": list(self.triggering_mismatch_ids),
+            "prediction_receipt": self.prediction_receipt,
+            "comparison_receipt": self.comparison_receipt,
+            "native_depth_receipt": self.native_depth_receipt.to_dict(),
+            "candidate_build_evidence_fingerprints": list(self.candidate_build_evidence_fingerprints),
             "required_revalidation_ids": list(self.required_revalidation_ids),
             "revalidations": [item.to_dict() for item in self.revalidations],
             "candidate_applied": self.candidate_applied,
-            "rollback_model": (
-                self.rollback_model.to_dict() if self.rollback_model else None
-            ),
-            "task_id": self.task_id,
-            "iteration": self.iteration,
-            "max_iterations": self.max_iterations,
-            "remaining_gap_ids": list(self.remaining_gap_ids),
-            "remaining_predictive_gap_ids": list(self.remaining_predictive_gap_ids),
-            "gap_transitions": dict(self.gap_transitions or {}),
-            "next_actions": list(self.next_actions),
-            "terminal_reason": self.terminal_reason,
-            "external_input_ids": list(self.external_input_ids),
+            "rollback_model": self.rollback_model.to_dict() if self.rollback_model else None,
+            "external_inputs": [item.to_dict() for item in self.external_inputs],
         }
 
 
@@ -767,37 +947,57 @@ def _identity_receipt(identity: WorldModelIdentity, base_dir: Path) -> dict[str,
     }
 
 
-def freeze_prediction_snapshot(
-    prediction: PredictionSnapshot,
-    *,
-    base_dir: Path,
-) -> dict[str, Any]:
+def _same_identity(left: WorldModelIdentity, right: WorldModelIdentity) -> bool:
+    return left.to_dict() == right.to_dict()
+
+
+def freeze_prediction_snapshot(prediction: PredictionSnapshot, *, base_dir: Path) -> dict[str, Any]:
     model = _identity_receipt(prediction.model, base_dir)
-    return {
-        "artifact_kind": "worldguard_prediction_snapshot_receipt",
-        "receipt_version": "1.0",
-        "status": "pass" if model["status"] == "current" else "blocked",
-        "prediction_id": prediction.prediction_id,
-        "task_id": prediction.task_id,
-        "purpose": prediction.purpose,
-        "coverage_ids": list(prediction.coverage_ids),
-        "assumptions": list(prediction.assumptions),
-        "unknowns": list(prediction.unknowns),
-        "iteration": prediction.iteration,
-        "max_iterations": prediction.max_iterations,
-        "prior_gap_fingerprints": list(prediction.prior_gap_fingerprints),
-        "prediction_sequence": prediction.prediction_sequence,
-        "model_identity": model,
-        "prediction_fingerprint": _fingerprint(prediction.to_dict()),
-        "expected_value_count": len(prediction.expected_values),
-        "expected_relationship_count": len(prediction.expected_relationships),
-        "weakening_conditions": list(prediction.weakening_conditions),
-        "claim_boundary": (
-            "This receipt freezes only the declared task model, initial state, "
-            "intervention, expectations, weakening conditions, and sequence. It does "
-            "not prove that the expectations exhaust the real world."
-        ),
-    }
+    return _seal_receipt(
+        {
+            "artifact_kind": "worldguard_prediction_snapshot_receipt",
+            "receipt_version": "2.0",
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+            "owner_id": TASK_LOCAL_REVISION_OWNER_ID,
+            "status": "pass" if model["status"] == "current" else "blocked",
+            "prediction_id": prediction.prediction_id,
+            "task_id": prediction.task_id,
+            "purpose": prediction.purpose,
+            "coverage_universe_id": prediction.coverage_universe_id,
+            "coverage_universe_owner_id": prediction.coverage_universe_owner_id,
+            "coverage_universe_source_ref": prediction.coverage_universe_source_ref,
+            "coverage_universe_fingerprint": prediction.coverage_universe_fingerprint,
+            "coverage_ids": list(prediction.coverage_ids),
+            "assumptions": list(prediction.assumptions),
+            "unknowns": list(prediction.unknowns),
+            "iteration": prediction.iteration,
+            "max_iterations": prediction.max_iterations,
+            "predecessor_iteration_fingerprint": prediction.predecessor_iteration_fingerprint,
+            "prior_gap_fingerprints": list(prediction.prior_gap_fingerprints),
+            "prior_gap_ids": list(prediction.prior_gap_ids),
+            "prediction_sequence": prediction.prediction_sequence,
+            "model_identity": model,
+            "prediction_fingerprint": _fingerprint(prediction.to_dict()),
+            "expected_value_count": len(prediction.expected_values),
+            "expected_relationship_count": len(prediction.expected_relationships),
+            "weakening_conditions": list(prediction.weakening_conditions),
+            "claim_boundary": "This freezes one independently bounded task prediction before observation; it does not prove empirical accuracy or task closure.",
+        }
+    )
+
+
+def _external_input_findings(
+    external_inputs: tuple[ExternalInputRequirement, ...],
+    open_gap_ids: set[str],
+) -> tuple[list[str], set[str]]:
+    declared: list[str] = [gap_id for item in external_inputs for gap_id in item.blocked_gap_ids]
+    findings: list[str] = []
+    if len(declared) != len(set(declared)):
+        findings.append("external_gap_has_multiple_owners")
+    unknown = sorted(set(declared) - open_gap_ids)
+    if unknown:
+        findings.append("external_input_names_non_open_gap")
+    return findings, set(declared)
 
 
 def compare_observed_world(
@@ -809,9 +1009,7 @@ def compare_observed_world(
     if observation.prediction_id != prediction.prediction_id:
         raise ValueError("observation prediction_id does not match the prediction snapshot")
     if observation.observation_sequence <= prediction.prediction_sequence:
-        raise ValueError(
-            "observation_sequence must be strictly later than prediction_sequence"
-        )
+        raise ValueError("observation_sequence must be strictly later than prediction_sequence")
     frozen = freeze_prediction_snapshot(prediction, base_dir=base_dir)
     if frozen["status"] != "pass":
         raise ValueError("prediction snapshot model identity is not current")
@@ -830,33 +1028,13 @@ def compare_observed_world(
             "weakening_condition": expected.weakening_condition,
         }
         if actual is None:
-            mismatches.append(
-                {
-                    **common,
-                    "mismatch_id": (
-                        f"{prediction.prediction_id}:{expected.expectation_id}:missing"
-                    ),
-                    "mismatch_code": "expected_value_missing",
-                    "actual_value": None,
-                }
-            )
+            mismatches.append({**common, "mismatch_id": f"{prediction.prediction_id}:{expected.expectation_id}:missing", "mismatch_code": "expected_value_missing", "actual_value": None})
         elif abs(actual - expected.expected_value) > expected.tolerance:
-            mismatches.append(
-                {
-                    **common,
-                    "mismatch_id": (
-                        f"{prediction.prediction_id}:{expected.expectation_id}:contradicted"
-                    ),
-                    "mismatch_code": "value_outside_tolerance",
-                    "actual_value": actual,
-                }
-            )
+            mismatches.append({**common, "mismatch_id": f"{prediction.prediction_id}:{expected.expectation_id}:contradicted", "mismatch_code": "value_outside_tolerance", "actual_value": actual})
         else:
             matches.append({**common, "actual_value": actual})
 
-    observed_relationships = {
-        item.relationship_id: item for item in observation.relationships
-    }
+    observed_relationships = {item.relationship_id: item for item in observation.relationships}
     for expected in prediction.expected_relationships:
         actual = observed_relationships.get(expected.relationship_id)
         common = {
@@ -864,286 +1042,413 @@ def compare_observed_world(
             "expectation_kind": "relationship",
             "relationship_id": expected.relationship_id,
             "mismatch_category": expected.mismatch_category.value,
-            "expected_relationship": {
-                "left": expected.left,
-                "relation": expected.relation,
-                "right": expected.right,
-            },
+            "expected_relationship": {"left": expected.left, "relation": expected.relation, "right": expected.right},
             "weakening_condition": expected.weakening_condition,
         }
         if actual is None:
-            mismatches.append(
-                {
-                    **common,
-                    "mismatch_id": (
-                        f"{prediction.prediction_id}:{expected.expectation_id}:missing"
-                    ),
-                    "mismatch_code": "expected_relationship_missing",
-                    "actual_relationship": None,
-                }
-            )
-        elif (
-            actual.left,
-            actual.relation,
-            actual.right,
-        ) != (expected.left, expected.relation, expected.right):
-            mismatches.append(
-                {
-                    **common,
-                    "mismatch_id": (
-                        f"{prediction.prediction_id}:{expected.expectation_id}:contradicted"
-                    ),
-                    "mismatch_code": "relationship_contradicted",
-                    "actual_relationship": {
-                        "left": actual.left,
-                        "relation": actual.relation,
-                        "right": actual.right,
-                    },
-                }
-            )
+            mismatches.append({**common, "mismatch_id": f"{prediction.prediction_id}:{expected.expectation_id}:missing", "mismatch_code": "expected_relationship_missing", "actual_relationship": None})
+        elif (actual.left, actual.relation, actual.right) != (expected.left, expected.relation, expected.right):
+            mismatches.append({**common, "mismatch_id": f"{prediction.prediction_id}:{expected.expectation_id}:contradicted", "mismatch_code": "relationship_contradicted", "actual_relationship": actual.to_dict()})
         else:
-            matches.append(
-                {
-                    **common,
-                    "actual_relationship": {
-                        "left": actual.left,
-                        "relation": actual.relation,
-                        "right": actual.right,
-                    },
-                }
-            )
+            matches.append({**common, "actual_relationship": actual.to_dict()})
 
-    mismatch_ids = [item["mismatch_id"] for item in mismatches]
-    observed_expectation_ids = {
-        *[item["expectation_id"] for item in matches],
-        *[item["expectation_id"] for item in mismatches],
-    }
-    coverage_gaps = [
-        f"coverage:{coverage_id}"
-        for coverage_id in prediction.coverage_ids
-        if coverage_id not in observed_expectation_ids
-    ]
+    mismatch_ids = sorted(item["mismatch_id"] for item in mismatches)
+    observed_expectation_ids = {item["expectation_id"] for item in (*matches, *mismatches)}
+    coverage_gaps = sorted(f"coverage:{coverage_id}" for coverage_id in prediction.coverage_ids if coverage_id not in observed_expectation_ids)
     open_gap_ids = sorted(set(mismatch_ids) | set(coverage_gaps))
     gap_fingerprint = _fingerprint(open_gap_ids)
-    if observation.external_input_ids and not open_gap_ids:
+    external_findings, externally_blocked = _external_input_findings(observation.external_inputs, set(open_gap_ids))
+    if external_findings:
+        terminal_reason = "blocked"
+    elif open_gap_ids and externally_blocked == set(open_gap_ids):
         terminal_reason = "external_input_required"
-    elif not open_gap_ids:
-        terminal_reason = "model_closed_for_task"
-    elif prediction.iteration >= prediction.max_iterations:
+    elif open_gap_ids and prediction.iteration + 1 >= prediction.max_iterations:
         terminal_reason = "iteration_limit"
-    elif gap_fingerprint in set(prediction.prior_gap_fingerprints):
+    elif open_gap_ids and gap_fingerprint in set(prediction.prior_gap_fingerprints):
         terminal_reason = "progress_stalled"
     else:
         terminal_reason = "continue_iteration"
-    next_actions = [
-        "revise_world_model" if item in mismatch_ids else "acquire_declared_coverage"
-        for item in open_gap_ids
-    ]
+    next_actions = sorted(
+        {
+            *("revise_world_model" for item in mismatch_ids if item not in externally_blocked),
+            *("acquire_declared_coverage" for item in coverage_gaps if item not in externally_blocked),
+            *(f"obtain_external_input:{item.input_id}" for item in observation.external_inputs),
+            *("evaluate_candidate_native_depth" for _ in [0] if not open_gap_ids),
+        }
+    )
+    status = "blocked" if external_findings else ("pass" if not mismatches and not coverage_gaps else "fail")
+    return _seal_receipt(
+        {
+            "artifact_kind": "worldguard_observed_world_comparison_receipt",
+            "receipt_version": "2.0",
+            "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+            "owner_id": TASK_LOCAL_REVISION_OWNER_ID,
+            "status": status,
+            "prediction_id": prediction.prediction_id,
+            "observation_id": observation.observation_id,
+            "task_id": prediction.task_id,
+            "purpose": prediction.purpose,
+            "prediction_sequence": prediction.prediction_sequence,
+            "observation_sequence": observation.observation_sequence,
+            "source_ref": observation.source_ref,
+            "evidence_id": observation.evidence_id,
+            "observation_evidence_fingerprint": observation.evidence_fingerprint,
+            "observation_content_fingerprint": observation_content_fingerprint(
+                values=observation.values,
+                relationships=observation.relationships,
+                external_inputs=observation.external_inputs,
+            ),
+            "model_identity": frozen["model_identity"],
+            "prediction_fingerprint": frozen["prediction_fingerprint"],
+            "coverage_universe_fingerprint": prediction.coverage_universe_fingerprint,
+            "matches": matches,
+            "mismatches": mismatches,
+            "mismatch_ids": mismatch_ids,
+            "coverage_gap_ids": coverage_gaps,
+            "input_gap_ids": open_gap_ids,
+            "gap_fingerprint": gap_fingerprint,
+            "external_inputs": [item.to_dict() for item in observation.external_inputs],
+            "external_binding_findings": external_findings,
+            "next_actions": next_actions,
+            "terminal_reason": terminal_reason,
+            "iteration": prediction.iteration,
+            "claim_boundary": "This receipt compares only the independently declared task universe with one later content-addressed observation. It cannot close the task without current native depth and independent candidate revalidation.",
+        }
+    )
 
-    return {
-        "artifact_kind": "worldguard_observed_world_comparison_receipt",
-        "receipt_version": "1.0",
-        "status": "pass" if not mismatches else "fail",
-        "prediction_id": prediction.prediction_id,
-        "observation_id": observation.observation_id,
-        "prediction_sequence": prediction.prediction_sequence,
-        "observation_sequence": observation.observation_sequence,
-        "source_ref": observation.source_ref,
-        "model_identity": frozen["model_identity"],
-        "prediction_fingerprint": frozen["prediction_fingerprint"],
-        "observation_fingerprint": _fingerprint(observation.to_dict()),
-        "matches": matches,
-        "mismatches": mismatches,
-        "mismatch_ids": mismatch_ids,
+
+def bind_task_local_native_depth_receipt(
+    prediction: PredictionSnapshot,
+    candidate_model: WorldModelIdentity,
+    source_receipt: Mapping[str, Any],
+    *,
+    base_dir: Path,
+    binding_id: str,
+) -> dict[str, Any]:
+    if _identity_receipt(candidate_model, base_dir)["status"] != "current":
+        raise ValueError("candidate model identity is not current for native depth binding")
+    source = dict(source_receipt)
+    source_fingerprint = _fingerprint(source)
+    body = {
+        "artifact_kind": "worldguard_task_local_native_depth_receipt",
+        "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+        "binding_id": _text(binding_id, "binding_id"),
         "task_id": prediction.task_id,
-        "purpose": prediction.purpose,
-        "coverage_ids": list(prediction.coverage_ids),
-        "open_gap_ids": open_gap_ids,
-        "gap_fingerprint": gap_fingerprint,
-        "gap_transitions": dict(observation.gap_transitions or {}),
-        "next_actions": sorted(set(next_actions)),
-        "terminal_reason": terminal_reason,
-        "external_input_ids": list(observation.external_input_ids),
-        "iteration": prediction.iteration,
-        "progressed": prediction.iteration == 0 or gap_fingerprint not in set(prediction.prior_gap_fingerprints),
-        "claim_boundary": (
-            "This empirical comparison covers only declared values and relationships "
-            "against the supplied observation. Missing expectations fail visibly; "
-            "extra observations are not treated as complete world coverage."
-        ),
+        "candidate_model": candidate_model.to_dict(),
+        "coverage_universe_fingerprint": prediction.coverage_universe_fingerprint,
+        "source_receipt": source,
+        "source_receipt_fingerprint": source_fingerprint,
     }
+    sealed = {**body, "binding_fingerprint": _fingerprint(body)}
+    TaskLocalNativeDepthReceipt.from_dict(sealed)
+    return sealed
 
 
-def _same_identity(left: WorldModelIdentity, right: WorldModelIdentity) -> bool:
-    return left.to_dict() == right.to_dict()
+def bind_semantic_rollout_receipt(
+    *,
+    receipt_id: str,
+    task_id: str,
+    role: RevalidationRole | str,
+    candidate_model: WorldModelIdentity,
+    semantic_status: str,
+    source_result: Mapping[str, Any],
+    evidence_ref: str,
+) -> dict[str, Any]:
+    role_value = RevalidationRole(role).value
+    source = dict(source_result)
+    body = {
+        "artifact_kind": "worldguard_semantic_rollout_receipt",
+        "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+        "receipt_id": _text(receipt_id, "semantic receipt_id"),
+        "task_id": _text(task_id, "semantic task_id"),
+        "role": role_value,
+        "candidate_model": candidate_model.to_dict(),
+        "semantic_status": _text(semantic_status, "semantic_status").lower(),
+        "source_result": source,
+        "source_result_fingerprint": _fingerprint(source),
+        "evidence_ref": _text(evidence_ref, "semantic evidence_ref"),
+    }
+    sealed = {**body, "binding_fingerprint": _fingerprint(body)}
+    SemanticRolloutReceipt.from_dict(sealed)
+    return sealed
 
 
-def _comparison_binds_candidate(
-    comparison: Mapping[str, Any],
-    candidate: WorldModelIdentity,
-) -> bool:
+def bind_world_revalidation_receipt(
+    *,
+    check_id: str,
+    role: RevalidationRole | str,
+    candidate_model: WorldModelIdentity,
+    semantic_receipt: Mapping[str, Any],
+    empirical_comparison: Mapping[str, Any],
+) -> dict[str, Any]:
+    payload = {
+        "artifact_kind": "worldguard_world_revalidation_receipt",
+        "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+        "check_id": _text(check_id, "check_id"),
+        "role": RevalidationRole(role).value,
+        "candidate_model": candidate_model.to_dict(),
+        "semantic_receipt": dict(semantic_receipt),
+        "empirical_comparison": dict(empirical_comparison),
+    }
+    sealed = _seal_receipt(payload)
+    WorldRevalidationReceipt.from_dict(sealed)
+    return sealed
+
+
+def _comparison_binds_model(comparison: Mapping[str, Any], model: WorldModelIdentity) -> bool:
     identity = comparison.get("model_identity")
     if not isinstance(identity, Mapping):
         return False
     return (
-        str(identity.get("model_id", "")) == candidate.model_id
-        and str(identity.get("model_version", "")) == candidate.model_version
-        and str(identity.get("path", "")) == candidate.path
-        and str(identity.get("sha256", "")).lower() == candidate.sha256
-        and str(identity.get("actual_sha256", "")).lower() == candidate.sha256
+        str(identity.get("model_id", "")) == model.model_id
+        and str(identity.get("model_version", "")) == model.model_version
+        and str(identity.get("path", "")) == model.path
+        and str(identity.get("sha256", "")).lower() == model.sha256
+        and str(identity.get("actual_sha256", "")).lower() == model.sha256
         and str(identity.get("status", "")).lower() == "current"
     )
 
 
-def evaluate_candidate_world_revision(
-    revision: CandidateWorldModelRevision,
-    *,
-    base_dir: Path,
-) -> dict[str, Any]:
+def _predictive_gap_categories(gaps: list[str]) -> dict[str, list[str]]:
+    result = {category: [] for category in _PREDICTIVE_GAP_PREFIXES}
+    for gap in gaps:
+        category = gap.split(":", 1)[0]
+        result[category].append(gap)
+    return {key: sorted(value) for key, value in result.items()}
+
+
+def evaluate_candidate_world_revision(revision: CandidateWorldModelRevision, *, base_dir: Path) -> dict[str, Any]:
     base = _identity_receipt(revision.base_model, base_dir)
     candidate = _identity_receipt(revision.candidate_model, base_dir)
-    identity_findings: list[str] = []
+    findings: list[str] = []
     if base["status"] != "current":
-        identity_findings.append("base_model_identity_stale")
+        findings.append("base_model_identity_stale")
     if candidate["status"] != "current":
-        identity_findings.append("candidate_model_identity_stale")
-    if (
-        Path(base["resolved_path"]) == Path(candidate["resolved_path"])
-        or base["actual_sha256"] == candidate["actual_sha256"]
-    ):
-        identity_findings.append("candidate_not_distinct_from_base")
+        findings.append("candidate_model_identity_stale")
+    if Path(base["resolved_path"]) == Path(candidate["resolved_path"]) or base["actual_sha256"] == candidate["actual_sha256"]:
+        findings.append("candidate_not_distinct_from_base")
+
+    try:
+        prediction_body = _verify_sealed_receipt(revision.prediction_receipt, artifact_kind="worldguard_prediction_snapshot_receipt", label="prediction")
+        comparison_body = _verify_sealed_receipt(revision.comparison_receipt, artifact_kind="worldguard_observed_world_comparison_receipt", label="comparison")
+    except ValueError as exc:
+        prediction_body = {}
+        comparison_body = {}
+        findings.append(str(exc))
+    task_id = str(prediction_body.get("task_id", ""))
+    coverage_fingerprint = str(prediction_body.get("coverage_universe_fingerprint", ""))
+    iteration = int(prediction_body.get("iteration", 0) or 0)
+    max_iterations = int(prediction_body.get("max_iterations", 1) or 1)
+    prior_gap_fingerprints = set(prediction_body.get("prior_gap_fingerprints", [])) if isinstance(prediction_body.get("prior_gap_fingerprints", []), list) else set()
+    if revision.prediction_id != prediction_body.get("prediction_id") or revision.prediction_id != comparison_body.get("prediction_id"):
+        findings.append("prediction_receipt_identity_mismatch")
+    if prediction_body.get("status") != "pass":
+        findings.append("prediction_receipt_non_pass")
+    if comparison_body.get("task_id") != task_id or comparison_body.get("coverage_universe_fingerprint") != coverage_fingerprint:
+        findings.append("comparison_task_or_coverage_mismatch")
+    if not _comparison_binds_model(comparison_body, revision.base_model):
+        findings.append("comparison_base_model_identity_mismatch")
+    if revision.native_depth_receipt.task_id != task_id:
+        findings.append("native_depth_task_mismatch")
+    if revision.native_depth_receipt.coverage_universe_fingerprint != coverage_fingerprint:
+        findings.append("native_depth_coverage_mismatch")
+    if not _same_identity(revision.native_depth_receipt.candidate_model, revision.candidate_model):
+        findings.append("native_depth_candidate_mismatch")
 
     check_results: list[dict[str, Any]] = []
     for check in revision.revalidations:
         issues: list[str] = []
-        declared_candidate = _identity_receipt(check.candidate_model, base_dir)
+        comparison = check.empirical_comparison
+        try:
+            comparison_receipt = _verify_sealed_receipt(comparison, artifact_kind="worldguard_observed_world_comparison_receipt", label=f"revalidation {check.check_id}")
+        except ValueError as exc:
+            comparison_receipt = {}
+            issues.append(str(exc))
         if not _same_identity(check.candidate_model, revision.candidate_model):
             issues.append("revalidation_candidate_identity_mismatch")
-        if declared_candidate["status"] != "current":
-            issues.append("revalidation_candidate_identity_stale")
-        if check.semantic_rollout_status != "pass":
+        if not _same_identity(check.semantic_receipt.candidate_model, revision.candidate_model):
+            issues.append("semantic_candidate_identity_mismatch")
+        if check.semantic_receipt.task_id != task_id or check.semantic_receipt.role != check.role:
+            issues.append("semantic_task_or_role_mismatch")
+        if check.semantic_receipt.semantic_status != "pass":
             issues.append("semantic_rollout_non_pass")
-        comparison = check.empirical_comparison
-        if (
-            comparison.get("artifact_kind")
-            != "worldguard_observed_world_comparison_receipt"
-        ):
-            issues.append("empirical_comparison_receipt_invalid")
-        elif str(comparison.get("status", "")).lower() != "pass":
+        if comparison_receipt.get("status") != "pass" or comparison_receipt.get("input_gap_ids"):
             issues.append("empirical_comparison_non_pass")
-        if not _comparison_binds_candidate(comparison, revision.candidate_model):
+        if comparison_receipt.get("task_id") != task_id or comparison_receipt.get("coverage_universe_fingerprint") != coverage_fingerprint:
+            issues.append("empirical_task_or_coverage_mismatch")
+        if not _comparison_binds_model(comparison_receipt, revision.candidate_model):
             issues.append("empirical_comparison_candidate_identity_mismatch")
         check_results.append(
             {
                 "check_id": check.check_id,
                 "role": check.role.value,
-                "semantic_rollout_status": check.semantic_rollout_status,
-                "empirical_comparison_status": str(
-                    comparison.get("status", "")
-                ).lower(),
-                "evidence_ref": check.evidence_ref,
+                "semantic_receipt_id": check.semantic_receipt.receipt_id,
+                "semantic_status": check.semantic_receipt.semantic_status,
+                "semantic_source_fingerprint": check.semantic_receipt.source_result_fingerprint,
+                "observation_id": comparison_receipt.get("observation_id", ""),
+                "observation_source_ref": comparison_receipt.get("source_ref", ""),
+                "observation_evidence_fingerprint": comparison_receipt.get("observation_evidence_fingerprint", ""),
+                "observation_content_fingerprint": comparison_receipt.get("observation_content_fingerprint", ""),
                 "effective_status": "pass" if not issues else "fail",
                 "issues": issues,
-                "empirical_comparison_fingerprint": _fingerprint(comparison),
+                "revalidation_receipt_fingerprint": check.receipt_fingerprint,
             }
         )
 
-    failed = [
-        item["check_id"]
-        for item in check_results
-        if item["effective_status"] != "pass"
-    ]
-    remaining_gaps = sorted(
-        set(revision.remaining_gap_ids) | set(revision.remaining_predictive_gap_ids)
-    )
-    gap_transitions = dict(revision.gap_transitions or {})
-    terminal_reason = revision.terminal_reason
-    rollback = None
-    if identity_findings:
-        disposition = "blocked"
-    elif not failed:
-        if revision.external_input_ids:
-            disposition = "continue_iteration"
-            terminal_reason = "external_input_required"
-        elif remaining_gaps:
-            if revision.iteration >= revision.max_iterations:
-                disposition = "continue_iteration"
-                terminal_reason = "iteration_limit"
-            elif gap_transitions and set(gap_transitions) >= set(remaining_gaps):
-                disposition = "continue_iteration"
-                terminal_reason = "progress_stalled"
-            else:
-                disposition = "continue_iteration"
-                terminal_reason = "continue_iteration"
-        else:
-            disposition = "accepted"
-            terminal_reason = "model_closed_for_task"
-    elif not revision.candidate_applied:
-        disposition = "rejected"
-    else:
-        assert revision.rollback_model is not None
-        rollback = _identity_receipt(revision.rollback_model, base_dir)
-        if (
-            rollback["status"] == "current"
-            and _same_identity(revision.rollback_model, revision.base_model)
-        ):
-            disposition = "rolled_back"
-        else:
-            disposition = "blocked"
-            identity_findings.append("rollback_identity_does_not_match_current_base")
+    by_role = {item["role"]: item for item in check_results}
+    original = by_role.get(RevalidationRole.ORIGINAL_SCENARIO.value, {})
+    holdout = by_role.get(RevalidationRole.REAL_HOLDOUT_OBSERVATION.value, {})
+    for key, code in (
+        ("observation_id", "holdout_observation_identity_not_independent"),
+        ("observation_source_ref", "holdout_source_not_independent"),
+        ("observation_evidence_fingerprint", "holdout_evidence_not_independent"),
+        ("observation_content_fingerprint", "holdout_content_alias_not_independent"),
+        ("semantic_source_fingerprint", "holdout_semantic_receipt_not_independent"),
+    ):
+        if original.get(key) and original.get(key) == holdout.get(key):
+            holdout.setdefault("issues", []).append(code)
+    if holdout.get("observation_evidence_fingerprint") in set(revision.candidate_build_evidence_fingerprints):
+        holdout.setdefault("issues", []).append("holdout_used_for_candidate_construction")
+    for item in check_results:
+        item["issues"] = sorted(set(item["issues"]))
+        item["effective_status"] = "pass" if not item["issues"] else "fail"
+    failed = [item["check_id"] for item in check_results if item["effective_status"] != "pass"]
 
-    return {
+    source_depth = revision.native_depth_receipt.source_receipt
+    raw_predictive_gaps = sorted(set(str(item) for item in source_depth.get("predictive_gaps", [])))
+    current_gap_ids = {f"native:{item}" for item in raw_predictive_gaps}
+    predictive_licensed = bool(source_depth.get("predictive_claim_licensed", False))
+    if not predictive_licensed and not raw_predictive_gaps:
+        current_gap_ids.add("native:predictive_claim_not_licensed")
+    prior_gap_ids = prediction_body.get("prior_gap_ids", [])
+    input_gap_ids = (
+        set(str(item) for item in prior_gap_ids if str(item))
+        if iteration > 0 and isinstance(prior_gap_ids, list)
+        else set(str(item) for item in comparison_body.get("input_gap_ids", []) if str(item))
+    )
+    resolved_gap_ids = sorted(input_gap_ids - current_gap_ids)
+    persisted_gap_ids = sorted(input_gap_ids & current_gap_ids)
+    introduced_gap_ids = sorted(current_gap_ids - input_gap_ids)
+    current_gap_ids_sorted = sorted(current_gap_ids)
+    current_gap_fingerprint = _fingerprint(current_gap_ids_sorted)
+    progressed = bool(resolved_gap_ids or introduced_gap_ids) and current_gap_fingerprint not in prior_gap_fingerprints
+
+    external_findings, externally_blocked = _external_input_findings(revision.external_inputs, current_gap_ids)
+    findings.extend(external_findings)
+    exact_external_stop = bool(current_gap_ids) and not external_findings and externally_blocked == current_gap_ids
+    rollback = None
+    if findings:
+        disposition = "blocked"
+        terminal_reason = "blocked"
+    elif failed:
+        if not revision.candidate_applied:
+            disposition = "rejected"
+            terminal_reason = "candidate_rejected"
+        else:
+            assert revision.rollback_model is not None
+            rollback = _identity_receipt(revision.rollback_model, base_dir)
+            if rollback["status"] == "current" and _same_identity(revision.rollback_model, revision.base_model):
+                disposition = "rolled_back"
+                terminal_reason = "candidate_rolled_back"
+            else:
+                disposition = "blocked"
+                terminal_reason = "blocked"
+                findings.append("rollback_identity_does_not_match_current_base")
+    elif current_gap_ids:
+        disposition = "continue_iteration"
+        if exact_external_stop:
+            terminal_reason = "external_input_required"
+        elif iteration + 1 >= max_iterations:
+            terminal_reason = "iteration_limit"
+        elif not progressed:
+            terminal_reason = "progress_stalled"
+        else:
+            terminal_reason = "continue_iteration"
+    else:
+        disposition = "accepted"
+        terminal_reason = "model_closed_for_task"
+    if terminal_reason not in _CURRENT_TERMINALS:
+        raise AssertionError("computed terminal reason is not current")
+    status = "pass" if disposition == "accepted" else ("fail" if disposition in {"rejected", "rolled_back"} else "blocked")
+    next_actions = (
+        [f"obtain_external_input:{item.input_id}" for item in revision.external_inputs]
+        if terminal_reason == "external_input_required"
+        else (["revise_candidate_from_current_gaps"] if terminal_reason == "continue_iteration" else [])
+    )
+    payload = {
         "artifact_kind": "worldguard_task_model_revision_receipt",
-        "receipt_version": "1.0",
-        "status": (
-            "pass"
-            if disposition in {"accepted", "rejected", "rolled_back", "continue_iteration"}
-            else "blocked"
-        ),
+        "receipt_version": "2.0",
+        "schema_version": TASK_LOCAL_REVISION_SCHEMA_VERSION,
+        "owner_id": TASK_LOCAL_REVISION_OWNER_ID,
+        "status": status,
         "revision_id": revision.revision_id,
         "prediction_id": revision.prediction_id,
+        "task_id": task_id,
+        "purpose": prediction_body.get("purpose", ""),
+        "coverage_universe_fingerprint": coverage_fingerprint,
+        "iteration": iteration,
+        "max_iterations": max_iterations,
+        "predecessor_iteration_fingerprint": prediction_body.get("predecessor_iteration_fingerprint", ""),
         "revision_kind": revision.revision_kind.value,
         "disposition": disposition,
+        "terminal_reason": terminal_reason,
         "base_model": base,
         "candidate_model": candidate,
         "rollback_model": rollback,
-        "triggering_mismatch_ids": list(revision.triggering_mismatch_ids),
+        "prediction_receipt_fingerprint": revision.prediction_receipt.get("receipt_fingerprint", ""),
+        "comparison_receipt_fingerprint": revision.comparison_receipt.get("receipt_fingerprint", ""),
+        "native_depth_binding_id": revision.native_depth_receipt.binding_id,
+        "native_depth_binding_fingerprint": revision.native_depth_receipt.binding_fingerprint,
+        "native_depth_source_receipt_id": source_depth.get("receipt_id", ""),
+        "native_depth_source_receipt_fingerprint": revision.native_depth_receipt.source_receipt_fingerprint,
+        "predictive_claim_licensed": predictive_licensed,
+        "native_predictive_gap_ids": raw_predictive_gaps,
+        "predictive_gap_categories": _predictive_gap_categories(raw_predictive_gaps),
+        "input_gap_ids": sorted(input_gap_ids),
+        "resolved_gap_ids": resolved_gap_ids,
+        "persisted_gap_ids": persisted_gap_ids,
+        "introduced_gap_ids": introduced_gap_ids,
+        "current_gap_ids": current_gap_ids_sorted,
+        "current_gap_fingerprint": current_gap_fingerprint,
+        "progressed": progressed,
+        "candidate_build_evidence_fingerprints": list(revision.candidate_build_evidence_fingerprints),
         "required_revalidation_ids": list(revision.required_revalidation_ids),
         "revalidation_results": check_results,
         "failed_revalidation_ids": failed,
-        "task_id": revision.task_id,
-        "iteration": revision.iteration,
-        "remaining_gap_ids": remaining_gaps,
-        "remaining_predictive_gap_ids": list(revision.remaining_predictive_gap_ids),
-        "gap_transitions": gap_transitions,
-        "next_actions": list(revision.next_actions),
-        "external_input_ids": list(revision.external_input_ids),
-        "terminal_reason": terminal_reason,
-        "progressed": revision.iteration == 0 or bool(gap_transitions),
-        "identity_findings": identity_findings,
+        "external_inputs": [item.to_dict() for item in revision.external_inputs],
+        "next_actions": next_actions,
+        "identity_findings": sorted(set(findings)),
         "base_model_preserved": base["status"] == "current",
         "revision_fingerprint": _fingerprint(revision.to_dict()),
-        "claim_boundary": (
-            "This read-only decision applies only to the exact task-local base, "
-            "candidate, mismatches, semantic receipts, and real observations. It "
-            "never edits WorldGuard, core thresholds, installed skills, or reusable defaults."
-        ),
+        "claim_boundary": "This decision applies only to the exact task, independent coverage universe, base/candidate identities, current native depth receipt, and independent original/holdout evidence. Only this owner may emit model_closed_for_task.",
     }
+    return _seal_receipt(payload)
 
 
 __all__ = [
+    "TASK_LOCAL_REVISION_OWNER_ID",
+    "TASK_LOCAL_REVISION_SCHEMA_VERSION",
     "CandidateWorldModelRevision",
     "ExpectedWorldRelationship",
     "ExpectedWorldValue",
+    "ExternalInputRequirement",
     "ObservedWorldRelationship",
     "ObservedWorldSnapshot",
     "PredictionSnapshot",
     "RevalidationRole",
+    "SemanticRolloutReceipt",
+    "TaskLocalNativeDepthReceipt",
     "WorldMismatchCategory",
     "WorldModelIdentity",
     "WorldRevisionKind",
     "WorldRevalidationReceipt",
+    "bind_semantic_rollout_receipt",
+    "bind_task_local_native_depth_receipt",
+    "bind_world_revalidation_receipt",
     "compare_observed_world",
+    "coverage_universe_fingerprint",
     "evaluate_candidate_world_revision",
     "freeze_prediction_snapshot",
+    "observation_evidence_fingerprint",
+    "observation_content_fingerprint",
 ]

@@ -26,6 +26,8 @@ class RevisionRequest:
     contradiction_acknowledged: bool = False
     regression_current: bool = True
     holdout_current: bool = True
+    evidence_cardinality_exact: bool = True
+    task_owner_current: bool = True
 
 
 @dataclass(frozen=True)
@@ -38,7 +40,11 @@ class RevisionState:
     contradiction_acknowledged: bool = False
     regression_current: bool = False
     holdout_current: bool = False
+    evidence_cardinality_exact: bool = False
     activated: bool = False
+    task_owner_current: bool = False
+    revalidation_required: bool = False
+    task_closed: bool = False
     terminal_status: str = ""
 
 
@@ -123,13 +129,18 @@ class ActivateFactRevision:
         "contradiction_acknowledged",
         "regression_current",
         "holdout_current",
+        "evidence_cardinality_exact",
+        "task_owner_current",
     )
     writes = (
         "phase",
         "contradiction_acknowledged",
         "regression_current",
         "holdout_current",
+        "evidence_cardinality_exact",
         "activated",
+        "task_owner_current",
+        "revalidation_required",
         "terminal_status",
     )
     input_description = "one activation request bound to the exact preview"
@@ -171,7 +182,12 @@ class ActivateFactRevision:
                 label="unacknowledged_contradiction_blocked",
             )
             return
-        if not request.regression_current or not request.holdout_current:
+        if (
+            not request.regression_current
+            or not request.holdout_current
+            or not request.evidence_cardinality_exact
+            or not request.task_owner_current
+        ):
             yield FunctionResult(
                 request,
                 replace(
@@ -180,6 +196,8 @@ class ActivateFactRevision:
                     contradiction_acknowledged=request.contradiction_acknowledged,
                     regression_current=request.regression_current,
                     holdout_current=request.holdout_current,
+                    evidence_cardinality_exact=request.evidence_cardinality_exact,
+                    task_owner_current=request.task_owner_current,
                     terminal_status="evidence",
                 ),
                 label="activation_evidence_blocked",
@@ -193,10 +211,13 @@ class ActivateFactRevision:
                 contradiction_acknowledged=request.contradiction_acknowledged,
                 regression_current=True,
                 holdout_current=True,
+                evidence_cardinality_exact=True,
+                task_owner_current=True,
                 activated=True,
-                terminal_status="activated",
+                revalidation_required=True,
+                terminal_status="task_local_revalidation_required",
             ),
-            label="revision_activated",
+            label="revision_activated_for_task_local_revalidation",
         )
 
 
@@ -221,9 +242,22 @@ def revision_invariants() -> tuple[Invariant, ...]:
             state.preview_frozen
             and state.regression_current
             and state.holdout_current
+            and state.evidence_cardinality_exact
         ):
             return InvariantResult.fail(
                 "activation is not bound to a frozen preview and current regression/holdout evidence"
+            )
+        return InvariantResult.pass_()
+
+    def activation_returns_to_same_owner(state: RevisionState, _trace):
+        if state.activated and not (
+            state.task_owner_current
+            and state.revalidation_required
+            and not state.task_closed
+            and state.terminal_status == "task_local_revalidation_required"
+        ):
+            return InvariantResult.fail(
+                "fact activation bypassed same-owner task-local revalidation"
             )
         return InvariantResult.pass_()
 
@@ -247,6 +281,11 @@ def revision_invariants() -> tuple[Invariant, ...]:
             "fact_revision_activation_is_evidence_bound",
             "Activation requires the frozen preview plus current regression and holdout evidence.",
             evidence_bound,
+        ),
+        Invariant(
+            "fact_revision_activation_returns_to_same_task_owner",
+            "Activation is an intermediate candidate handoff and never task closure.",
+            activation_returns_to_same_owner,
         ),
     )
 
@@ -274,8 +313,11 @@ def scenarios() -> tuple[Scenario, ...]:
             ),
             expected=ScenarioExpectation(
                 expected_status="ok",
-                required_trace_labels=("preview_frozen", "revision_activated"),
-                summary="current evidence-bound revision activates",
+                required_trace_labels=(
+                    "preview_frozen",
+                    "revision_activated_for_task_local_revalidation",
+                ),
+                summary="current evidence-bound fact candidate returns for task-local revalidation",
             ),
             workflow=workflow,
             invariants=INVARIANTS,
@@ -352,9 +394,26 @@ def scenarios() -> tuple[Scenario, ...]:
                 expected_status="violation",
                 expected_violation_names=(
                     "fact_revision_activation_is_evidence_bound",
+                    "fact_revision_activation_returns_to_same_task_owner",
                 ),
                 required_trace_labels=("unsafe_activation_attempted",),
                 summary="unsafe activation is rejected by the model",
+            ),
+            workflow=workflow,
+            invariants=INVARIANTS,
+        ),
+        Scenario(
+            name="WFR07_duplicate_evidence_kind_blocks",
+            description="Duplicate regression or holdout evidence cannot replace the exact pair.",
+            initial_state=RevisionState(),
+            external_input_sequence=(
+                RevisionRequest("preview"),
+                RevisionRequest("activate", evidence_cardinality_exact=False),
+            ),
+            expected=ScenarioExpectation(
+                expected_status="ok",
+                required_trace_labels=("preview_frozen", "activation_evidence_blocked"),
+                summary="duplicate evidence cardinality blocks activation",
             ),
             workflow=workflow,
             invariants=INVARIANTS,

@@ -81,6 +81,17 @@
       "output_artifact_ids": []
     },
     {
+      "step_id": "step:worldguard-task-local-model-closure:execute",
+      "action": {
+        "kind": "native",
+        "summary": "Verify strict task identity, native predictive depth, derived gaps, independent holdout evidence, and the sole task-local closure owner."
+      },
+      "check_ids": [
+        "check:worldguard:task-local-model-closure"
+      ],
+      "output_artifact_ids": []
+    },
+    {
       "step_id": "step:worldguard-fact-revision:execute",
       "action": {
         "kind": "native",
@@ -93,6 +104,93 @@
     }
   ],
   "checks": [
+    {
+      "evidence_class": "hard",
+      "timeout_seconds": 180,
+      "coverage_scope": "suite",
+      "evidence_domain_id": "worldguard:native-validation",
+      "check_id": "check:worldguard:task-local-model-closure",
+      "kind": "command",
+      "command": "python",
+      "args": [
+        "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py"
+      ],
+      "cwd_token": "repository_root",
+      "covers_obligation_ids": [
+        "obligation:worldguard-task-local-current-shape",
+        "obligation:worldguard-task-local-native-depth-binding",
+        "obligation:worldguard-task-local-derived-gap-transitions",
+        "obligation:worldguard-task-local-independent-holdout",
+        "obligation:worldguard-task-local-sole-closure-owner"
+      ],
+      "depends_on_check_ids": [
+        "check:worldguard:native-depth"
+      ],
+      "execution_owner_id": "owner:worldguard:task-local-model-closure",
+      "semantic_check_id": "semantic:worldguard:task-local-model-closure",
+      "native_route_id": "route:worldguard-claim-derived-depth",
+      "input_selectors": [
+        {
+          "kind": "path",
+          "path": "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/runtime/worldguard/task_local_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/runtime/worldguard/fact_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/runtime/worldguard/__init__.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/runtime/worldguard/cli.py"
+        },
+        {
+          "kind": "path",
+          "path": "worldguard/task_local_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "worldguard/fact_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "tests/test_task_local_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "tests/test_fact_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/worldguard-contracts.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/fact-revision.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/SKILL.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/agents/openai.yaml"
+        }
+      ],
+      "expected": {
+        "exit_code": 0
+      },
+      "coverage_rationale": "Runs the bundled strict task-local predictive closure oracle, including current task shape, native-depth binding, seven-category derived gaps, evidence-derived progress, typed original plus independent holdout revalidation, and rejection of self-reported or fact-owned closure.",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "evidence_subject_id": "subject:check:worldguard:task-local-model-closure"
+    },
     {
       "evidence_class": "hard",
       "timeout_seconds": 180,
@@ -123,6 +221,10 @@
         },
         {
           "kind": "path",
+          "path": "skills/worldguard/runtime/worldguard/task_local_revision.py"
+        },
+        {
+          "kind": "path",
           "path": "skills/worldguard/runtime/worldguard/__init__.py"
         },
         {
@@ -149,7 +251,7 @@
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Runs WorldGuard's bundled target-native four-valued fact revision oracle, including contradiction visibility without explosion, immutable preview, preservation enforcement, and exact regression/holdout evidence-bound activation.",
+      "coverage_rationale": "Runs WorldGuard's bundled target-native four-valued fact revision oracle, including contradiction visibility without explosion, immutable preview, preservation enforcement, exact regression/holdout evidence-bound activation, and mandatory return to the sole task-local model owner.",
       "maintenance_unit_id": "unit:worldguard",
       "member_skill_id": "worldguard",
       "evidence_subject_id": "subject:check:worldguard:fact-revision"
@@ -318,7 +420,7 @@
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Proves source version 0.5.0, one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
+      "coverage_rationale": "Proves source version 0.7.0, one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
       "maintenance_unit_id": "unit:worldguard",
       "member_skill_id": "worldguard",
       "evidence_subject_id": "subject:check:worldguard:internal-guard-topology"
@@ -459,6 +561,11 @@
         "obligation:worldguard-scenario-holdout-depth",
         "obligation:worldguard-predictive-axes",
         "obligation:worldguard-receipt-freshness",
+        "obligation:worldguard-task-local-current-shape",
+        "obligation:worldguard-task-local-native-depth-binding",
+        "obligation:worldguard-task-local-derived-gap-transitions",
+        "obligation:worldguard-task-local-independent-holdout",
+        "obligation:worldguard-task-local-sole-closure-owner",
         "obligation:worldguard-guard-model-purpose",
         "obligation:worldguard-protected-failure-universe",
         "obligation:worldguard-native-failure-oracle",
@@ -485,6 +592,7 @@
     "pyproject.toml",
     "skills/worldguard/.skillguard/checks/check_guard_model_contract.py",
     "skills/worldguard/.skillguard/checks/check_fact_revision.py",
+    "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py",
     "skills/worldguard/.skillguard/checks/check_template_packs.py",
     "skills/worldguard/.skillguard/checks/emit_native_depth_evidence.py",
     "skills/worldguard/.skillguard/contract_model.py",
@@ -499,6 +607,7 @@
     "skills/worldguard/scripts/check_internal_guard_topology.py",
     "skills/worldguard/references/closure-report.md",
     "tests/test_fact_revision.py",
+    "tests/test_task_local_revision.py",
     "worldguard"
   ],
   "native_route_bindings": [
@@ -541,6 +650,12 @@
       "required": true
     },
     {
+      "binding_id": "native-check:worldguard-task-local-model-closure",
+      "native_check_id": "check:worldguard:task-local-model-closure",
+      "evidence_source": "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py",
+      "required": true
+    },
+    {
       "binding_id": "native-check:worldguard-fact-revision",
       "native_check_id": "check:worldguard:fact-revision",
       "evidence_source": "skills/worldguard/.skillguard/checks/check_fact_revision.py",
@@ -562,8 +677,10 @@
       "check:worldguard:native-depth",
       "check:worldguard:template-packs",
       "check:worldguard:internal-guard-topology",
+      "check:worldguard:task-local-model-closure",
       "check:worldguard:fact-revision"
     ],
+    "model_deepening_check_id": "check:worldguard:task-local-model-closure",
     "native_route_absent_confirmed": false,
     "skillguard_adds_domain_route": false,
     "enforcement_level": "enforced",
@@ -587,12 +704,13 @@
         "check:worldguard:native-depth",
         "check:worldguard:template-packs",
         "check:worldguard:internal-guard-topology",
+        "check:worldguard:task-local-model-closure",
         "check:worldguard:fact-revision"
       ]
     },
-    "claim_boundary": "SkillGuard freezes and reconciles six exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, template, fact revision, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths."
+    "claim_boundary": "SkillGuard freezes and reconciles seven exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, task-local model revision, template, fact revision, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths."
   },
-  "claim_boundary": "WorldGuard owns every domain route, template semantic, fact revision semantic, Guard purpose, protected failure, fixture, oracle, rollout, and prediction. SkillGuard supervises six exact maintenance checks on one author-side route only; it adds no domain route, compatibility reader, or alternate runtime.",
+  "claim_boundary": "WorldGuard owns every domain route, task-local predictive revision, template semantic, fact revision semantic, Guard purpose, protected failure, fixture, oracle, rollout, and prediction. SkillGuard supervises seven exact maintenance checks on one author-side route only; it adds no domain route, compatibility reader, or alternate runtime.",
   "repository_role": "skill_maintainer_source",
   "maintenance_unit_id": "unit:worldguard",
   "member_skill_ids": [

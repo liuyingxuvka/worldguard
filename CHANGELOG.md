@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.7.0 - 2026-07-31
+
+- Replaced former shallow task-local prediction/revision shapes with one strict
+  current schema binding task purpose, independent coverage, assumptions,
+  unknowns, exact iteration predecessor, and later-iteration prior gap ids
+  bound to their current fingerprint.
+- Added content-addressed observation, native execution-depth, semantic
+  rollout, original-scenario, and real-holdout receipts; candidate closure now
+  derives seven predictive gap classes and evidence independence instead of
+  accepting caller-authored gap, progress, or `PASS` strings.
+- Made fact activation an intermediate same-task/same-owner revalidation
+  handoff. It can no longer emit `model_closed_for_task`.
+- Added exact stall, iteration-limit, external-input, tamper, holdout-alias,
+  rejection, rollback, and multi-evidence regression coverage, and extended
+  FlowGuard/SkillGuard ownership for the task-local closure check.
+
 ## v0.6.0 - 2026-07-31
 
 - Added task-local world-model deepening with explicit prediction, gap
