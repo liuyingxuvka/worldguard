@@ -348,6 +348,47 @@ def test_bundled_task_local_runtime_matches_source_and_version() -> None:
         assert (ROOT / "worldguard" / relative_path).read_bytes() == (
             bundled_root / relative_path
         ).read_bytes()
-    assert '__version__ = "0.5.0"' in (
+    assert '__version__ = "0.6.0"' in (
         bundled_root / "__init__.py"
     ).read_text(encoding="utf-8")
+
+
+def test_task_local_prediction_requires_independent_coverage_inventory(tmp_path: Path) -> None:
+    row = _prediction(_model(tmp_path, "v1.json", "{}"))
+    row["task_id"] = "task-1"
+    with pytest.raises(ValueError, match="coverage_ids"):
+        PredictionSnapshot.from_dict(row)
+
+
+def test_compare_receipt_exposes_open_gap_and_closure_reason(tmp_path: Path) -> None:
+    model = _model(tmp_path, "v1.json", "{}")
+    row = _prediction(model)
+    row.update({"task_id": "task-1", "purpose": "predict voltage", "coverage_ids": ["value-voltage", "command-before-response"]})
+    prediction = PredictionSnapshot.from_dict(row)
+    observation = ObservedWorldSnapshot.from_dict(
+        _observation(include_relationship=False)
+    )
+    receipt = compare_observed_world(prediction, observation, base_dir=tmp_path)
+    assert receipt["terminal_reason"] == "continue_iteration"
+    assert receipt["open_gap_ids"]
+    assert receipt["next_actions"]
+
+
+def test_candidate_with_predictive_gap_continues_instead_of_accepting(tmp_path: Path) -> None:
+    base = _model(tmp_path, "v1.json", "{\"version\": 1}")
+    candidate = _model(tmp_path, "v2.json", "{\"version\": 2}")
+    original = _comparison(tmp_path, candidate, observation_id="original")
+    holdout = _comparison(tmp_path, candidate, observation_id="holdout")
+    row = _revision(base, candidate, original, holdout)
+    row.update({
+        "task_id": "task-1",
+        "iteration": 1,
+        "remaining_predictive_gap_ids": ["scenario:new-regime"],
+        "next_actions": ["acquire_holdout"],
+    })
+    receipt = evaluate_candidate_world_revision(
+        CandidateWorldModelRevision.from_dict(row),
+        base_dir=tmp_path,
+    )
+    assert receipt["disposition"] == "continue_iteration"
+    assert receipt["terminal_reason"] == "continue_iteration"

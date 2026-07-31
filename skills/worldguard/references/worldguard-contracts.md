@@ -149,6 +149,14 @@ depth. It freezes:
   left/relation/right content; and
 - explicit weakening conditions.
 
+For iterative task-local use it also freezes a task id, purpose, independent
+coverage ids, assumptions, unknowns, iteration number/budget, and prior gap
+fingerprints. A current comparison returns open gap ids, gap transitions, next
+actions, and one terminal reason. `model_closed_for_task` is the only normal
+closure; `external_input_required`, `scope_excluded`, `progress_stalled`, and
+`iteration_limit` are explicit non-closure terminals. A self-reported
+understanding field, a fact-only update, or a prose summary cannot close a gap.
+
 Every expected value or relationship declares one mismatch category:
 `initial_state`, `transition`, `causal_relation`, `resource`, `agent`,
 `observation_mapping`, or `other`. The evaluator retains that declared owner;

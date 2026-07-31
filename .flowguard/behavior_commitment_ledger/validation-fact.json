@@ -5,20 +5,20 @@
   "command": "python -m pytest -q tests/test_fact_revision.py",
   "status": "passed",
   "exit_code": 0,
-  "started_at": "2026-07-30T22:52:33.068474+00:00",
-  "finished_at": "2026-07-30T22:52:33.635082+00:00",
+  "started_at": "2026-07-31T14:00:10.202407+00:00",
+  "finished_at": "2026-07-31T14:00:11.203284+00:00",
   "artifact_fingerprints": {
     ".flowguard/behavior_commitment_ledger/ledger.json": "sha256:5e4e61a3721d898ec9dd91c02adbc3e3edbf44f61912f6cd9ce8e64ea98a64aa",
     ".flowguard/behavior_commitment_ledger/model.py": "sha256:74cb7891116f4ea5f2f93807f5f61fa2e04d0485cd499fed8d700267e2c044f9",
     ".flowguard/behavior_commitment_ledger/run_checks.py": "sha256:0ec873e11efc480990908ac063f8a570330c639333c82f64d236ff2cea035ace",
-    "worldguard/fact_revision.py": "sha256:21b420bb4d9224f296bf28f979a957618f069f4c7380b0eb344190075492faf8",
-    "skills/worldguard/runtime/worldguard/fact_revision.py": "sha256:21b420bb4d9224f296bf28f979a957618f069f4c7380b0eb344190075492faf8",
+    "worldguard/fact_revision.py": "sha256:e9684690860ddf783c31b492618792888707ebd77c75901f75c5f4db83429b37",
+    "skills/worldguard/runtime/worldguard/fact_revision.py": "sha256:e9684690860ddf783c31b492618792888707ebd77c75901f75c5f4db83429b37",
     "tests/test_fact_revision.py": "sha256:ce4fbc3000c1848e9dbcc6a1263880151581bf1a02fafb662dfac75705ba2e29",
     ".flowguard/fact_revision/model.py": "sha256:01ed8b094f66cb85bcec723a92c6d882c33b901cbc6820b4e0318fe5b19910a6",
     ".flowguard/fact_revision/run_checks.py": "sha256:bd9f01bf345715d5feeda43fba35968a152e631e216f3f71a0d4ff7cecd17ebe",
     "skills/worldguard/.skillguard/checks/check_fact_revision.py": "sha256:fe10a45cb7dc75c3dd0ea4ac87d136bc95424581755f009104afd0dabf03a8a0",
     "skills/worldguard/references/fact-revision.md": "sha256:661b566979f4ccf4b860da0f84305158c8c0a58cb13b7956d5191ded349d7a9a",
-    "skills/worldguard/SKILL.md": "sha256:e81b7fb940a0656f6d8ced86eb5bf8358442b6f784e63ad9e1545515f689a0ba"
+    "skills/worldguard/SKILL.md": "sha256:bf2e818faf90773e2f3dfcc79b21a3683d4dd5ff336dfabe263886eb7d4ee728"
   },
   "toolchain_identity": {
     "python_executable": "C:\\Users\\liu_y\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
@@ -30,7 +30,7 @@
     ],
     "pytest_version": "9.0.3"
   },
-  "stdout": ".......                                                                  [100%]\n7 passed in 0.10s\n",
+  "stdout": ".......                                                                  [100%]\n7 passed in 0.18s\n",
   "stderr": "",
-  "receipt_hash": "sha256:2fa6f0ec7f95fe5b030f44d4b9146f5f769ff773477c09d5f7ae46441668c35d"
+  "receipt_hash": "sha256:4c450c10dbb98c44991bc29145a1b86bddfde35b7036659be20a93531f29674a"
 }

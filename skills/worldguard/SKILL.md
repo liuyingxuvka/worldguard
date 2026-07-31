@@ -104,6 +104,9 @@ non-pass result; it never triggers another Guard as a replacement route.
 
 7. For a non-trivial task that asks whether the world model matches reality, keep
    this WorldGuard task fully independent and run its native task-local loop:
+   - freeze a task id, purpose, independent coverage inventory, assumptions,
+     unknowns, and iteration budget. Do not ask the model whether it understands
+     and do not record an understanding level;
    - freeze a `PredictionSnapshot` against the exact current model id, version,
      path, SHA-256, and sequence before reading the new observation;
    - preserve actual finite values and typed left/relation/right records in an
@@ -116,6 +119,13 @@ non-pass result; it never triggers another Guard as a replacement route.
      passing in each, before accepting the candidate;
    - reject an unapplied failure or roll an applied failure back only to the
      exact still-current v1 identity.
+   - after each comparison or candidate revalidation, carry forward every open
+     mismatch or native predictive gap with a prediction, falsifier, gap
+     transition, and next action. Continue addressable model/evidence edits until
+     `model_closed_for_task`; stop only with an explicit
+     `external_input_required`, `scope_excluded`, `progress_stalled`, or
+     `iteration_limit` terminal reason. A fact-only change cannot close an open
+     predictive gap.
 
    Native commands:
 
@@ -172,6 +182,11 @@ non-pass result; it never triggers another Guard as a replacement route.
 - Freeze a prediction before its observation. A same-sequence or earlier
   observation is hindsight-invalid. Do not infer mismatch ownership from a
   variable name; each expectation must declare its WorldGuard-native category.
+- A task-local prediction is not closed because one comparison or one fact
+  revision is green. The independent coverage universe, native predictive gaps,
+  candidate transitions, and holdout evidence must be current in the same
+  iteration receipt. Addressable gaps cannot be relabeled as scope exclusions,
+  and an AI self-report is never evidence of understanding.
 - Task-local revision may change only the separate current-task model candidate.
   It must not edit WorldGuard source, a Guard rule, a predictive-depth floor, an
   installed skill, or a reusable default. It must not call another Guard to

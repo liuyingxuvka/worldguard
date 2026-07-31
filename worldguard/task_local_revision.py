@@ -47,6 +47,14 @@ class RevalidationRole(StrEnum):
 
 
 _REVALIDATION_STATUSES = {"pass", "fail", "gap", "blocked", "not_run"}
+_ITERATION_TERMINALS = {
+    "continue_iteration",
+    "model_closed_for_task",
+    "external_input_required",
+    "scope_excluded",
+    "progress_stalled",
+    "iteration_limit",
+}
 
 
 def _strict_fields(data: Mapping[str, Any], allowed: set[str], label: str) -> None:
@@ -236,6 +244,14 @@ class PredictionSnapshot:
     expected_values: tuple[ExpectedWorldValue, ...]
     expected_relationships: tuple[ExpectedWorldRelationship, ...]
     weakening_conditions: tuple[str, ...]
+    task_id: str = ""
+    purpose: str = ""
+    coverage_ids: tuple[str, ...] = ()
+    assumptions: tuple[str, ...] = ()
+    unknowns: tuple[str, ...] = ()
+    iteration: int = 0
+    max_iterations: int = 8
+    prior_gap_fingerprints: tuple[str, ...] = ()
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "PredictionSnapshot":
@@ -250,6 +266,14 @@ class PredictionSnapshot:
                 "expected_values",
                 "expected_relationships",
                 "weakening_conditions",
+                "task_id",
+                "purpose",
+                "coverage_ids",
+                "assumptions",
+                "unknowns",
+                "iteration",
+                "max_iterations",
+                "prior_gap_fingerprints",
             },
             "prediction snapshot",
         )
@@ -302,6 +326,26 @@ class PredictionSnapshot:
             set(weakening_conditions)
         ):
             raise ValueError("weakening_conditions must be non-empty and unique")
+        task_id = str(data.get("task_id", "")).strip()
+        purpose = str(data.get("purpose", "")).strip()
+        coverage = data.get("coverage_ids", [])
+        assumptions = data.get("assumptions", [])
+        unknowns = data.get("unknowns", [])
+        prior = data.get("prior_gap_fingerprints", [])
+        if not all(isinstance(items, list) for items in (coverage, assumptions, unknowns, prior)):
+            raise ValueError("coverage_ids, assumptions, unknowns, and prior_gap_fingerprints must be lists")
+        coverage_ids = tuple(_text(item, "coverage id") for item in coverage)
+        if len(coverage_ids) != len(set(coverage_ids)):
+            raise ValueError("coverage_ids must be unique")
+        if task_id and not coverage_ids:
+            raise ValueError("task-local predictions require an independent coverage_ids inventory")
+        try:
+            iteration = int(data.get("iteration", 0))
+            max_iterations = int(data.get("max_iterations", 8))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("iteration and max_iterations must be integers") from exc
+        if iteration < 0 or max_iterations < 1:
+            raise ValueError("iteration must be non-negative and max_iterations must be positive")
         return cls(
             prediction_id=_text(data.get("prediction_id"), "prediction_id"),
             model=WorldModelIdentity.from_dict(model),
@@ -311,6 +355,14 @@ class PredictionSnapshot:
             expected_values=expected_values,
             expected_relationships=expected_relationships,
             weakening_conditions=weakening_conditions,
+            task_id=task_id,
+            purpose=purpose,
+            coverage_ids=coverage_ids,
+            assumptions=tuple(_text(item, "assumption") for item in assumptions),
+            unknowns=tuple(_text(item, "unknown") for item in unknowns),
+            iteration=iteration,
+            max_iterations=max_iterations,
+            prior_gap_fingerprints=tuple(_text(item, "prior gap fingerprint") for item in prior),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -325,6 +377,14 @@ class PredictionSnapshot:
                 item.to_dict() for item in self.expected_relationships
             ],
             "weakening_conditions": list(self.weakening_conditions),
+            "task_id": self.task_id,
+            "purpose": self.purpose,
+            "coverage_ids": list(self.coverage_ids),
+            "assumptions": list(self.assumptions),
+            "unknowns": list(self.unknowns),
+            "iteration": self.iteration,
+            "max_iterations": self.max_iterations,
+            "prior_gap_fingerprints": list(self.prior_gap_fingerprints),
         }
 
 
@@ -366,6 +426,10 @@ class ObservedWorldSnapshot:
     source_ref: str
     values: dict[str, float]
     relationships: tuple[ObservedWorldRelationship, ...]
+    evidence_id: str = ""
+    evidence_fingerprint: str = ""
+    gap_transitions: dict[str, str] | None = None
+    external_input_ids: tuple[str, ...] = ()
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "ObservedWorldSnapshot":
@@ -378,6 +442,10 @@ class ObservedWorldSnapshot:
                 "source_ref",
                 "values",
                 "relationships",
+                "evidence_id",
+                "evidence_fingerprint",
+                "gap_transitions",
+                "external_input_ids",
             },
             "observed world snapshot",
         )
@@ -409,6 +477,17 @@ class ObservedWorldSnapshot:
             raise ValueError("observed relationship ids must be unique")
         if not normalized_values and not normalized_relationships:
             raise ValueError("observation requires at least one actual value or relationship")
+        gap_transitions = data.get("gap_transitions", {})
+        external_input_ids = data.get("external_input_ids", [])
+        if not isinstance(gap_transitions, Mapping) or not isinstance(external_input_ids, list):
+            raise ValueError("gap_transitions must be a mapping and external_input_ids a list")
+        normalized_transitions = {
+            _text(key, "gap transition id"): _text(value, "gap transition disposition")
+            for key, value in gap_transitions.items()
+        }
+        normalized_external = tuple(_text(item, "external input id") for item in external_input_ids)
+        if len(normalized_external) != len(set(normalized_external)):
+            raise ValueError("external_input_ids must be unique")
         return cls(
             observation_id=_text(data.get("observation_id"), "observation_id"),
             prediction_id=_text(data.get("prediction_id"), "prediction_id"),
@@ -416,6 +495,10 @@ class ObservedWorldSnapshot:
             source_ref=_text(data.get("source_ref"), "source_ref"),
             values=normalized_values,
             relationships=normalized_relationships,
+            evidence_id=str(data.get("evidence_id", "")).strip(),
+            evidence_fingerprint=str(data.get("evidence_fingerprint", "")).strip(),
+            gap_transitions=normalized_transitions,
+            external_input_ids=normalized_external,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -426,6 +509,10 @@ class ObservedWorldSnapshot:
             "source_ref": self.source_ref,
             "values": self.values,
             "relationships": [item.to_dict() for item in self.relationships],
+            "evidence_id": self.evidence_id,
+            "evidence_fingerprint": self.evidence_fingerprint,
+            "gap_transitions": dict(self.gap_transitions or {}),
+            "external_input_ids": list(self.external_input_ids),
         }
 
 
@@ -497,6 +584,15 @@ class CandidateWorldModelRevision:
     revalidations: tuple[WorldRevalidationReceipt, ...]
     candidate_applied: bool
     rollback_model: WorldModelIdentity | None
+    task_id: str = ""
+    iteration: int = 0
+    max_iterations: int = 8
+    remaining_gap_ids: tuple[str, ...] = ()
+    remaining_predictive_gap_ids: tuple[str, ...] = ()
+    gap_transitions: dict[str, str] | None = None
+    next_actions: tuple[str, ...] = ()
+    terminal_reason: str = "continue_iteration"
+    external_input_ids: tuple[str, ...] = ()
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "CandidateWorldModelRevision":
@@ -513,6 +609,15 @@ class CandidateWorldModelRevision:
                 "revalidations",
                 "candidate_applied",
                 "rollback_model",
+                "task_id",
+                "iteration",
+                "max_iterations",
+                "remaining_gap_ids",
+                "remaining_predictive_gap_ids",
+                "gap_transitions",
+                "next_actions",
+                "terminal_reason",
+                "external_input_ids",
             },
             "candidate world-model revision",
         )
@@ -572,6 +677,30 @@ class CandidateWorldModelRevision:
             raise ValueError("an applied candidate requires rollback_model")
         if not candidate_applied and rollback is not None:
             raise ValueError("rollback_model is only valid after candidate application")
+        task_id = str(data.get("task_id", "")).strip()
+        try:
+            iteration = int(data.get("iteration", 0))
+            max_iterations = int(data.get("max_iterations", 8))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("iteration and max_iterations must be integers") from exc
+        if iteration < 0 or max_iterations < 1:
+            raise ValueError("iteration must be non-negative and max_iterations must be positive")
+
+        def _unique_texts(name: str) -> tuple[str, ...]:
+            raw = data.get(name, [])
+            if not isinstance(raw, list):
+                raise ValueError(f"{name} must be a list")
+            values = tuple(_text(item, name) for item in raw)
+            if len(values) != len(set(values)):
+                raise ValueError(f"{name} must be unique")
+            return values
+
+        gap_transitions = data.get("gap_transitions", {})
+        if not isinstance(gap_transitions, Mapping):
+            raise ValueError("gap_transitions must be a mapping")
+        terminal_reason = str(data.get("terminal_reason", "continue_iteration"))
+        if terminal_reason not in _ITERATION_TERMINALS:
+            raise ValueError("terminal_reason is not a supported task-local terminal")
         return cls(
             revision_id=_text(data.get("revision_id"), "revision_id"),
             prediction_id=_text(data.get("prediction_id"), "prediction_id"),
@@ -587,6 +716,18 @@ class CandidateWorldModelRevision:
                 if isinstance(rollback, Mapping)
                 else None
             ),
+            task_id=task_id,
+            iteration=iteration,
+            max_iterations=max_iterations,
+            remaining_gap_ids=_unique_texts("remaining_gap_ids"),
+            remaining_predictive_gap_ids=_unique_texts("remaining_predictive_gap_ids"),
+            gap_transitions={
+                _text(key, "gap transition id"): _text(value, "gap transition disposition")
+                for key, value in gap_transitions.items()
+            },
+            next_actions=_unique_texts("next_actions"),
+            terminal_reason=terminal_reason,
+            external_input_ids=_unique_texts("external_input_ids"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -603,6 +744,15 @@ class CandidateWorldModelRevision:
             "rollback_model": (
                 self.rollback_model.to_dict() if self.rollback_model else None
             ),
+            "task_id": self.task_id,
+            "iteration": self.iteration,
+            "max_iterations": self.max_iterations,
+            "remaining_gap_ids": list(self.remaining_gap_ids),
+            "remaining_predictive_gap_ids": list(self.remaining_predictive_gap_ids),
+            "gap_transitions": dict(self.gap_transitions or {}),
+            "next_actions": list(self.next_actions),
+            "terminal_reason": self.terminal_reason,
+            "external_input_ids": list(self.external_input_ids),
         }
 
 
@@ -628,6 +778,14 @@ def freeze_prediction_snapshot(
         "receipt_version": "1.0",
         "status": "pass" if model["status"] == "current" else "blocked",
         "prediction_id": prediction.prediction_id,
+        "task_id": prediction.task_id,
+        "purpose": prediction.purpose,
+        "coverage_ids": list(prediction.coverage_ids),
+        "assumptions": list(prediction.assumptions),
+        "unknowns": list(prediction.unknowns),
+        "iteration": prediction.iteration,
+        "max_iterations": prediction.max_iterations,
+        "prior_gap_fingerprints": list(prediction.prior_gap_fingerprints),
         "prediction_sequence": prediction.prediction_sequence,
         "model_identity": model,
         "prediction_fingerprint": _fingerprint(prediction.to_dict()),
@@ -755,6 +913,33 @@ def compare_observed_world(
                 }
             )
 
+    mismatch_ids = [item["mismatch_id"] for item in mismatches]
+    observed_expectation_ids = {
+        *[item["expectation_id"] for item in matches],
+        *[item["expectation_id"] for item in mismatches],
+    }
+    coverage_gaps = [
+        f"coverage:{coverage_id}"
+        for coverage_id in prediction.coverage_ids
+        if coverage_id not in observed_expectation_ids
+    ]
+    open_gap_ids = sorted(set(mismatch_ids) | set(coverage_gaps))
+    gap_fingerprint = _fingerprint(open_gap_ids)
+    if observation.external_input_ids and not open_gap_ids:
+        terminal_reason = "external_input_required"
+    elif not open_gap_ids:
+        terminal_reason = "model_closed_for_task"
+    elif prediction.iteration >= prediction.max_iterations:
+        terminal_reason = "iteration_limit"
+    elif gap_fingerprint in set(prediction.prior_gap_fingerprints):
+        terminal_reason = "progress_stalled"
+    else:
+        terminal_reason = "continue_iteration"
+    next_actions = [
+        "revise_world_model" if item in mismatch_ids else "acquire_declared_coverage"
+        for item in open_gap_ids
+    ]
+
     return {
         "artifact_kind": "worldguard_observed_world_comparison_receipt",
         "receipt_version": "1.0",
@@ -769,7 +954,18 @@ def compare_observed_world(
         "observation_fingerprint": _fingerprint(observation.to_dict()),
         "matches": matches,
         "mismatches": mismatches,
-        "mismatch_ids": [item["mismatch_id"] for item in mismatches],
+        "mismatch_ids": mismatch_ids,
+        "task_id": prediction.task_id,
+        "purpose": prediction.purpose,
+        "coverage_ids": list(prediction.coverage_ids),
+        "open_gap_ids": open_gap_ids,
+        "gap_fingerprint": gap_fingerprint,
+        "gap_transitions": dict(observation.gap_transitions or {}),
+        "next_actions": sorted(set(next_actions)),
+        "terminal_reason": terminal_reason,
+        "external_input_ids": list(observation.external_input_ids),
+        "iteration": prediction.iteration,
+        "progressed": prediction.iteration == 0 or gap_fingerprint not in set(prediction.prior_gap_fingerprints),
         "claim_boundary": (
             "This empirical comparison covers only declared values and relationships "
             "against the supplied observation. Missing expectations fail visibly; "
@@ -857,11 +1053,31 @@ def evaluate_candidate_world_revision(
         for item in check_results
         if item["effective_status"] != "pass"
     ]
+    remaining_gaps = sorted(
+        set(revision.remaining_gap_ids) | set(revision.remaining_predictive_gap_ids)
+    )
+    gap_transitions = dict(revision.gap_transitions or {})
+    terminal_reason = revision.terminal_reason
     rollback = None
     if identity_findings:
         disposition = "blocked"
     elif not failed:
-        disposition = "accepted"
+        if revision.external_input_ids:
+            disposition = "continue_iteration"
+            terminal_reason = "external_input_required"
+        elif remaining_gaps:
+            if revision.iteration >= revision.max_iterations:
+                disposition = "continue_iteration"
+                terminal_reason = "iteration_limit"
+            elif gap_transitions and set(gap_transitions) >= set(remaining_gaps):
+                disposition = "continue_iteration"
+                terminal_reason = "progress_stalled"
+            else:
+                disposition = "continue_iteration"
+                terminal_reason = "continue_iteration"
+        else:
+            disposition = "accepted"
+            terminal_reason = "model_closed_for_task"
     elif not revision.candidate_applied:
         disposition = "rejected"
     else:
@@ -881,7 +1097,7 @@ def evaluate_candidate_world_revision(
         "receipt_version": "1.0",
         "status": (
             "pass"
-            if disposition in {"accepted", "rejected", "rolled_back"}
+            if disposition in {"accepted", "rejected", "rolled_back", "continue_iteration"}
             else "blocked"
         ),
         "revision_id": revision.revision_id,
@@ -895,6 +1111,15 @@ def evaluate_candidate_world_revision(
         "required_revalidation_ids": list(revision.required_revalidation_ids),
         "revalidation_results": check_results,
         "failed_revalidation_ids": failed,
+        "task_id": revision.task_id,
+        "iteration": revision.iteration,
+        "remaining_gap_ids": remaining_gaps,
+        "remaining_predictive_gap_ids": list(revision.remaining_predictive_gap_ids),
+        "gap_transitions": gap_transitions,
+        "next_actions": list(revision.next_actions),
+        "external_input_ids": list(revision.external_input_ids),
+        "terminal_reason": terminal_reason,
+        "progressed": revision.iteration == 0 or bool(gap_transitions),
         "identity_findings": identity_findings,
         "base_model_preserved": base["status"] == "current",
         "revision_fingerprint": _fingerprint(revision.to_dict()),

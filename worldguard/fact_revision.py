@@ -351,6 +351,12 @@ class FactRevisionTransaction:
     retraction_support_ids: tuple[str, ...] = ()
     preserved_fact_ids: tuple[str, ...] = ()
     expected_terminal_deltas: tuple[FactStateExpectation, ...] = ()
+    task_id: str = ""
+    iteration: int = 0
+    max_iterations: int = 8
+    remaining_predictive_gap_ids: tuple[str, ...] = ()
+    next_actions: tuple[str, ...] = ()
+    terminal_reason: str = "continue_iteration"
 
     def __post_init__(self) -> None:
         object.__setattr__(
@@ -363,6 +369,14 @@ class FactRevisionTransaction:
             "base_fingerprint",
             _text(self.base_fingerprint, "base_fingerprint"),
         )
+        object.__setattr__(self, "task_id", str(self.task_id).strip())
+        object.__setattr__(self, "iteration", int(self.iteration))
+        object.__setattr__(self, "max_iterations", max(1, int(self.max_iterations)))
+        object.__setattr__(self, "remaining_predictive_gap_ids", tuple(sorted({_text(item, "remaining_predictive_gap_ids") for item in self.remaining_predictive_gap_ids})))
+        object.__setattr__(self, "next_actions", tuple(sorted({_text(item, "next_actions") for item in self.next_actions})))
+        object.__setattr__(self, "terminal_reason", str(self.terminal_reason).strip() or "continue_iteration")
+        if self.iteration < 0:
+            raise ValueError("iteration must be non-negative")
         additions = tuple(
             sorted(self.additions, key=lambda item: item.support_id)
         )
@@ -399,6 +413,12 @@ class FactRevisionTransaction:
                 "retraction_support_ids",
                 "preserved_fact_ids",
                 "expected_terminal_deltas",
+                "task_id",
+                "iteration",
+                "max_iterations",
+                "remaining_predictive_gap_ids",
+                "next_actions",
+                "terminal_reason",
             },
             "fact revision transaction",
         )
@@ -420,6 +440,12 @@ class FactRevisionTransaction:
                 FactStateExpectation.from_dict(item)
                 for item in data.get("expected_terminal_deltas", [])
             ),
+            task_id=data.get("task_id", ""),
+            iteration=data.get("iteration", 0),
+            max_iterations=data.get("max_iterations", 8),
+            remaining_predictive_gap_ids=tuple(str(item) for item in data.get("remaining_predictive_gap_ids", [])),
+            next_actions=tuple(str(item) for item in data.get("next_actions", [])),
+            terminal_reason=data.get("terminal_reason", "continue_iteration"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -432,6 +458,12 @@ class FactRevisionTransaction:
             "expected_terminal_deltas": [
                 item.to_dict() for item in self.expected_terminal_deltas
             ],
+            "task_id": self.task_id,
+            "iteration": self.iteration,
+            "max_iterations": self.max_iterations,
+            "remaining_predictive_gap_ids": list(self.remaining_predictive_gap_ids),
+            "next_actions": list(self.next_actions),
+            "terminal_reason": self.terminal_reason,
         }
 
 
@@ -485,6 +517,11 @@ class FactRevisionPreview:
     closure_terminated: bool
     finding_codes: tuple[str, ...]
     status: str
+    task_id: str = ""
+    iteration: int = 0
+    remaining_predictive_gap_ids: tuple[str, ...] = ()
+    next_actions: tuple[str, ...] = ()
+    terminal_reason: str = "continue_iteration"
 
     def identity_payload(self) -> dict[str, Any]:
         return {
@@ -506,6 +543,11 @@ class FactRevisionPreview:
             "closure_terminated": self.closure_terminated,
             "finding_codes": list(self.finding_codes),
             "status": self.status,
+            "task_id": self.task_id,
+            "iteration": self.iteration,
+            "remaining_predictive_gap_ids": list(self.remaining_predictive_gap_ids),
+            "next_actions": list(self.next_actions),
+            "terminal_reason": self.terminal_reason,
             "claim_boundary": (
                 "This preview is a copy-based task-local fact revision. Four-"
                 "valued states describe support inside the supplied snapshot; "
@@ -673,6 +715,7 @@ class FactRevisionActivationReceipt:
     finding_codes: tuple[str, ...]
     status: str
     activated: bool
+    terminal_reason: str = "continue_iteration"
 
     def identity_payload(self) -> dict[str, Any]:
         return {
@@ -688,6 +731,7 @@ class FactRevisionActivationReceipt:
             "finding_codes": list(self.finding_codes),
             "status": self.status,
             "activated": self.activated,
+            "terminal_reason": self.terminal_reason,
             "claim_boundary": (
                 "Activation accepts only this task-local fact snapshot and does "
                 "not mutate WorldGuard rules, reusable defaults, installed "
@@ -986,6 +1030,16 @@ def preview_fact_revision(
         closure_terminated=closure_terminated,
         finding_codes=unique_findings,
         status="ready" if not unique_findings else "blocked",
+        task_id=transaction.task_id,
+        iteration=transaction.iteration,
+        remaining_predictive_gap_ids=transaction.remaining_predictive_gap_ids,
+        next_actions=transaction.next_actions,
+        terminal_reason=(
+            "iteration_limit"
+            if transaction.remaining_predictive_gap_ids
+            and transaction.iteration >= transaction.max_iterations
+            else transaction.terminal_reason
+        ),
     )
 
 
@@ -1036,6 +1090,16 @@ def activate_fact_revision(
         finding_codes=unique_findings,
         status="activated" if activated else "blocked",
         activated=activated,
+        terminal_reason=(
+            "iteration_limit"
+            if preview.remaining_predictive_gap_ids
+            and preview.iteration >= transaction.max_iterations
+            else (
+                preview.terminal_reason
+                if preview.remaining_predictive_gap_ids
+                else "model_closed_for_task"
+            )
+        ),
     )
     return FactRevisionActivationResult(
         receipt=receipt,

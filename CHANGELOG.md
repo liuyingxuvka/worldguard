@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.6.0 - 2026-07-31
+
+- Added task-local world-model deepening with explicit prediction, gap
+  transitions, next actions, progress, and terminal reasons.
+- Added evidence-bound fact-revision lifecycle fields and synchronized the
+  bundled consumer runtime with the source implementation.
+
 ## v0.5.0 - 2026-07-30
 
 - Added task-local four-valued fact revision with independent positive and
