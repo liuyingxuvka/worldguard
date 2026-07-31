@@ -30,5 +30,5 @@
 
 - [x] 5.1 Run focused task-local, fact, CLI, parity, and topology tests; fix every affected failure.
 - [x] 5.2 Run affected FlowGuard task-local/fact checks and current project/model authority audits when the shared engine is callable.
-- [ ] 5.3 Run SkillGuard maintainer audit and affected-only plan/checks without starting the final frozen full validation.
+- [x] 5.3 Run SkillGuard maintainer audit and affected-only plan/checks without starting the final frozen full validation.
 - [x] 5.4 Leave installation, final full validation, commit, tag, push, and release to the root integration owner after all five repositories freeze.
