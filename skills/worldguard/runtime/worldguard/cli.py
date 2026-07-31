@@ -5,6 +5,13 @@ import sys
 from pathlib import Path
 
 from .contracts import GuardContract
+from .fact_revision import (
+    FactRevisionActivationRequest,
+    FactRevisionTransaction,
+    FactWorldSnapshot,
+    activate_fact_revision,
+    preview_fact_revision,
+)
 from .examples.fuel_cell import run_check as run_fuel_cell_check
 from .io import dump_json, load_mapping
 from .kernel import run_worldguard
@@ -51,6 +58,19 @@ def main(argv: list[str] | None = None) -> int:
         help="accept, reject, or roll back a separate candidate task model",
     )
     task_model_revision.add_argument("revision")
+    fact_revision_preview = task_model_commands.add_parser(
+        "fact-revision-preview",
+        help="preview a four-valued fact revision without mutating its base",
+    )
+    fact_revision_preview.add_argument("base")
+    fact_revision_preview.add_argument("transaction")
+    fact_revision_activate = task_model_commands.add_parser(
+        "fact-revision-activate",
+        help="activate one current preview with regression and holdout evidence",
+    )
+    fact_revision_activate.add_argument("base")
+    fact_revision_activate.add_argument("transaction")
+    fact_revision_activate.add_argument("activation")
 
     args = parser.parse_args(argv)
     if args.command == "check":
@@ -67,6 +87,25 @@ def main(argv: list[str] | None = None) -> int:
         print(dump_json(run_model_mesh(mesh).to_dict()))
         return 0
     if args.command == "task-model":
+        if args.task_model_command == "fact-revision-preview":
+            base = FactWorldSnapshot.from_dict(load_mapping(args.base))
+            transaction = FactRevisionTransaction.from_dict(
+                load_mapping(args.transaction)
+            )
+            preview = preview_fact_revision(base, transaction)
+            print(dump_json(preview.to_dict()))
+            return 0 if preview.status == "ready" else 1
+        if args.task_model_command == "fact-revision-activate":
+            base = FactWorldSnapshot.from_dict(load_mapping(args.base))
+            transaction = FactRevisionTransaction.from_dict(
+                load_mapping(args.transaction)
+            )
+            activation = FactRevisionActivationRequest.from_dict(
+                load_mapping(args.activation)
+            )
+            result = activate_fact_revision(base, transaction, activation)
+            print(dump_json(result.to_dict()))
+            return 0 if result.receipt.activated else 1
         if args.task_model_command == "freeze":
             path = Path(args.prediction)
             prediction = PredictionSnapshot.from_dict(load_mapping(path))

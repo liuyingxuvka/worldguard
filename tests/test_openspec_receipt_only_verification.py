@@ -7,13 +7,13 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACTS = (
-    ROOT / "openspec/changes/harden-guard-simulation-readiness/verification-contract.yaml",
-    ROOT / "openspec/changes/enforce-claim-derived-semantic-coverage/verification-contract.yaml",
-    ROOT / "openspec/changes/add-worldguard-template-pack-builder/verification-contract.yaml",
+    ROOT / "openspec/changes/archive/2026-07-19-harden-guard-simulation-readiness/verification-contract.yaml",
+    ROOT / "openspec/changes/archive/2026-07-19-enforce-claim-derived-semantic-coverage/verification-contract.yaml",
+    ROOT / "openspec/changes/archive/2026-07-19-add-worldguard-template-pack-builder/verification-contract.yaml",
 )
 
 
-def test_active_changes_use_target_owned_read_only_evidence_references() -> None:
+def test_recorded_changes_use_target_owned_read_only_evidence_references() -> None:
     for contract in CONTRACTS:
         payload = yaml.safe_load(contract.read_text(encoding="utf-8"))
         assert len(payload["checks"]) == 1

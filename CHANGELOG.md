@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.5.0 - 2026-07-30
+
+- Added task-local four-valued fact revision with independent positive and
+  negative support, visible contradictions, strict-rule closure, and no
+  explosion into unrelated facts.
+- Added immutable revision previews and evidence-bound activation with exact
+  base/preview identity, preservation checks, contradiction acknowledgement,
+  current regression and holdout evidence, and duplicate transaction blocking.
+- Added the native CLI, Codex skill route, target-owned semantic check,
+  FlowGuard regression model, and behavior-commitment ownership for the new
+  revision path.
+- Restored current source/package/bundled-runtime identity and expanded the
+  author-side SkillGuard contract from five to six exact target checks.
+
 ## v0.4.1 - 2026-07-22
 
 - Adopt SkillGuard 0.4 bounded evidence lifecycle without changing WorldGuard's target-owned semantic checks.

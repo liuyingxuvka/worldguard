@@ -1,4 +1,4 @@
-"""WorldGuard's bounded behavior-commitment authority for the v0.4 change."""
+"""WorldGuard's bounded behavior-commitment authority through v0.5."""
 
 from __future__ import annotations
 
@@ -23,6 +23,7 @@ LEDGER_PATH = Path(__file__).with_name("ledger.json")
 VALIDATION_PATHS = {
     "input": Path(__file__).with_name("validation-input.json"),
     "template": Path(__file__).with_name("validation-template.json"),
+    "fact": Path(__file__).with_name("validation-fact.json"),
 }
 
 INPUT_COMMITMENT_ID = "commitment:worldguard-current-input-authority"
@@ -31,6 +32,9 @@ INPUT_PATH_ID = "path:worldguard-current-input-authority"
 TEMPLATE_COMMITMENT_ID = "commitment:worldguard-template-selection-authority"
 TEMPLATE_INTENT_ID = "intent:worldguard-template-selection-authority"
 TEMPLATE_PATH_ID = "path:worldguard-template-selection-authority"
+FACT_COMMITMENT_ID = "commitment:worldguard-fact-revision-authority"
+FACT_INTENT_ID = "intent:worldguard-fact-revision-authority"
+FACT_PATH_ID = "path:worldguard-fact-revision-authority"
 
 INPUT_SURFACES = (
     "surface:worldguard-current-contract-code",
@@ -43,6 +47,12 @@ TEMPLATE_SURFACES = (
     "surface:worldguard-template-tests",
     "surface:worldguard-template-model",
     "surface:worldguard-template-docs",
+)
+FACT_SURFACES = (
+    "surface:worldguard-fact-revision-code",
+    "surface:worldguard-fact-revision-tests",
+    "surface:worldguard-fact-revision-model",
+    "surface:worldguard-fact-revision-docs",
 )
 
 INPUT_EVIDENCE_FILES = (
@@ -60,6 +70,16 @@ TEMPLATE_EVIDENCE_FILES = (
     ".flowguard/worldguard_template_pack_field_lifecycle.md",
     "skills/worldguard/SKILL.md",
 )
+FACT_EVIDENCE_FILES = (
+    "worldguard/fact_revision.py",
+    "skills/worldguard/runtime/worldguard/fact_revision.py",
+    "tests/test_fact_revision.py",
+    ".flowguard/fact_revision/model.py",
+    ".flowguard/fact_revision/run_checks.py",
+    "skills/worldguard/.skillguard/checks/check_fact_revision.py",
+    "skills/worldguard/references/fact-revision.md",
+    "skills/worldguard/SKILL.md",
+)
 SHARED_EVIDENCE_FILES = (
     ".flowguard/behavior_commitment_ledger/ledger.json",
     ".flowguard/behavior_commitment_ledger/model.py",
@@ -68,6 +88,7 @@ SHARED_EVIDENCE_FILES = (
 EVIDENCE_FILES_BY_SHARD = {
     "input": SHARED_EVIDENCE_FILES + INPUT_EVIDENCE_FILES,
     "template": SHARED_EVIDENCE_FILES + TEMPLATE_EVIDENCE_FILES,
+    "fact": SHARED_EVIDENCE_FILES + FACT_EVIDENCE_FILES,
 }
 
 
@@ -156,8 +177,10 @@ def build_primary_path_reports() -> tuple[object, object]:
 
     input_validation = _load_validation("input")
     template_validation = _load_validation("template")
+    fact_validation = _load_validation("fact")
     input_obligation = "obligation:worldguard-current-input-only"
     template_obligation = "obligation:worldguard-template-selection-one-path"
+    fact_obligation = "obligation:worldguard-fact-revision-one-path"
     input_plan = PrimaryPathAuthorityPlan(
         plan_id="ppa:worldguard-current-input-authority",
         primary_paths=(
@@ -167,7 +190,7 @@ def build_primary_path_reports() -> tuple[object, object]:
                 business_intent_id=INPUT_INTENT_ID,
                 behavior_commitment_id=INPUT_COMMITMENT_ID,
                 primary_entrypoint_id="worldguard.contracts.load_contract",
-                owner_model_id=".flowguard/semantic_rollout_model.py",
+                owner_model_id=".flowguard/current_input_authority/model.py",
                 owner_code_contract_id="contract:worldguard-v0.4-input-authority",
                 expected_terminal="verified current input or visible typed contract failure",
                 failure_policy="fail_closed",
@@ -212,7 +235,7 @@ def build_primary_path_reports() -> tuple[object, object]:
                 business_intent_id=TEMPLATE_INTENT_ID,
                 behavior_commitment_id=TEMPLATE_COMMITMENT_ID,
                 primary_entrypoint_id="worldguard.template_packs.select_template_pack",
-                owner_model_id=".flowguard/worldguard_template_pack_builder.py",
+                owner_model_id=".flowguard/template_selection/model.py",
                 owner_code_contract_id="contract:worldguard-template-selection",
                 expected_terminal="one selected template or visible typed no-match/ambiguity failure",
                 failure_policy="fail_closed",
@@ -255,17 +278,81 @@ def build_primary_path_reports() -> tuple[object, object]:
         require_complete_candidate_inventory=True,
         require_material_runtime_evidence=True,
     )
-    return review_primary_path_authority(input_plan), review_primary_path_authority(template_plan)
+    fact_plan = PrimaryPathAuthorityPlan(
+        plan_id="ppa:worldguard-fact-revision-authority",
+        primary_paths=(
+            PrimaryPathContract(
+                business_path_id=FACT_PATH_ID,
+                business_intent="preview and activate one task-local fact revision transaction",
+                business_intent_id=FACT_INTENT_ID,
+                behavior_commitment_id=FACT_COMMITMENT_ID,
+                primary_entrypoint_id="worldguard.fact_revision.preview_fact_revision",
+                owner_model_id=".flowguard/fact_revision/model.py",
+                owner_code_contract_id="contract:worldguard-fact-revision",
+                expected_terminal="one immutable preview followed by evidence-bound activation or one visible typed block",
+                failure_policy="fail_closed",
+                allowed_error_state_ids=(
+                    "stale_base",
+                    "preservation_changed",
+                    "unacknowledged_contradiction",
+                    "evidence_not_current",
+                ),
+                evidence_ids=("tests/test_fact_revision.py",),
+                runtime_evidence_state="current_pass",
+                runtime_observation_ids=(
+                    "observation:worldguard-fact-revision-targeted-tests",
+                ),
+                required_obligation_ids=(fact_obligation,),
+                proof_artifact=_proof(
+                    artifact_id="proof:worldguard-fact-revision-authority",
+                    obligation_id=fact_obligation,
+                    shard_id="fact",
+                    validation=fact_validation,
+                ),
+                source_surface_ids=FACT_SURFACES,
+            ),
+        ),
+        fallback_candidates=(),
+        claim_scope="routine",
+        coverage_case_ids=(
+            "case:fact-revision-current-activates",
+            "case:fact-revision-contradiction-visible",
+            "case:fact-revision-stale-blocks",
+            "case:fact-revision-evidence-blocks",
+        ),
+        coverage_shard_ids=("shard:worldguard-fact-revision-authority",),
+        coverage_receipt_ids=("receipt:worldguard-fact-revision-authority",),
+        risk_gate_ids=("risk_gate:worldguard-fact-revision-authority",),
+        expected_business_intents=(
+            "preview and activate one task-local fact revision transaction",
+        ),
+        expected_business_intent_ids=(FACT_INTENT_ID,),
+        expected_candidate_ids=(),
+        expected_surface_ids=FACT_SURFACES,
+        inventory_revision="worldguard-v0.5.0-fact-revision-current-only",
+        inventory_evidence_ids=("ledger:worldguard-v0.5-current-authority",),
+        preflight_id="worldguard-v0.5-existing-model-preflight",
+        behavior_commitment_ledger_id="worldguard-v0.5-current-authority",
+        existing_current_path_ids=(FACT_PATH_ID,),
+        require_complete_candidate_inventory=True,
+        require_material_runtime_evidence=True,
+    )
+    return (
+        review_primary_path_authority(input_plan),
+        review_primary_path_authority(template_plan),
+        review_primary_path_authority(fact_plan),
+    )
 
 
 def build_worldguard_behavior_commitment_ledger() -> BehaviorCommitmentLedger:
     """Load the canonical inventory and attach only current PPA evidence."""
 
     ledger = load_behavior_commitment_ledger(LEDGER_PATH)
-    input_report, template_report = build_primary_path_reports()
+    input_report, template_report, fact_report = build_primary_path_reports()
     reports = {
         INPUT_COMMITMENT_ID: input_report,
         TEMPLATE_COMMITMENT_ID: template_report,
+        FACT_COMMITMENT_ID: fact_report,
     }
     commitments = tuple(
         replace(
@@ -280,7 +367,11 @@ def build_worldguard_behavior_commitment_ledger() -> BehaviorCommitmentLedger:
                         VALIDATION_PATHS[
                             "input"
                             if commitment.commitment_id == INPUT_COMMITMENT_ID
-                            else "template"
+                            else (
+                                "template"
+                                if commitment.commitment_id == TEMPLATE_COMMITMENT_ID
+                                else "fact"
+                            )
                         ]
                     ),
                 ),
@@ -297,6 +388,7 @@ FLOWGUARD_MODEL_MARKER = "flowguard-executable-model"
 __all__ = [
     "LEDGER_PATH",
     "EVIDENCE_FILES_BY_SHARD",
+    "FACT_EVIDENCE_FILES",
     "INPUT_EVIDENCE_FILES",
     "SHARED_EVIDENCE_FILES",
     "TEMPLATE_EVIDENCE_FILES",

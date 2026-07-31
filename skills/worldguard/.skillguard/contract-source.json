@@ -79,9 +79,81 @@
         "check:worldguard:template-packs"
       ],
       "output_artifact_ids": []
+    },
+    {
+      "step_id": "step:worldguard-fact-revision:execute",
+      "action": {
+        "kind": "native",
+        "summary": "Verify task-local four-valued fact revision, preservation, contradiction visibility, and evidence-bound activation."
+      },
+      "check_ids": [
+        "check:worldguard:fact-revision"
+      ],
+      "output_artifact_ids": []
     }
   ],
   "checks": [
+    {
+      "evidence_class": "hard",
+      "timeout_seconds": 180,
+      "coverage_scope": "suite",
+      "evidence_domain_id": "worldguard:native-validation",
+      "check_id": "check:worldguard:fact-revision",
+      "kind": "command",
+      "command": "python",
+      "args": [
+        "skills/worldguard/.skillguard/checks/check_fact_revision.py"
+      ],
+      "cwd_token": "repository_root",
+      "covers_obligation_ids": [
+        "obligation:worldguard-fact-revision"
+      ],
+      "depends_on_check_ids": [],
+      "execution_owner_id": "owner:worldguard:fact-revision",
+      "semantic_check_id": "semantic:worldguard:fact-revision",
+      "native_route_id": "route:worldguard-claim-derived-depth",
+      "input_selectors": [
+        {
+          "kind": "path",
+          "path": "skills/worldguard/.skillguard/checks/check_fact_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/runtime/worldguard/fact_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/runtime/worldguard/__init__.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/runtime/worldguard/cli.py"
+        },
+        {
+          "kind": "path",
+          "path": "worldguard/fact_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "tests/test_fact_revision.py"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/fact-revision.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/SKILL.md"
+        }
+      ],
+      "expected": {
+        "exit_code": 0
+      },
+      "coverage_rationale": "Runs WorldGuard's bundled target-native four-valued fact revision oracle, including contradiction visibility without explosion, immutable preview, preservation enforcement, and exact regression/holdout evidence-bound activation.",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "evidence_subject_id": "subject:check:worldguard:fact-revision"
+    },
     {
       "evidence_class": "hard",
       "timeout_seconds": 180,
@@ -246,7 +318,7 @@
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Proves source version 0.4.0, one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
+      "coverage_rationale": "Proves source version 0.5.0, one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
       "maintenance_unit_id": "unit:worldguard",
       "member_skill_id": "worldguard",
       "evidence_subject_id": "subject:check:worldguard:internal-guard-topology"
@@ -397,6 +469,7 @@
         "obligation:worldguard-template-neutral-projection",
         "obligation:worldguard-template-native-candidate-inventory",
         "obligation:worldguard-template-projection-freshness",
+        "obligation:worldguard-fact-revision",
         "obligation:worldguard-internal-guard-topology",
         "obligation:worldguard-internal-guard-completeness",
         "obligation:worldguard-internal-guard-semantics",
@@ -411,6 +484,7 @@
     "VERSION",
     "pyproject.toml",
     "skills/worldguard/.skillguard/checks/check_guard_model_contract.py",
+    "skills/worldguard/.skillguard/checks/check_fact_revision.py",
     "skills/worldguard/.skillguard/checks/check_template_packs.py",
     "skills/worldguard/.skillguard/checks/emit_native_depth_evidence.py",
     "skills/worldguard/.skillguard/contract_model.py",
@@ -418,11 +492,13 @@
     "skills/worldguard/SKILL.md",
     "skills/worldguard/agents/openai.yaml",
     "skills/worldguard/references/guard-model-contract.md",
+    "skills/worldguard/references/fact-revision.md",
     "skills/worldguard/references/template-packs.md",
     "skills/worldguard/references/worldguard-contracts.md",
     "skills/worldguard/references/internal-guard-routes.json",
     "skills/worldguard/scripts/check_internal_guard_topology.py",
     "skills/worldguard/references/closure-report.md",
+    "tests/test_fact_revision.py",
     "worldguard"
   ],
   "native_route_bindings": [
@@ -463,6 +539,12 @@
       "native_check_id": "check:worldguard:internal-guard-topology",
       "evidence_source": "skills/worldguard/scripts/check_internal_guard_topology.py",
       "required": true
+    },
+    {
+      "binding_id": "native-check:worldguard-fact-revision",
+      "native_check_id": "check:worldguard:fact-revision",
+      "evidence_source": "skills/worldguard/.skillguard/checks/check_fact_revision.py",
+      "required": true
     }
   ],
   "depth_profile": {
@@ -479,7 +561,8 @@
       "check:worldguard:guard-model-contract",
       "check:worldguard:native-depth",
       "check:worldguard:template-packs",
-      "check:worldguard:internal-guard-topology"
+      "check:worldguard:internal-guard-topology",
+      "check:worldguard:fact-revision"
     ],
     "native_route_absent_confirmed": false,
     "skillguard_adds_domain_route": false,
@@ -503,12 +586,13 @@
         "check:worldguard:guard-model-contract",
         "check:worldguard:native-depth",
         "check:worldguard:template-packs",
-        "check:worldguard:internal-guard-topology"
+        "check:worldguard:internal-guard-topology",
+        "check:worldguard:fact-revision"
       ]
     },
-    "claim_boundary": "SkillGuard freezes and reconciles five exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, template, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths."
+    "claim_boundary": "SkillGuard freezes and reconciles six exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, template, fact revision, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths."
   },
-  "claim_boundary": "WorldGuard owns every domain route, template semantic, Guard purpose, protected failure, fixture, oracle, rollout, and prediction. SkillGuard supervises five exact maintenance checks on one author-side route only; it adds no domain route, compatibility reader, or alternate runtime.",
+  "claim_boundary": "WorldGuard owns every domain route, template semantic, fact revision semantic, Guard purpose, protected failure, fixture, oracle, rollout, and prediction. SkillGuard supervises six exact maintenance checks on one author-side route only; it adds no domain route, compatibility reader, or alternate runtime.",
   "repository_role": "skill_maintainer_source",
   "maintenance_unit_id": "unit:worldguard",
   "member_skill_ids": [

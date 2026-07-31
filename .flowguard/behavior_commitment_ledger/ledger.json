@@ -103,7 +103,7 @@
         "preconditions": [
           "the caller supplies a world model and claim using the v0.4 contract"
         ],
-        "primary_owner_model_id": ".flowguard/semantic_rollout_model.py",
+        "primary_owner_model_id": ".flowguard/current_input_authority/model.py",
         "rationale": "One current reader keeps upgrades explicit and prevents permanent compatibility chains.",
         "relations": [],
         "replacement_state": "active",
@@ -225,7 +225,7 @@
         "preconditions": [
           "the target Guard template catalog is current"
         ],
-        "primary_owner_model_id": ".flowguard/worldguard_template_pack_builder.py",
+        "primary_owner_model_id": ".flowguard/template_selection/model.py",
         "rationale": "The base template is an internal composition fragment, not a second selectable or fallback behavior.",
         "relations": [],
         "replacement_state": "active",
@@ -248,24 +248,173 @@
         "trigger": "a caller asks WorldGuard to select an applicable Guard template",
         "validation_boundary": "zero, one, and many candidate selection plus internal shared-fragment composition",
         "variant_of_business_intent_id": ""
+      },
+      {
+        "actor": "WorldGuard fact revision engine",
+        "actor_kind": "application",
+        "behavior_plane": "product_runtime",
+        "business_intent_id": "intent:worldguard-fact-revision-authority",
+        "child_model_ids": [],
+        "commitment_id": "commitment:worldguard-fact-revision-authority",
+        "commitment_kind": "workflow",
+        "evidence": {
+          "code_contract_ids": [
+            "contract:worldguard-fact-revision"
+          ],
+          "coverage_case_ids": [
+            "case:fact-revision-current-activates",
+            "case:fact-revision-contradiction-visible",
+            "case:fact-revision-stale-blocks",
+            "case:fact-revision-evidence-blocks"
+          ],
+          "coverage_receipt_ids": [
+            "receipt:worldguard-fact-revision-authority"
+          ],
+          "coverage_shard_ids": [
+            "shard:worldguard-fact-revision-authority"
+          ],
+          "current": true,
+          "evidence_state": "current_pass",
+          "metadata": {},
+          "model_obligation_ids": [
+            "obligation:worldguard-fact-revision-one-path"
+          ],
+          "proof_artifact_ids": [
+            "proof:worldguard-fact-revision-authority"
+          ],
+          "risk_gate_ids": [
+            "risk_gate:worldguard-fact-revision-authority"
+          ],
+          "test_evidence_ids": [
+            "tests/test_fact_revision.py",
+            "skills/worldguard/.skillguard/checks/check_fact_revision.py"
+          ],
+          "test_mesh_state": "shard_current"
+        },
+        "excluded_behavior_ids": [],
+        "expected_result": "one immutable four-valued preview is activated only when preservation, contradiction acknowledgement, regression, and holdout evidence are current",
+        "expected_terminal": "one evidence-bound activation receipt or one visible typed block",
+        "external_differences": [],
+        "failure_boundary": "stale bases, preservation changes, unacknowledged contradictions, incomplete evidence, and duplicate transaction ids block without retry or fallback",
+        "in_scope": true,
+        "label": "WorldGuard fact revision has one transactional authority path",
+        "lookup_binding": {
+          "error_signatures": [
+            "stale_base",
+            "preservation_changed",
+            "unacknowledged_contradiction",
+            "evidence_not_current",
+            "duplicate_transaction_id"
+          ],
+          "metadata": {},
+          "path_patterns": [
+            "worldguard/fact_revision.py",
+            "skills/worldguard/references/fact-revision.md"
+          ],
+          "task_terms": [
+            "task-local fact revision",
+            "four-valued support",
+            "contradiction acknowledgement",
+            "evidence-bound activation"
+          ],
+          "tool_ids": [
+            "worldguard task-model fact-revision-preview"
+          ],
+          "workflow_families": [
+            "worldguard_fact_revision"
+          ]
+        },
+        "metadata": {},
+        "miss_origin_state": "no_miss",
+        "model_sync_state": "owner_model_current",
+        "owner": "WorldGuard fact revision engine",
+        "path_authority": {
+          "behavior_commitment_id": "",
+          "business_intent": "",
+          "business_intent_id": "",
+          "evidence_current": false,
+          "evidence_refs": [],
+          "fallback_candidate_ids": [],
+          "metadata": {},
+          "path_sensitive": false,
+          "ppa_confidence": "",
+          "ppa_coverage_receipt_ids": [],
+          "ppa_coverage_shard_ids": [],
+          "ppa_decision": "",
+          "ppa_ok": null,
+          "ppa_report_id": "",
+          "ppa_risk_gate_ids": [],
+          "primary_path_id": "",
+          "proof_artifact_ids": [],
+          "runtime_observation_ids": [],
+          "scoped_out_reason": ""
+        },
+        "preconditions": [
+          "the base fingerprint and transaction are explicit"
+        ],
+        "primary_owner_model_id": ".flowguard/fact_revision/model.py",
+        "rationale": "Fact revision is task-local and four-valued; it does not introduce a global database, closed-world falsity, or an additional Guard.",
+        "relations": [],
+        "replacement_state": "active",
+        "scoped_out_reason": "",
+        "side_effects": [],
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_refs": [],
+        "source_surface_ids": [
+          "surface:worldguard-fact-revision-code",
+          "surface:worldguard-fact-revision-tests",
+          "surface:worldguard-fact-revision-model",
+          "surface:worldguard-fact-revision-docs"
+        ],
+        "state_writes": [],
+        "supporting_model_ids": [
+          ".flowguard/fact_revision/run_checks.py"
+        ],
+        "surface_delegation_only": false,
+        "trigger": "a caller asks WorldGuard to revise explicit task-local fact support",
+        "validation_boundary": "preview immutability, strict-rule closure, contradiction visibility, preservation, current evidence, and activation identity",
+        "variant_of_business_intent_id": ""
       }
     ],
-    "current_revision": "worldguard-v0.4.0-current-only-contract",
+    "current_revision": "worldguard-v0.5.0-current-only-contract",
     "expected_business_intent_ids": [
       "intent:worldguard-current-input-authority",
-      "intent:worldguard-template-selection-authority"
+      "intent:worldguard-template-selection-authority",
+      "intent:worldguard-fact-revision-authority"
     ],
     "expected_commitment_ids": [
       "commitment:worldguard-current-input-authority",
-      "commitment:worldguard-template-selection-authority"
+      "commitment:worldguard-template-selection-authority",
+      "commitment:worldguard-fact-revision-authority"
     ],
-    "ledger_id": "worldguard-v0.4-current-authority",
+    "expected_source_surface_ids": [
+      "surface:worldguard-current-contract-code",
+      "surface:worldguard-current-contract-tests",
+      "surface:worldguard-current-contract-model",
+      "surface:worldguard-current-contract-openspec",
+      "surface:worldguard-template-code",
+      "surface:worldguard-template-tests",
+      "surface:worldguard-template-model",
+      "surface:worldguard-template-docs",
+      "surface:worldguard-fact-revision-code",
+      "surface:worldguard-fact-revision-tests",
+      "surface:worldguard-fact-revision-model",
+      "surface:worldguard-fact-revision-docs"
+    ],
+    "ledger_id": "worldguard-v0.5-current-authority",
     "metadata": {},
     "owner": "WorldGuard",
-    "project_boundary": "WorldGuard v0.4 current-only input authority and template-selection behavior changed by harden-guard-simulation-readiness",
-    "rationale": "These two externally observable paths are the v0.4 breaking boundary where retired readers and base-template fallback were removed.",
+    "project_boundary": "WorldGuard current-only input, template selection, and task-local fact revision authority through v0.5",
+    "rationale": "These are the externally observable paths where alternate readers, fallback template selection, and non-transactional fact revision must remain absent.",
+    "require_complete_source_inventory": true,
     "require_current_evidence": true,
     "require_risk_gates_for_broad_claim": true,
+    "source_inventory_evidence_ids": [
+      "discovery:worldguard-current-authority-2026-07-30"
+    ],
+    "source_inventory_fingerprint": "sha256:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
+    "source_inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
     "source_surfaces": [
       {
         "business_intent_ids": [
@@ -274,18 +423,31 @@
         "commitment_ids": [
           "commitment:worldguard-current-input-authority"
         ],
+        "content_fingerprint": "sha256:ad99461d3b614660398f2f5fef02c53068d72e29feeab1bd2515638627e04cb7",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:8d6822b50dee408bd7f77ddeb878afc19fa25e0f4560e510df38e4e620e2f9c2",
+        "delegated_owner_inventory_id": "",
         "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
         "freshness_state": "current",
         "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
         "label": "current contract and Guard runtime",
         "metadata": {},
+        "native_artifact_id": "artifact:worldguard-current-contract-runtime",
+        "native_evidence_ids": [],
         "owner": "WorldGuard runtime",
         "primary_path_id": "path:worldguard-current-input-authority",
         "rationale": "canonical implementation surface",
         "scoped_out_reason": "",
         "similarity_obligation_ids": [],
         "similarity_relation_ids": [],
+        "source_authority_role": "observed",
         "source_ref": "worldguard/contracts.py; worldguard/semantic.py; worldguard/guards; skills/worldguard/runtime/worldguard",
+        "source_system_id": "worldguard-runtime",
         "surface_id": "surface:worldguard-current-contract-code",
         "surface_kind": "code",
         "validation_boundary": "source and bundled runtime parity"
@@ -297,18 +459,31 @@
         "commitment_ids": [
           "commitment:worldguard-current-input-authority"
         ],
+        "content_fingerprint": "sha256:bac16d421e02ee6605625be50167a1a39fc20917e778c16bd4661e4bb8c2eace",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:8d6822b50dee408bd7f77ddeb878afc19fa25e0f4560e510df38e4e620e2f9c2",
+        "delegated_owner_inventory_id": "",
         "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
         "freshness_state": "current",
         "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
         "label": "current and retired input contract tests",
         "metadata": {},
+        "native_artifact_id": "artifact:worldguard-current-contract-tests",
+        "native_evidence_ids": [],
         "owner": "WorldGuard tests",
         "primary_path_id": "path:worldguard-current-input-authority",
         "rationale": "direct executable evidence",
         "scoped_out_reason": "",
         "similarity_obligation_ids": [],
         "similarity_relation_ids": [],
+        "source_authority_role": "supporting",
         "source_ref": "tests/test_contracts.py; tests/test_guard_model_contract.py",
+        "source_system_id": "worldguard-tests",
         "surface_id": "surface:worldguard-current-contract-tests",
         "surface_kind": "test",
         "validation_boundary": "positive current cases and negative retired cases"
@@ -320,18 +495,31 @@
         "commitment_ids": [
           "commitment:worldguard-current-input-authority"
         ],
+        "content_fingerprint": "sha256:0b6a92086d2e847ae4ffabfd0f042e5d44c841cabfdb47e44abaecd725c799ae",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:8d6822b50dee408bd7f77ddeb878afc19fa25e0f4560e510df38e4e620e2f9c2",
+        "delegated_owner_inventory_id": "",
         "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
         "freshness_state": "current",
         "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
         "label": "current semantic rollout and field lifecycle models",
         "metadata": {},
+        "native_artifact_id": "artifact:worldguard-current-contract-models",
+        "native_evidence_ids": [],
         "owner": "WorldGuard FlowGuard model",
         "primary_path_id": "path:worldguard-current-input-authority",
         "rationale": "model ownership evidence",
         "scoped_out_reason": "",
         "similarity_obligation_ids": [],
         "similarity_relation_ids": [],
-        "source_ref": ".flowguard/semantic_rollout_model.py; .flowguard/worldguard_field_lifecycle.md",
+        "source_authority_role": "supporting",
+        "source_ref": ".flowguard/current_input_authority/model.py; .flowguard/semantic_rollout_model.py; .flowguard/worldguard_field_lifecycle.md",
+        "source_system_id": "worldguard-flowguard",
         "surface_id": "surface:worldguard-current-contract-model",
         "surface_kind": "process",
         "validation_boundary": "current input authority and retired-path failures"
@@ -343,20 +531,33 @@
         "commitment_ids": [
           "commitment:worldguard-current-input-authority"
         ],
+        "content_fingerprint": "sha256:224067d305233aeebe188882c1e1597db3ff3fde35950f3699f80b6b02b7f41b",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:8d6822b50dee408bd7f77ddeb878afc19fa25e0f4560e510df38e4e620e2f9c2",
+        "delegated_owner_inventory_id": "",
         "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
         "freshness_state": "current",
         "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
         "label": "guard simulation readiness change",
         "metadata": {},
+        "native_artifact_id": "openspec:guard-simulation-readiness",
+        "native_evidence_ids": [],
         "owner": "WorldGuard OpenSpec",
         "primary_path_id": "path:worldguard-current-input-authority",
         "rationale": "declared product behavior",
         "scoped_out_reason": "",
         "similarity_obligation_ids": [],
         "similarity_relation_ids": [],
-        "source_ref": "openspec/changes/harden-guard-simulation-readiness",
+        "source_authority_role": "normative",
+        "source_ref": "openspec/specs/guard-simulation-readiness/spec.md",
+        "source_system_id": "worldguard-openspec",
         "surface_id": "surface:worldguard-current-contract-openspec",
-        "surface_kind": "openspec",
+        "surface_kind": "process",
         "validation_boundary": "requirements and acceptance boundary"
       },
       {
@@ -366,18 +567,31 @@
         "commitment_ids": [
           "commitment:worldguard-template-selection-authority"
         ],
+        "content_fingerprint": "sha256:93855c02c94532480bff00fd8cc0fd38d3c6430c6138777d64adb862d71d3805",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:870dd8105a759b973f9daadb6d657b9ec3d0ff24f754bed3486d6df8972cca60",
+        "delegated_owner_inventory_id": "",
         "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
         "freshness_state": "current",
         "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
         "label": "template selection runtime",
         "metadata": {},
+        "native_artifact_id": "artifact:worldguard-template-runtime",
+        "native_evidence_ids": [],
         "owner": "WorldGuard template runtime",
         "primary_path_id": "path:worldguard-template-selection-authority",
         "rationale": "canonical implementation surface",
         "scoped_out_reason": "",
         "similarity_obligation_ids": [],
         "similarity_relation_ids": [],
+        "source_authority_role": "observed",
         "source_ref": "worldguard/template_packs.py; skills/worldguard/runtime/worldguard/template_packs.py",
+        "source_system_id": "worldguard-runtime",
         "surface_id": "surface:worldguard-template-code",
         "surface_kind": "code",
         "validation_boundary": "source and bundled runtime parity"
@@ -389,18 +603,31 @@
         "commitment_ids": [
           "commitment:worldguard-template-selection-authority"
         ],
+        "content_fingerprint": "sha256:f114f9bdfa527c1b443cf41afd0e23980935a85f6bef01905ae8aa3ac23fcdea",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:870dd8105a759b973f9daadb6d657b9ec3d0ff24f754bed3486d6df8972cca60",
+        "delegated_owner_inventory_id": "",
         "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
         "freshness_state": "current",
         "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
         "label": "template zero/one/many tests",
         "metadata": {},
+        "native_artifact_id": "artifact:worldguard-template-tests",
+        "native_evidence_ids": [],
         "owner": "WorldGuard tests",
         "primary_path_id": "path:worldguard-template-selection-authority",
         "rationale": "direct executable evidence",
         "scoped_out_reason": "",
         "similarity_obligation_ids": [],
         "similarity_relation_ids": [],
+        "source_authority_role": "supporting",
         "source_ref": "tests/test_template_packs.py",
+        "source_system_id": "worldguard-tests",
         "surface_id": "surface:worldguard-template-tests",
         "surface_kind": "test",
         "validation_boundary": "zero, one, and many candidate outcomes"
@@ -412,18 +639,31 @@
         "commitment_ids": [
           "commitment:worldguard-template-selection-authority"
         ],
+        "content_fingerprint": "sha256:c2b9075cdab87bbfa33a289ef40bd53912adea9e12fa92a7c496e67bfe4e4ea8",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:870dd8105a759b973f9daadb6d657b9ec3d0ff24f754bed3486d6df8972cca60",
+        "delegated_owner_inventory_id": "",
         "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
         "freshness_state": "current",
         "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
         "label": "template pack executable model",
         "metadata": {},
+        "native_artifact_id": "artifact:worldguard-template-models",
+        "native_evidence_ids": [],
         "owner": "WorldGuard FlowGuard model",
         "primary_path_id": "path:worldguard-template-selection-authority",
         "rationale": "model ownership evidence",
         "scoped_out_reason": "",
         "similarity_obligation_ids": [],
         "similarity_relation_ids": [],
-        "source_ref": ".flowguard/worldguard_template_pack_builder.py; .flowguard/worldguard_template_pack_field_lifecycle.md",
+        "source_authority_role": "supporting",
+        "source_ref": ".flowguard/template_selection/model.py; .flowguard/worldguard_template_pack_builder.py; .flowguard/worldguard_template_pack_field_lifecycle.md",
+        "source_system_id": "worldguard-flowguard",
         "surface_id": "surface:worldguard-template-model",
         "surface_kind": "process",
         "validation_boundary": "candidate-state and composition-state coverage"
@@ -435,24 +675,182 @@
         "commitment_ids": [
           "commitment:worldguard-template-selection-authority"
         ],
+        "content_fingerprint": "sha256:ca22ed7e91e70debb4624c99179467711d6021491999d66bb84ab062e1993b76",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:870dd8105a759b973f9daadb6d657b9ec3d0ff24f754bed3486d6df8972cca60",
+        "delegated_owner_inventory_id": "",
         "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
         "freshness_state": "current",
         "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
         "label": "template pack public contract",
         "metadata": {},
+        "native_artifact_id": "openspec:worldguard-template-pack-builder",
+        "native_evidence_ids": [],
         "owner": "WorldGuard documentation",
         "primary_path_id": "path:worldguard-template-selection-authority",
         "rationale": "user-visible behavior description",
         "scoped_out_reason": "",
         "similarity_obligation_ids": [],
         "similarity_relation_ids": [],
-        "source_ref": "skills/worldguard/references/template-packs.md; README.md",
+        "source_authority_role": "normative",
+        "source_ref": "openspec/specs/worldguard-template-pack-builder/spec.md; skills/worldguard/references/template-packs.md; README.md",
+        "source_system_id": "worldguard-openspec",
         "surface_id": "surface:worldguard-template-docs",
         "surface_kind": "doc",
         "validation_boundary": "public no-match and ambiguity contract"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-fact-revision-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-fact-revision-authority"
+        ],
+        "content_fingerprint": "sha256:269f635a4c87ca8691d4cfcad5ebc1cfe223bf89608076f281eb0c9a54491fd5",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:eebed8a5a057122a692c73a1efda0971b6ac9d583ab82ebe9cabfbc33dbc7d08",
+        "delegated_owner_inventory_id": "",
+        "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
+        "freshness_state": "current",
+        "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
+        "label": "fact revision authoritative and bundled runtime",
+        "metadata": {},
+        "native_artifact_id": "artifact:worldguard-fact-revision-runtime",
+        "native_evidence_ids": [],
+        "owner": "WorldGuard fact revision runtime",
+        "primary_path_id": "path:worldguard-fact-revision-authority",
+        "rationale": "direct fact-revision authority evidence",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_authority_role": "observed",
+        "source_ref": "worldguard/fact_revision.py; skills/worldguard/runtime/worldguard/fact_revision.py",
+        "source_system_id": "worldguard-runtime",
+        "surface_id": "surface:worldguard-fact-revision-code",
+        "surface_kind": "code",
+        "validation_boundary": "source and bundled runtime identity plus four-valued transaction semantics"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-fact-revision-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-fact-revision-authority"
+        ],
+        "content_fingerprint": "sha256:6bdc0c68fafb78aace9aa332c4d7b6a5453a19d01b154ef15c6f22833bc05775",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:eebed8a5a057122a692c73a1efda0971b6ac9d583ab82ebe9cabfbc33dbc7d08",
+        "delegated_owner_inventory_id": "",
+        "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
+        "freshness_state": "current",
+        "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
+        "label": "fact revision native and unit tests",
+        "metadata": {},
+        "native_artifact_id": "artifact:worldguard-fact-revision-tests",
+        "native_evidence_ids": [],
+        "owner": "WorldGuard tests",
+        "primary_path_id": "path:worldguard-fact-revision-authority",
+        "rationale": "direct fact-revision authority evidence",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_authority_role": "supporting",
+        "source_ref": "tests/test_fact_revision.py; skills/worldguard/.skillguard/checks/check_fact_revision.py",
+        "source_system_id": "worldguard-tests",
+        "surface_id": "surface:worldguard-fact-revision-tests",
+        "surface_kind": "test",
+        "validation_boundary": "positive activation and negative stale, preservation, contradiction, and evidence cases"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-fact-revision-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-fact-revision-authority"
+        ],
+        "content_fingerprint": "sha256:ba9a220fb025dce42cc264ddd7e988afd90ddecd3ebcdebf7f8ab60f67d34c8e",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:eebed8a5a057122a692c73a1efda0971b6ac9d583ab82ebe9cabfbc33dbc7d08",
+        "delegated_owner_inventory_id": "",
+        "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
+        "freshness_state": "current",
+        "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
+        "label": "fact revision executable model",
+        "metadata": {},
+        "native_artifact_id": "artifact:worldguard-fact-revision-model",
+        "native_evidence_ids": [],
+        "owner": "WorldGuard FlowGuard model",
+        "primary_path_id": "path:worldguard-fact-revision-authority",
+        "rationale": "direct fact-revision authority evidence",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_authority_role": "supporting",
+        "source_ref": ".flowguard/fact_revision/model.py; .flowguard/fact_revision/run_checks.py",
+        "source_system_id": "worldguard-flowguard",
+        "surface_id": "surface:worldguard-fact-revision-model",
+        "surface_kind": "process",
+        "validation_boundary": "workflow states, invariant counterexample, and native parity"
+      },
+      {
+        "business_intent_ids": [
+          "intent:worldguard-fact-revision-authority"
+        ],
+        "commitment_ids": [
+          "commitment:worldguard-fact-revision-authority"
+        ],
+        "content_fingerprint": "sha256:8552462da66b4a7c73a36ddb974214763099aa9deab62012d10fbd7c92670836",
+        "coverage_disposition": "modeled",
+        "declared_semantics_fingerprint": "sha256:eebed8a5a057122a692c73a1efda0971b6ac9d583ab82ebe9cabfbc33dbc7d08",
+        "delegated_owner_inventory_id": "",
+        "delegates_to_primary_path": false,
+        "delegation_relation_type": "",
+        "discovery_evidence_ids": [
+          "discovery:worldguard-current-authority-2026-07-30"
+        ],
+        "freshness_state": "current",
+        "in_scope": true,
+        "inventory_revision": "source-inventory:26fddeb3f9a9da0a6079e7bd15f05992e32cb1f2c6409e238e10098a86e620a2",
+        "label": "fact revision public contract",
+        "metadata": {},
+        "native_artifact_id": "openspec:fact-level-world-revision",
+        "native_evidence_ids": [],
+        "owner": "WorldGuard documentation",
+        "primary_path_id": "path:worldguard-fact-revision-authority",
+        "rationale": "direct fact-revision authority evidence",
+        "scoped_out_reason": "",
+        "similarity_obligation_ids": [],
+        "similarity_relation_ids": [],
+        "source_authority_role": "normative",
+        "source_ref": "openspec/changes/add-fact-level-world-revision/specs/fact-level-world-revision/spec.md; skills/worldguard/references/fact-revision.md; skills/worldguard/SKILL.md; README.md",
+        "source_system_id": "worldguard-openspec",
+        "surface_id": "surface:worldguard-fact-revision-docs",
+        "surface_kind": "doc",
+        "validation_boundary": "public task-local four-valued revision and activation boundary"
       }
     ],
-    "validation_boundary": "The ledger covers only current contract input loading and template candidate selection; the remaining WorldGuard runtime stays under its existing models and tests."
+    "subject_lane": "normative_target",
+    "validation_boundary": "The ledger covers current contract input loading, template candidate selection, and task-local fact revision; remaining WorldGuard runtime behavior stays under its existing models and tests."
   },
   "schema_version": "1.0"
 }

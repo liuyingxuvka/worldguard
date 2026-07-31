@@ -1,4 +1,4 @@
 interface:
   display_name: "WorldGuard"
   short_description: "One entry for seven complete world-model Guards"
-  default_prompt: "Use $worldguard as the single entrypoint, derive the required internal Guards from the claim, preserve each Guard's bounded prediction, response, validation, and terminal semantics, and do not turn a child Guard into a separate skill or fallback."
+  default_prompt: "Use $worldguard as the single entrypoint, derive the required internal Guards from the claim, preserve each Guard's bounded prediction, response, validation, and terminal semantics, keep any four-valued fact revision subordinate and transactional, and do not turn a child Guard or fact engine into a separate skill or fallback."

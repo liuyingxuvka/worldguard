@@ -7,6 +7,28 @@ from .contracts import (
     claim_predictive_intent,
     derive_required_guards,
 )
+from .fact_revision import (
+    FACT_REVISION_SCHEMA_VERSION,
+    FactPolarity,
+    FactRevisionActivationReceipt,
+    FactRevisionActivationRequest,
+    FactRevisionActivationResult,
+    FactRevisionEvidenceBinding,
+    FactRevisionEvidenceKind,
+    FactRevisionPreview,
+    FactRevisionTransaction,
+    FactStateDelta,
+    FactStateExpectation,
+    FactStateProjection,
+    FactSupport,
+    FactTruthState,
+    FactWorldSnapshot,
+    SignedFact,
+    StrictFactRule,
+    WorldFact,
+    activate_fact_revision,
+    preview_fact_revision,
+)
 from .kernel import run_worldguard
 from .mesh import ModelMeshContract, MeshReport, SemanticCoverageContract, run_model_mesh
 from .reports import GuardResult, GuardedReport
@@ -63,7 +85,7 @@ from .template_packs import (
     validate_target_template_interchange,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 __all__ = [
     "__version__",
@@ -100,6 +122,26 @@ __all__ = [
     "freeze_prediction_snapshot",
     "claim_predictive_intent",
     "derive_required_guards",
+    "FACT_REVISION_SCHEMA_VERSION",
+    "FactPolarity",
+    "FactRevisionActivationReceipt",
+    "FactRevisionActivationRequest",
+    "FactRevisionActivationResult",
+    "FactRevisionEvidenceBinding",
+    "FactRevisionEvidenceKind",
+    "FactRevisionPreview",
+    "FactRevisionTransaction",
+    "FactStateDelta",
+    "FactStateExpectation",
+    "FactStateProjection",
+    "FactSupport",
+    "FactTruthState",
+    "FactWorldSnapshot",
+    "SignedFact",
+    "StrictFactRule",
+    "WorldFact",
+    "activate_fact_revision",
+    "preview_fact_revision",
     "GUARD_CONTRACT_KIND",
     "MODEL_MESH_CONTRACT_KIND",
     "BUILTIN_TEMPLATE_PARAMETER_TYPES",

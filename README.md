@@ -10,7 +10,7 @@
 </p>
 <!-- README HERO END -->
 
-**Source version:** `v0.4.1`<br>
+**Source version:** `v0.5.0`<br>
 **Package:** `worldguard`<br>
 **Release type:** source-only Python package and Codex skill workflow
 
@@ -60,6 +60,20 @@ It checks:
 - cycles: dependency loops are reported as mesh failures;
 - evidence preservation: child reports, ledgers, gaps, and counterexamples survive aggregation.
 
+## Task-local fact revision
+
+WorldGuard can now preview and activate an explicit fact-support revision without
+turning the result into a new global database or a new Guard. Positive and
+negative support remain independent, so one fact can be `true`, `false`, `both`,
+or `neither`. A contradiction stays visible and does not make unrelated facts
+true.
+
+The preview is immutable and recalculates strict-rule closure after additions or
+retractions. Activation then requires the exact preview fingerprint, preserved
+facts, explicit contradiction acknowledgement, and current regression plus
+holdout evidence. A stale base, missing evidence, or repeated transaction id
+blocks visibly.
+
 ## Quick Start
 
 ```powershell
@@ -68,6 +82,8 @@ python -m pytest
 python -m worldguard.examples.fuel_cell --check
 python -m worldguard.cli check --example fuel_cell
 python -m worldguard.cli mesh-check --mesh examples/model_mesh/basic_mesh.yaml
+python -m worldguard.cli task-model fact-revision-preview base.json transaction.json
+python -m worldguard.cli task-model fact-revision-activate base.json transaction.json activation.json
 ```
 
 If your Python scripts directory is on `PATH`, the console entry point is also available:
@@ -120,7 +136,7 @@ assets/readme-hero/          README visual assets
 
 ## Release Notes
 
-See [CHANGELOG.md](./CHANGELOG.md). The current source candidate is `v0.4.1`;
+See [CHANGELOG.md](./CHANGELOG.md). The current source candidate is `v0.5.0`;
 the first source-only release was `v0.1.0`.
 
 ## License
@@ -131,7 +147,7 @@ No license file is included yet. Treat this repository as source-visible but not
 
 # WorldGuard 中文说明
 
-**源码版本：** `v0.4.1`<br>
+**源码版本：** `v0.5.0`<br>
 **包名：** `worldguard`<br>
 **发布类型：** 源码版 Python 包 + Codex 技能工作流
 
@@ -179,6 +195,18 @@ WorldGuard 有两种核心检查形态：
 - 循环依赖：依赖环会导致 mesh 失败；
 - 证据保留：子报告、ledger、gap 和反例不能在聚合时丢失。
 
+## 任务内事实修订
+
+WorldGuard 现在可以预览并激活一次显式的事实支持修订，但这不会创建新的
+全局数据库，也不会增加一个新的 Guard。正向支持和反向支持彼此独立，所以
+同一个事实可以是“真”“假”“同时真且假”或“尚无支持”。矛盾会被明确展示，
+但不会把无关事实也推成真。
+
+预览不会修改原始快照；增加或撤回支持后，严格规则的推导闭包会重新计算。
+真正激活时，还必须绑定同一个预览指纹、保护声明为不可变的事实、明确确认
+矛盾，并提供当前的回归与留出验证证据。基础快照过期、证据不完整或重复使用
+事务编号时都会明确阻断。
+
 ## 快速开始
 
 ```powershell
@@ -187,6 +215,8 @@ python -m pytest
 python -m worldguard.examples.fuel_cell --check
 python -m worldguard.cli check --example fuel_cell
 python -m worldguard.cli mesh-check --mesh examples/model_mesh/basic_mesh.yaml
+python -m worldguard.cli task-model fact-revision-preview base.json transaction.json
+python -m worldguard.cli task-model fact-revision-activate base.json transaction.json activation.json
 ```
 
 ## 这个项目不是什么

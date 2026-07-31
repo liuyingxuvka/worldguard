@@ -18,6 +18,7 @@ def export_contract_model() -> dict[str, object]:
     guard_contract_step = "step:verify-world-guard-model-contract"
     depth_step = "step:execute-world-semantic-depth"
     template_step = "step:worldguard-template-pack-builder:execute"
+    fact_revision_step = "step:worldguard-fact-revision:execute"
     success = "terminal:world-depth-pass"
     blocked = "terminal:world-depth-blocked"
 
@@ -68,11 +69,20 @@ def export_contract_model() -> dict[str, object]:
             "terminal_kind": "",
         },
         {
+            "step_id": fact_revision_step,
+            "route_id": route_id,
+            "owner_id": "worldguard.task_local_fact_revision",
+            "action_kind": "native",
+            "prerequisite_step_ids": [template_step],
+            "required": True,
+            "terminal_kind": "",
+        },
+        {
             "step_id": success,
             "route_id": route_id,
             "owner_id": owner_id,
             "action_kind": "terminal",
-            "prerequisite_step_ids": [template_step],
+            "prerequisite_step_ids": [fact_revision_step],
             "required": True,
             "terminal_kind": "success",
         },
@@ -108,6 +118,7 @@ def export_contract_model() -> dict[str, object]:
         "worldguard_internal_guard_routes_are_complete",
         "worldguard_internal_guard_prediction_response_validation_terminal_semantics_are_preserved",
         "worldguard_source_version_and_consumer_runtime_identity_are_frozen",
+        "worldguard_fact_revision_is_four_valued_transactional_and_evidence_bound",
     ]
     obligations = [
         ("obligation:worldguard-claim-routes", invariant_ids[0], depth_step),
@@ -154,6 +165,11 @@ def export_contract_model() -> dict[str, object]:
             invariant_ids[19],
             topology_step,
         ),
+        (
+            "obligation:worldguard-fact-revision",
+            invariant_ids[20],
+            fact_revision_step,
+        ),
     ]
     return {
         "schema_version": "skillguard.flowguard_model_export.v2",
@@ -164,7 +180,7 @@ def export_contract_model() -> dict[str, object]:
             {
                 "function_id": "worldguard_claim_derived_depth",
                 "business_intent": (
-                    "execute the five exact WorldGuard maintenance validation owners"
+                    "execute the six exact WorldGuard maintenance validation owners"
                 ),
                 "owner_id": owner_id,
                 "route_ids": [route_id],
@@ -195,9 +211,9 @@ def export_contract_model() -> dict[str, object]:
         ],
         "invariant_ids": invariant_ids,
         "claim_boundary": (
-            "This author-side export gives each of the five WorldGuard checks one "
+            "This author-side export gives each of the six WorldGuard checks one "
             "maintenance step and one execution owner. WorldGuard's public investigation, "
-            "semantic-rollout, template, and seven internal Guard runtime routes remain "
+            "semantic-rollout, template, fact-revision, and seven internal Guard runtime routes remain "
             "target-owned in the skill/runtime and are verified by those checks; this "
             "maintenance model does not duplicate them as alternate execution paths."
         ),

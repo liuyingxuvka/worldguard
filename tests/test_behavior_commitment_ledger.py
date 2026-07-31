@@ -31,6 +31,7 @@ def test_primary_path_authority_is_current_and_has_no_fallback_candidates():
     assert {report.primary_path_id for report in reports} == {
         model.INPUT_PATH_ID,
         model.TEMPLATE_PATH_ID,
+        model.FACT_PATH_ID,
     }
 
 
@@ -44,10 +45,12 @@ def test_behavior_commitment_ledger_covers_both_changed_authorities():
     assert set(report.covered_commitment_ids) == {
         model.INPUT_COMMITMENT_ID,
         model.TEMPLATE_COMMITMENT_ID,
+        model.FACT_COMMITMENT_ID,
     }
     assert set(report.path_sensitive_commitment_ids) == {
         model.INPUT_COMMITMENT_ID,
         model.TEMPLATE_COMMITMENT_ID,
+        model.FACT_COMMITMENT_ID,
     }
 
 

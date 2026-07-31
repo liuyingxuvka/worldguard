@@ -4,8 +4,9 @@
   "ok": true,
   "execution_count": 0,
   "shard_receipt_hashes": {
-    "input": "sha256:39914f18373648b6390f90cae9d9b1bc19c8bd7824053b2c3591976136f64120",
-    "template": "sha256:e9ee4dd62a730bd3e6225036e02fab89fc637459f37ac2d40931871431051e20"
+    "input": "sha256:2406d15ab77cc6e3ea4de79d0d6b735cb7909c10baa110b413699bd1da05596a",
+    "template": "sha256:259eefa98843d5315af8f813c6ec0e2bb28b6b44c8726ec5640b04e8c685a6e3",
+    "fact": "sha256:2fa6f0ec7f95fe5b030f44d4b9146f5f769ff773477c09d5f7ae46441668c35d"
   },
   "input_primary_path": {
     "ok": true,
@@ -106,47 +107,110 @@
     ],
     "summary": "OK: plan=ppa:worldguard-template-selection-authority decision=primary_path_authority_green findings=0"
   },
+  "fact_primary_path": {
+    "ok": true,
+    "plan_id": "ppa:worldguard-fact-revision-authority",
+    "decision": "primary_path_authority_green",
+    "confidence": "full",
+    "findings": [],
+    "primary_path_id": "path:worldguard-fact-revision-authority",
+    "primary_path_ids": [
+      "path:worldguard-fact-revision-authority"
+    ],
+    "business_intent_id": "intent:worldguard-fact-revision-authority",
+    "business_intent_ids": [
+      "intent:worldguard-fact-revision-authority"
+    ],
+    "behavior_commitment_id": "commitment:worldguard-fact-revision-authority",
+    "behavior_commitment_ids": [
+      "commitment:worldguard-fact-revision-authority"
+    ],
+    "fallback_candidate_ids": [],
+    "missing_candidate_ids": [],
+    "covered_surface_ids": [
+      "surface:worldguard-fact-revision-code",
+      "surface:worldguard-fact-revision-tests",
+      "surface:worldguard-fact-revision-model",
+      "surface:worldguard-fact-revision-docs"
+    ],
+    "missing_surface_ids": [],
+    "runtime_observation_ids": [
+      "observation:worldguard-fact-revision-targeted-tests"
+    ],
+    "proof_artifact_ids": [
+      "proof:worldguard-fact-revision-authority"
+    ],
+    "evidence_current": true,
+    "coverage_case_ids": [
+      "case:fact-revision-current-activates",
+      "case:fact-revision-contradiction-visible",
+      "case:fact-revision-stale-blocks",
+      "case:fact-revision-evidence-blocks"
+    ],
+    "coverage_shard_ids": [
+      "shard:worldguard-fact-revision-authority"
+    ],
+    "coverage_receipt_ids": [
+      "receipt:worldguard-fact-revision-authority"
+    ],
+    "risk_gate_ids": [
+      "risk_gate:worldguard-fact-revision-authority"
+    ],
+    "summary": "OK: plan=ppa:worldguard-fact-revision-authority decision=primary_path_authority_green findings=0"
+  },
   "behavior_commitment_ledger": {
     "ok": true,
-    "ledger_id": "worldguard-v0.4-current-authority",
+    "ledger_id": "worldguard-v0.5-current-authority",
     "decision": "behavior_commitment_coverage_green",
     "confidence": "full",
     "findings": [],
     "covered_commitment_ids": [
       "commitment:worldguard-current-input-authority",
-      "commitment:worldguard-template-selection-authority"
+      "commitment:worldguard-template-selection-authority",
+      "commitment:worldguard-fact-revision-authority"
     ],
     "covered_business_intent_ids": [
       "intent:worldguard-current-input-authority",
-      "intent:worldguard-template-selection-authority"
+      "intent:worldguard-template-selection-authority",
+      "intent:worldguard-fact-revision-authority"
     ],
     "missing_business_intent_ids": [],
+    "missing_source_surface_ids": [],
+    "unexpected_source_surface_ids": [],
     "unmapped_surface_ids": [],
     "extra_commitment_ids": [],
     "path_sensitive_commitment_ids": [
       "commitment:worldguard-current-input-authority",
-      "commitment:worldguard-template-selection-authority"
+      "commitment:worldguard-template-selection-authority",
+      "commitment:worldguard-fact-revision-authority"
     ],
     "ppa_blocked_commitment_ids": [],
     "required_risk_gate_ids": [
       "risk_gate:worldguard-current-input-authority",
-      "risk_gate:worldguard-template-selection-authority"
+      "risk_gate:worldguard-template-selection-authority",
+      "risk_gate:worldguard-fact-revision-authority"
     ],
     "coverage_case_ids": [
       "case:current-input-accepted",
       "case:retired-input-rejected",
       "case:template-zero-blocks",
       "case:template-one-selects",
-      "case:template-many-blocks"
+      "case:template-many-blocks",
+      "case:fact-revision-current-activates",
+      "case:fact-revision-contradiction-visible",
+      "case:fact-revision-stale-blocks",
+      "case:fact-revision-evidence-blocks"
     ],
     "coverage_shard_ids": [
       "shard:worldguard-current-input-authority",
-      "shard:worldguard-template-selection-authority"
+      "shard:worldguard-template-selection-authority",
+      "shard:worldguard-fact-revision-authority"
     ],
     "coverage_receipt_ids": [
       "receipt:worldguard-current-input-authority",
-      "receipt:worldguard-template-selection-authority"
+      "receipt:worldguard-template-selection-authority",
+      "receipt:worldguard-fact-revision-authority"
     ],
-    "summary": "OK: ledger=worldguard-v0.4-current-authority decision=behavior_commitment_coverage_green findings=0"
+    "summary": "OK: ledger=worldguard-v0.5-current-authority decision=behavior_commitment_coverage_green findings=0"
   }
 }

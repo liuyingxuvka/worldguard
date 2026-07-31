@@ -34,14 +34,16 @@ route failure as a trigger to try another Guard.
 Read `references/worldguard-contracts.md` for contract/result/ledger fields,
 `references/guard-boundaries.md` for Guard ownership,
 `references/model-mesh.md` and `references/handoff-contracts.md` for multi-model
-work, and `references/template-packs.md` before creating reusable scaffolding.
+work, `references/fact-revision.md` for four-valued task-local fact revision,
+and `references/template-packs.md` before creating reusable scaffolding.
 Load only the reference needed for the current route.
 
 ## Entrypoint Acceptance Map
 
 The public `worldguard` entry accepts a unit `GuardContract`, a
-`ModelMeshContract`, a task-local prediction/observation/revision contract, or
-an explicit template-pack construction request. It returns the selected
+`ModelMeshContract`, a task-local prediction/observation/revision contract
+(including a subordinate fact-revision transaction), or an explicit
+template-pack construction request. It returns the selected
 WorldGuard route with typed status and evidence. Missing required input,
 unsupported semantics, or an incomplete predictive boundary remains a visible
 non-pass result; it never triggers another Guard as a replacement route.
@@ -123,9 +125,23 @@ non-pass result; it never triggers another Guard as a replacement route.
    python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard.py" task-model revision <candidate-revision.yaml>
    ```
 
-8. Report `PASS`, `FAIL`, `GAP`, or `BOUNDARY_EXCEEDED` without collapsing non-pass statuses.
-9. WorldGuard has one current closure behavior: semantic execution is required. The retired `closure_profile` field and `--closure-profile` selector are invalid; a caller cannot choose a shape-only path that skips required semantic checks.
-10. Preserve template selection/instance receipts when used, plus ledgers, semantic receipts, task-local prediction/observation/revision receipts, missing slots, boundary traces, counterexamples, handoff findings, stale-source findings, authority findings, cycle findings, and the native depth receipt in the answer.
+8. When the task-local candidate needs fact-level support revision, read
+   `references/fact-revision.md`. Keep positive and negative support
+   independent; apply only declared strict signed rules; preview additions and
+   support-id retractions on a copy; preserve named facts; and activate only an
+   exact current preview with visible contradictions plus current regression
+   and holdout evidence. The four fact states (`true`, `false`, `both`,
+   `neither`) never replace Guard terminals and never create a second
+   WorldGuard owner.
+
+   ```powershell
+   python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard.py" task-model fact-revision-preview <base.yaml> <transaction.yaml>
+   python "$env:USERPROFILE\.codex\skills\worldguard\scripts\run_worldguard.py" task-model fact-revision-activate <base.yaml> <transaction.yaml> <activation.yaml>
+   ```
+
+9. Report `PASS`, `FAIL`, `GAP`, or `BOUNDARY_EXCEEDED` without collapsing non-pass statuses.
+10. WorldGuard has one current closure behavior: semantic execution is required. The retired `closure_profile` field and `--closure-profile` selector are invalid; a caller cannot choose a shape-only path that skips required semantic checks.
+11. Preserve template selection/instance receipts when used, plus ledgers, semantic receipts, task-local prediction/observation/revision receipts, fact-revision previews/activation receipts, missing slots, boundary traces, counterexamples, handoff findings, stale-source findings, authority findings, cycle findings, and the native depth receipt in the answer.
 
 ## Hard Gates
 
@@ -160,6 +176,11 @@ non-pass result; it never triggers another Guard as a replacement route.
   It must not edit WorldGuard source, a Guard rule, a predictive-depth floor, an
   installed skill, or a reusable default. It must not call another Guard to
   supply or modify the task model.
+- Fact-level revision is subordinate to that same task-local owner. Do not
+  collapse `both` into arbitrary consequences, treat `neither` as false,
+  overwrite the accepted base during preview, hide changed preserved facts, or
+  activate without exact current regression and holdout evidence bound to the
+  preview.
 - Repository FlowGuard/pytest regressions are engine-health calibration only. They never replace `python -m worldguard mesh-check --mesh <current-target-mesh>` and its current per-target native depth receipt.
 - For every non-trivial or predictive conclusion, a current target-native WorldGuard receipt is required. A local executor PASS, one-off spot check, repository regression, or bounded single-event/equation check can support only a bounded conclusion. Author-side maintenance records may prove the skill was checked before installation, but ordinary WorldGuard use neither reads nor requires them.
 - Treat the built-in event, BDI, RCC8, resource, causal, conflict, and norm executors as deliberately narrow. Their `PASS` licenses only the declared supported subset, never universal world understanding.
@@ -178,6 +199,7 @@ non-pass result; it never triggers another Guard as a replacement route.
 ## References
 
 - Read `references/worldguard-contracts.md` when constructing or validating contract/result/ledger fields, frozen task-local predictions, real observations, or reversible candidate revisions.
+- Read `references/fact-revision.md` when revising signed support or activating a four-valued fact transaction.
 - Read `references/template-packs.md` before constructing a GuardContract or ModelMeshContract from reusable scaffolding.
 - Read `references/guard-model-contract.md` before accepting that any Guard model is meaningful or complete.
 - Read `references/guard-boundaries.md` when deciding which Guard owns a claim part.

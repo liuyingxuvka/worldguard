@@ -31,18 +31,18 @@ def _review_mesh(model) -> list[str]:
     source_checks = model.CONTRACT_SOURCE["checks"]
     if model.MEMBERS != ("worldguard",):
         findings.append("maintenance unit does not contain exactly WorldGuard")
-    if len(model.DECLARED_CHECKS) != 5 or len(set(model.DECLARED_CHECKS)) != 5:
-        findings.append("declared check inventory is not exactly five unique ids")
+    if len(model.DECLARED_CHECKS) != 6 or len(set(model.DECLARED_CHECKS)) != 6:
+        findings.append("declared check inventory is not exactly six unique ids")
     owner_ids = [row["execution_owner_id"] for row in source_checks]
     subject_ids = [row["evidence_subject_id"] for row in source_checks]
-    if len(set(owner_ids)) != 5:
+    if len(set(owner_ids)) != 6:
         findings.append("execution owners are missing or duplicated")
-    if len(set(subject_ids)) != 5:
+    if len(set(subject_ids)) != 6:
         findings.append("evidence subjects are missing or duplicated")
     if set(model.TEST_MESH["required_check_ids"]) != set(model.DECLARED_CHECKS):
         findings.append("TestMesh does not cover exactly the target declarations")
-    if len(model.CONTRACT_MODEL["obligations"]) != 20:
-        findings.append("existing target contract export no longer carries twenty obligations")
+    if len(model.CONTRACT_MODEL["obligations"]) != 21:
+        findings.append("existing target contract export no longer carries twenty-one obligations")
     if model.TEST_MESH["cross_unit_receipt_reuse"]:
         findings.append("cross-unit receipt reuse must remain disabled")
     if model.TEST_MESH["open_spec_is_test_evidence"]:

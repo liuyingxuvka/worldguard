@@ -1,0 +1,354 @@
+{
+  "schema_version": "flowguard.model_regression_manifest.v3",
+  "governed_input_globs": [
+    ".flowguard/fact_revision/model.py",
+    ".flowguard/fact_revision/run_checks.py",
+    "worldguard/fact_revision.py",
+    "worldguard/__init__.py",
+    "worldguard/cli.py",
+    "skills/worldguard/runtime/worldguard/fact_revision.py",
+    "skills/worldguard/runtime/worldguard/__init__.py",
+    "skills/worldguard/runtime/worldguard/cli.py",
+    "skills/worldguard/SKILL.md",
+    "skills/worldguard/references/fact-revision.md",
+    "skills/worldguard/.skillguard/checks/check_fact_revision.py",
+    "tests/test_fact_revision.py",
+    ".flowguard/behavior_commitment_ledger/model.py",
+    ".flowguard/behavior_commitment_ledger/run_checks.py",
+    ".flowguard/behavior_commitment_ledger/run_model_checks.py",
+    ".flowguard/behavior_commitment_ledger/ledger.json",
+    ".flowguard/current_input_authority/model.py",
+    ".flowguard/semantic_rollout_model.py",
+    ".flowguard/run_semantic_rollout_checks.py",
+    ".flowguard/template_selection/model.py",
+    ".flowguard/worldguard_template_pack_builder.py",
+    "worldguard/contracts.py",
+    "worldguard/semantic.py",
+    "worldguard/guard_model_contract.py",
+    "worldguard/template_packs.py",
+    "tests/test_contracts.py",
+    "tests/test_guard_model_contract.py",
+    "tests/test_template_packs.py"
+  ],
+  "snapshot_only_input_globs": [
+    ".flowguard/model-system/**/*.json",
+    ".flowguard/model-mesh/**/*.json",
+    ".flowguard/run_artifacts/**/*",
+    ".flowguard/behavior_commitment_ledger/validation-*.json",
+    ".flowguard/behavior_commitment_ledger/result.json"
+  ],
+  "shared_input_groups": [],
+  "models": [
+    {
+      "model_id": "fact_revision",
+      "model_path": ".flowguard/fact_revision/model.py",
+      "runner": [
+        "{python}",
+        ".flowguard/fact_revision/run_checks.py"
+      ],
+      "tier": "full",
+      "timeout_seconds": 120,
+      "shard_safe": true,
+      "mutation_policy": "none",
+      "input_globs": [
+        ".flowguard/fact_revision/model.py",
+        ".flowguard/fact_revision/run_checks.py",
+        "worldguard/fact_revision.py",
+        "worldguard/__init__.py",
+        "worldguard/cli.py",
+        "skills/worldguard/runtime/worldguard/fact_revision.py",
+        "skills/worldguard/runtime/worldguard/__init__.py",
+        "skills/worldguard/runtime/worldguard/cli.py",
+        "skills/worldguard/SKILL.md",
+        "skills/worldguard/references/fact-revision.md",
+        "skills/worldguard/.skillguard/checks/check_fact_revision.py",
+        "tests/test_fact_revision.py"
+      ],
+      "expected_artifacts": [],
+      "exclusion_reason": "",
+      "distribution_policy": "required_public",
+      "absence_reason": "",
+      "model_kind": "executable_workflow",
+      "purpose_closure": {
+        "schema_version": "flowguard.model_purpose_closure.v1",
+        "model_instance_id": "regression:fact_revision:0.5.0",
+        "reusable_model_type_id": "fact_revision",
+        "task_intent_id": "worldguard-regression:task-local-fact-revision",
+        "declaration_phase": "before_candidate",
+        "guarded_purpose": "Prevent stale-base, preservation-breaking, contradiction-hiding, or evidence-free fact revisions from being accepted as current WorldGuard behavior.",
+        "protected_failure_ids": [
+          "worldguard:stale-fact-base",
+          "worldguard:preserved-fact-changed",
+          "worldguard:hidden-contradiction",
+          "worldguard:activation-without-current-evidence"
+        ],
+        "claim_boundary": "This closure covers only task-local four-valued fact revision preview and activation; factual truth, general Guard terminal claims, installation, and release require separate evidence.",
+        "adoption_scope": "current_candidate_only",
+        "known_good_case_id": "scenario:wfr01-current-revision-activates",
+        "failure_bindings": [
+          {
+            "failure_id": "worldguard:stale-fact-base",
+            "known_bad_case_id": "scenario:wfr03-stale-base-blocks",
+            "oracle_id": "native:worldguard-fact-revision:flowguard"
+          },
+          {
+            "failure_id": "worldguard:preserved-fact-changed",
+            "known_bad_case_id": "scenario:wfr04-preservation-change-blocks",
+            "oracle_id": "native:worldguard-fact-revision:flowguard"
+          },
+          {
+            "failure_id": "worldguard:hidden-contradiction",
+            "known_bad_case_id": "scenario:wfr02-contradiction-needs-acknowledgement",
+            "oracle_id": "native:worldguard-fact-revision:flowguard"
+          },
+          {
+            "failure_id": "worldguard:activation-without-current-evidence",
+            "known_bad_case_id": "scenario:wfr06-unsafe-activation-is-counterexample",
+            "oracle_id": "native:worldguard-fact-revision:flowguard"
+          }
+        ],
+        "evidence_check_ids": [
+          "check:model-regression:fact-revision",
+          "check:worldguard:fact-revision"
+        ],
+        "model_sha256": "sha256:01ed8b094f66cb85bcec723a92c6d882c33b901cbc6820b4e0318fe5b19910a6",
+        "runner_sha256": "sha256:bd9f01bf345715d5feeda43fba35968a152e631e216f3f71a0d4ff7cecd17ebe",
+        "declaration_fingerprint": "sha256:21dfefc012d4b739d2cce97f8a63542923c883bf9cf7ce5cee3e3e48abf459a1",
+        "closure_fingerprint": "sha256:7cd81ba4de7d939e8c90ac969bce6fba6edc97ccbdc83db84cb2db9074b7847b"
+      }
+    },
+    {
+      "model_id": "behavior_commitment_ledger",
+      "model_path": ".flowguard/behavior_commitment_ledger/model.py",
+      "runner": [
+        "{python}",
+        ".flowguard/behavior_commitment_ledger/run_model_checks.py"
+      ],
+      "tier": "full",
+      "timeout_seconds": 120,
+      "shard_safe": true,
+      "mutation_policy": "none",
+      "input_globs": [
+        ".flowguard/behavior_commitment_ledger/model.py",
+        ".flowguard/behavior_commitment_ledger/run_checks.py",
+        ".flowguard/behavior_commitment_ledger/run_model_checks.py",
+        ".flowguard/behavior_commitment_ledger/ledger.json",
+        ".flowguard/behavior_commitment_ledger/validation-input.json",
+        ".flowguard/behavior_commitment_ledger/validation-template.json",
+        ".flowguard/behavior_commitment_ledger/validation-fact.json",
+        "worldguard/contracts.py",
+        "worldguard/semantic.py",
+        "worldguard/guard_model_contract.py",
+        "worldguard/template_packs.py",
+        "worldguard/fact_revision.py",
+        "tests/test_contracts.py",
+        "tests/test_guard_model_contract.py",
+        "tests/test_template_packs.py",
+        "tests/test_fact_revision.py",
+        "skills/worldguard/SKILL.md"
+      ],
+      "expected_artifacts": [],
+      "exclusion_reason": "",
+      "distribution_policy": "required_public",
+      "absence_reason": "",
+      "model_kind": "executable_workflow",
+      "purpose_closure": {
+        "schema_version": "flowguard.model_purpose_closure.v1",
+        "model_instance_id": "regression:behavior_commitment_ledger:0.5.0",
+        "reusable_model_type_id": "behavior_commitment_ledger",
+        "task_intent_id": "worldguard-regression:external-behavior-authority",
+        "declaration_phase": "before_candidate",
+        "guarded_purpose": "Prevent an unregistered public path, fallback authority, stale primary-path receipt, or unmapped source surface from being accepted as current WorldGuard behavior.",
+        "protected_failure_ids": [
+          "worldguard:unregistered-public-path",
+          "worldguard:fallback-authority",
+          "worldguard:stale-primary-path-evidence",
+          "worldguard:unmapped-behavior-surface"
+        ],
+        "claim_boundary": "This closure covers only the registered current external behavior paths, their source-surface inventory, and immutable targeted receipts; runtime truth, installation, and release remain separate evidence.",
+        "adoption_scope": "current_candidate_only",
+        "known_good_case_id": "native:worldguard-behavior-ledger:three-current-paths",
+        "failure_bindings": [
+          {
+            "failure_id": "worldguard:unregistered-public-path",
+            "known_bad_case_id": "oracle:unexpected-commitment",
+            "oracle_id": "native:flowguard-behavior-ledger-review"
+          },
+          {
+            "failure_id": "worldguard:fallback-authority",
+            "known_bad_case_id": "oracle:fallback-candidate-present",
+            "oracle_id": "native:flowguard-primary-path-review"
+          },
+          {
+            "failure_id": "worldguard:stale-primary-path-evidence",
+            "known_bad_case_id": "oracle:receipt-fingerprint-mismatch",
+            "oracle_id": "native:flowguard-primary-path-review"
+          },
+          {
+            "failure_id": "worldguard:unmapped-behavior-surface",
+            "known_bad_case_id": "oracle:unmapped-source-surface",
+            "oracle_id": "native:flowguard-behavior-ledger-review"
+          }
+        ],
+        "evidence_check_ids": [
+          "check:model-regression:behavior-commitment-ledger",
+          "check:worldguard:behavior-commitment-shards"
+        ],
+        "model_sha256": "sha256:74cb7891116f4ea5f2f93807f5f61fa2e04d0485cd499fed8d700267e2c044f9",
+        "runner_sha256": "sha256:d259f78d9bb6988911eb667a6116df88d4472b0f7f5a8e0b6c5d2b2ef53f8474",
+        "declaration_fingerprint": "sha256:9f18affdb14dcbc6c1cf8829ef95a03bd568d2322c8e9d41ca96eba45ad278c6",
+        "closure_fingerprint": "sha256:4c98122a4772bda6a2f1fb363f146eb8aec93761d766162e81004c0ff6ba38b0"
+      }
+    },
+    {
+      "model_id": "current_input_authority",
+      "model_path": ".flowguard/current_input_authority/model.py",
+      "runner": [
+        "{python}",
+        ".flowguard/run_semantic_rollout_checks.py"
+      ],
+      "tier": "full",
+      "timeout_seconds": 120,
+      "shard_safe": true,
+      "mutation_policy": "none",
+      "input_globs": [
+        ".flowguard/current_input_authority/model.py",
+        ".flowguard/semantic_rollout_model.py",
+        ".flowguard/run_semantic_rollout_checks.py",
+        "worldguard/contracts.py",
+        "worldguard/semantic.py",
+        "worldguard/guard_model_contract.py",
+        "skills/worldguard/runtime/worldguard/contracts.py",
+        "skills/worldguard/runtime/worldguard/semantic.py",
+        "skills/worldguard/runtime/worldguard/guard_model_contract.py",
+        "tests/test_contracts.py",
+        "tests/test_guard_model_contract.py"
+      ],
+      "expected_artifacts": [],
+      "exclusion_reason": "",
+      "distribution_policy": "required_public",
+      "absence_reason": "",
+      "model_kind": "executable_workflow",
+      "purpose_closure": {
+        "schema_version": "flowguard.model_purpose_closure.v1",
+        "model_instance_id": "regression:current_input_authority:0.5.0",
+        "reusable_model_type_id": "current_input_authority",
+        "task_intent_id": "worldguard-regression:current-input-authority",
+        "declaration_phase": "before_candidate",
+        "guarded_purpose": "Prevent retired input aliases, structural-only aggregate passes, semantic execution without provider evidence, or unbound native receipts from being accepted as current WorldGuard behavior.",
+        "protected_failure_ids": [
+          "worldguard:retired-input-alias",
+          "worldguard:structural-only-aggregate-pass",
+          "worldguard:semantic-without-provider",
+          "worldguard:receipt-without-runtime-binding"
+        ],
+        "claim_boundary": "This closure covers current input parsing and semantic rollout ordering only; factual truth, template selection, fact revision, installation, and release require separate evidence.",
+        "adoption_scope": "current_candidate_only",
+        "known_good_case_id": "native:worldguard-semantic-rollout:current-input",
+        "failure_bindings": [
+          {
+            "failure_id": "worldguard:retired-input-alias",
+            "known_bad_case_id": "test:retired-world-model-version-alias",
+            "oracle_id": "native:worldguard-contract-tests"
+          },
+          {
+            "failure_id": "worldguard:structural-only-aggregate-pass",
+            "known_bad_case_id": "hazard:aggregate-from-structure-only",
+            "oracle_id": "native:semantic-rollout-model"
+          },
+          {
+            "failure_id": "worldguard:semantic-without-provider",
+            "known_bad_case_id": "hazard:semantic-without-provider",
+            "oracle_id": "native:semantic-rollout-model"
+          },
+          {
+            "failure_id": "worldguard:receipt-without-runtime-binding",
+            "known_bad_case_id": "hazard:receipt-without-portable-runtime",
+            "oracle_id": "native:semantic-rollout-model"
+          }
+        ],
+        "evidence_check_ids": [
+          "check:model-regression:current-input-authority",
+          "check:worldguard:input-contract-tests"
+        ],
+        "model_sha256": "sha256:b854ea07df030c84fded96fabe48a0517fdbf5b74b878a4fb417c46ea2971463",
+        "runner_sha256": "sha256:2db8a5ce3ec4fc22591e147f535c9262d98ac48c3e6c4f0857ec2faae4207117",
+        "declaration_fingerprint": "sha256:cb506da88b0a40d025d72cf56b2c3ec7f1824272432cad89834716a16763965c",
+        "closure_fingerprint": "sha256:acaabde3c5c5de2a7d204a5af6e061aebebb8ecb0fa67fa322051871dccf435e"
+      }
+    },
+    {
+      "model_id": "template_selection",
+      "model_path": ".flowguard/template_selection/model.py",
+      "runner": [
+        "{python}",
+        ".flowguard/worldguard_template_pack_builder.py"
+      ],
+      "tier": "full",
+      "timeout_seconds": 120,
+      "shard_safe": true,
+      "mutation_policy": "none",
+      "input_globs": [
+        ".flowguard/template_selection/model.py",
+        ".flowguard/worldguard_template_pack_builder.py",
+        "worldguard/template_packs.py",
+        "skills/worldguard/runtime/worldguard/template_packs.py",
+        "skills/worldguard/references/template-packs.md",
+        "skills/worldguard/SKILL.md",
+        "tests/test_template_packs.py"
+      ],
+      "expected_artifacts": [],
+      "exclusion_reason": "",
+      "distribution_policy": "required_public",
+      "absence_reason": "",
+      "model_kind": "executable_workflow",
+      "purpose_closure": {
+        "schema_version": "flowguard.model_purpose_closure.v1",
+        "model_instance_id": "regression:template_selection:0.5.0",
+        "reusable_model_type_id": "template_selection",
+        "task_intent_id": "worldguard-regression:template-selection-authority",
+        "declaration_phase": "before_candidate",
+        "guarded_purpose": "Prevent zero-match fallback, ambiguous winner guessing, field-owner conflicts, or construction without current target-native validation from being accepted as current WorldGuard template behavior.",
+        "protected_failure_ids": [
+          "worldguard:template-zero-match-fallback",
+          "worldguard:template-ambiguous-winner",
+          "worldguard:template-field-owner-conflict",
+          "worldguard:template-without-native-validation"
+        ],
+        "claim_boundary": "This closure covers deterministic target-owned template selection and construction only; task factual truth, fact revision, installation, and release require separate evidence.",
+        "adoption_scope": "current_candidate_only",
+        "known_good_case_id": "native:worldguard-template-builder:one-candidate",
+        "failure_bindings": [
+          {
+            "failure_id": "worldguard:template-zero-match-fallback",
+            "known_bad_case_id": "scenario:zero-candidates-no-match",
+            "oracle_id": "native:worldguard-template-builder"
+          },
+          {
+            "failure_id": "worldguard:template-ambiguous-winner",
+            "known_bad_case_id": "scenario:multiple-candidates-blocked",
+            "oracle_id": "native:worldguard-template-builder"
+          },
+          {
+            "failure_id": "worldguard:template-field-owner-conflict",
+            "known_bad_case_id": "scenario:field-conflict-blocked",
+            "oracle_id": "native:worldguard-template-builder"
+          },
+          {
+            "failure_id": "worldguard:template-without-native-validation",
+            "known_bad_case_id": "scenario:native-validation-failed",
+            "oracle_id": "native:worldguard-template-builder"
+          }
+        ],
+        "evidence_check_ids": [
+          "check:model-regression:template-selection",
+          "check:worldguard:template-packs"
+        ],
+        "model_sha256": "sha256:2fe6dc23c1e955f0124b377ba3841073daf575d7c78870543b5a6f5dbf08c544",
+        "runner_sha256": "sha256:67219114efdaae7723da52cf4c20f00643fb5dc552d2f3c0c8b9c87646b820e1",
+        "declaration_fingerprint": "sha256:ab24dac68ee880b1fb705a349f7d534dd0b74226149af14d8e867513b5296661",
+        "closure_fingerprint": "sha256:241a0ed8c29d0168a0776aeb43be8b407f58e52f8bf3baef0d22ef9ebaca6809"
+      }
+    }
+  ]
+}

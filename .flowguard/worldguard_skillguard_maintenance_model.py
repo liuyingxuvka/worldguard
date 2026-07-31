@@ -71,7 +71,7 @@ STRUCTURE_MESH = {
 TEST_MESH = {
     "mesh_id": "worldguard.skillguard-maintenance.tests.current",
     "source_model_id": "worldguard.skillguard-maintenance.process.current",
-    "inventory_revision": "one-member-five-target-declared-checks",
+    "inventory_revision": "one-member-six-target-declared-checks",
     "parent_gate": "unit:worldguard:affected-validation",
     "required_check_ids": list(DECLARED_CHECKS),
     "check_owners": [
@@ -105,7 +105,7 @@ DEVELOPMENT_PROCESS = {
         "direct-current-contract-compile",
         "runtime-byte-normalization",
         "obsolete-author-copy-removal",
-        "same-unit-five-check-validation",
+        "same-unit-six-check-validation",
         "consumer-projection-diff",
         "bounded-local-closure",
     ],
@@ -136,7 +136,7 @@ class MaintenanceRequest:
     action: str
     check_id: str = ""
     member_count: int = 1
-    declared_check_count: int = 5
+    declared_check_count: int = 6
     target_contract_current: bool = True
     local_copy_dependency_present: bool = False
     global_flowguard_consumer_current: bool = True
@@ -320,10 +320,10 @@ def maintenance_invariants() -> tuple[Invariant, ...]:
 
     return (
         Invariant("one_worldguard_unit", "One author unit owns exactly one WorldGuard skill.", one_unit),
-        Invariant("skillguard_adds_no_domain_depth", "Only the target's five declared checks may be supervised.", no_added_depth),
+        Invariant("skillguard_adds_no_domain_depth", "Only the target's six declared checks may be supervised.", no_added_depth),
         Invariant("singular_flowguard_authority", "The global consumer is the sole project FlowGuard skill surface.", singular_authority),
         Invariant("no_global_install", "Local source maintenance does not activate installation.", no_install),
-        Invariant("exact_five_check_inventory", "Validated checks remain a subset of five target declarations.", exact_checks),
+        Invariant("exact_six_check_inventory", "Validated checks remain a subset of six target declarations.", exact_checks),
     )
 
 
@@ -352,7 +352,7 @@ def scenarios() -> tuple[Scenario, ...]:
     return (
         Scenario(
             name="WGM01_current_one_member_closure",
-            description="Current adoption, singular structure, five declared checks, and clean projection close locally.",
+            description="Current adoption, singular structure, six declared checks, and clean projection close locally.",
             initial_state=MaintenanceState(),
             external_input_sequence=_good_sequence(),
             expected=ScenarioExpectation(expected_status="ok", required_trace_labels=("author_unit_bound", "singular_structure_ready", "unit_terminal_pass"), summary="one-member maintenance closes without install"),
@@ -369,8 +369,8 @@ def scenarios() -> tuple[Scenario, ...]:
             invariants=INVARIANTS,
         ),
         Scenario(
-            name="WGM03_inferred_sixth_check_blocks",
-            description="A nondeclared sixth check cannot enter the target inventory.",
+            name="WGM03_inferred_seventh_check_blocks",
+            description="A nondeclared seventh check cannot enter the target inventory.",
             initial_state=MaintenanceState(),
             external_input_sequence=(MaintenanceRequest("adopt"), MaintenanceRequest("reduce"), MaintenanceRequest("validate", check_id="check:skillguard:invented-depth")),
             expected=ScenarioExpectation(expected_status="violation", expected_violation_names=("skillguard_adds_no_domain_depth",), required_trace_labels=("nondeclared_check_blocked",), summary="inferred target depth violates the hard boundary"),

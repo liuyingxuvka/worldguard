@@ -32,6 +32,7 @@ TARGETED_TESTS = {
         "tests/test_guard_model_contract.py",
     ),
     "template": ("tests/test_template_packs.py",),
+    "fact": ("tests/test_fact_revision.py",),
 }
 
 
@@ -85,7 +86,7 @@ def _run_shard(shard_id: str) -> dict[str, object]:
 
 
 def _aggregate() -> dict[str, object]:
-    input_report, template_report = build_primary_path_reports()
+    input_report, template_report, fact_report = build_primary_path_reports()
     ledger_report = review_behavior_commitment_ledger(
         build_worldguard_behavior_commitment_ledger()
     )
@@ -95,6 +96,7 @@ def _aggregate() -> dict[str, object]:
         "ok": bool(
             input_report.ok
             and template_report.ok
+            and fact_report.ok
             and ledger_report.ok
         ),
         "execution_count": 0,
@@ -108,6 +110,7 @@ def _aggregate() -> dict[str, object]:
         },
         "input_primary_path": input_report.to_dict(),
         "template_primary_path": template_report.to_dict(),
+        "fact_primary_path": fact_report.to_dict(),
         "behavior_commitment_ledger": ledger_report.to_dict(),
     }
     result_path = Path(__file__).with_name("result.json")
@@ -119,6 +122,8 @@ def _aggregate() -> dict[str, object]:
     print()
     print(template_report.format_text())
     print()
+    print(fact_report.format_text())
+    print()
     print(ledger_report.format_text())
     return 0 if payload["ok"] else 1
 
@@ -128,7 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--shard",
         required=True,
-        choices=("input", "template", "aggregate"),
+        choices=("input", "template", "fact", "aggregate"),
         help=(
             "Run exactly one affected evidence owner, or aggregate current "
             "immutable shard receipts without starting tests."

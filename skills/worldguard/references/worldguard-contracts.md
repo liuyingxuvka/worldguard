@@ -177,3 +177,19 @@ unapplied candidate is `rejected`; a failed applied candidate is `rolled_back`
 only when its rollback identity exactly equals the still-current v1. These
 dispositions modify no WorldGuard code, core threshold, installed skill, or
 reusable default.
+
+### Fact-level transaction
+
+`FactWorldSnapshot` and `FactRevisionTransaction` are a subordinate form of
+the same task-local revision owner. `FactSupport` records one independent
+positive or negative support with stable source and evidence ids.
+`StrictFactRule` derives only one declared signed consequent when every signed
+antecedent has support. The resulting fact state is `true`, `false`, `both`,
+or `neither`; these values are not Guard terminal statuses.
+
+Preview is copy-based and returns the exact base/candidate fingerprints,
+support and rule-chain deltas, contradiction ids, preserved-fact outcomes,
+closure status, and preview fingerprint. Activation requires that fingerprint,
+the exact visible contradiction set, and current `regression` plus `holdout`
+evidence bound to the preview. A stale base, changed preserved fact, missing
+evidence, or prior activation of the transaction remains blocked.
