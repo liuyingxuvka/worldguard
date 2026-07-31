@@ -7,6 +7,7 @@ import sys
 
 import pytest
 
+from worldguard import __version__ as WORLDGUARD_VERSION
 from worldguard.execution_depth import (
     UNIVERSE_CLAIM_SCOPE,
     UNIVERSE_NATIVE_POLICY,
@@ -52,6 +53,15 @@ POLICY_FINGERPRINTS = {
         UNIVERSE_CLAIM_SCOPE,
     )
 }
+
+
+def test_author_release_gate_fixture_tracks_current_worldguard_version() -> None:
+    payload = json.loads(
+        (ROOT / "skills" / "worldguard" / ".skillguard" / "fixtures" / "deep.json")
+        .read_text(encoding="utf-8")
+    )
+
+    assert payload["release_gate_binding"]["release_version"] == WORLDGUARD_VERSION
 
 
 def test_deep_fixture_emits_dynamic_target_owned_execution_depth() -> None:

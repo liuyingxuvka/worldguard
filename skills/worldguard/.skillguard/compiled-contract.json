@@ -879,7 +879,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:fixture_reference"
         ],
-        "component_hash": "sha256:c897f6164a0f49b896657200fc7bfa7728497c1d29bd6d9cf2445c4a2ff1b26b",
+        "component_hash": "sha256:c235085a72a43ef6638664cfbb2d114c83a77509893a2d1d63b91a35a2ed6a47",
         "component_id": "component:fixture_reference:623b71cafc801ac6",
         "consumer_ids": [
           "projection:source-maintenance"
@@ -1323,7 +1323,7 @@
       "owner_cycles": [],
       "unmapped_paths": []
     },
-    "impact_graph_hash": "sha256:44198be34498dadccab8140dccc4debcd6c26d11da0f29958c6d8fff53d2dc6b",
+    "impact_graph_hash": "sha256:3c7fc37c40af1d6afa8987f3f6219c0d2a061aadd6ec14c111eeab1d45ee9320",
     "inventory": [
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
@@ -1418,7 +1418,7 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:fixture_reference",
-        "content_hash": "sha256:c7a0727726a4cf3a8e40079f61b9c23d49e0d5e0a654ae3389b8e04027edec40",
+        "content_hash": "sha256:1d8cae1a2a5fa8058c8d60f92a1edbeb66d568fc2ceb368a12256c35101755f4",
         "install_disposition": "source_only",
         "path": "skills/worldguard/.skillguard/fixtures/deep.json",
         "role": "fixture_reference"
@@ -2005,7 +2005,7 @@
         "role": "runtime_source"
       }
     ],
-    "inventory_hash": "sha256:bc7f32a536286e50085698151cb793d71fa159dbef120503cc206d3503d7e9f8",
+    "inventory_hash": "sha256:4a212c87ba751f0d62a4e68d28a3ce8bc4681c68dd6e0087ff1c8771651b0a08",
     "member_root_path": "skills/worldguard",
     "owner_receipt_root_ref": {
       "path_token": "owner_evidence_root",
@@ -2455,14 +2455,14 @@
       },
       {
         "consumer_id": "projection:source-maintenance",
-        "consumer_projection_hash": "sha256:7c679dd9cb3f8b6f23ea0c6b2ef782a2e079d44e5d44bbcd52800727bcc3e298",
+        "consumer_projection_hash": "sha256:e616cd23d8ca1ca927d26cb42cf2da4f9fa43c11c9dc91932f0859432182777b",
         "impact_plan_schema_version": "skillguard.content_impact_plan.current",
         "impact_policy_id": "skillguard.content_impact_policy.current",
         "input_component_ids": [
           "component:contract_schema:e0a796c660375a19",
           "component:fixture_reference:623b71cafc801ac6"
         ],
-        "input_projection_hash": "sha256:6d2c0fb7149676f759ee71f9a919ffd4b8ef942206c2b09482156388f7328f35",
+        "input_projection_hash": "sha256:57e1ba0f153b45c180f517772a36fdb82f0bbd92e87dee9660e986f718ee2d90",
         "kind": "source_maintenance",
         "projection_declaration_hash": "sha256:dc004f5bfac09c546797606fb10dea5f31166718ce7d398b0f66e71bf168a106"
       }
@@ -2470,7 +2470,7 @@
     "schema_version": "skillguard.content_impact_plan.current",
     "unknown_mapping_disposition": "block"
   },
-  "contract_hash": "FBA778D8C7ECD514319838D26A6D9DE2EC451B919EDF2AD9F16C2B5DD95B2672",
+  "contract_hash": "92D657542285DF9693B1E2BE0BBA27D6B12D65E2FFDBD8E3F45CE708B3755175",
   "depth_profile": {
     "claim_boundary": "SkillGuard freezes and reconciles seven exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, task-local model revision, template, fact revision, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths.",
     "enforcement_level": "enforced",
