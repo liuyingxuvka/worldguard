@@ -5,8 +5,8 @@
   "command": "python -m pytest -q tests/test_template_packs.py",
   "status": "passed",
   "exit_code": 0,
-  "started_at": "2026-07-31T14:00:10.284611+00:00",
-  "finished_at": "2026-07-31T14:00:11.691507+00:00",
+  "started_at": "2026-07-31T18:42:30.215144+00:00",
+  "finished_at": "2026-07-31T18:42:31.988748+00:00",
   "artifact_fingerprints": {
     ".flowguard/behavior_commitment_ledger/ledger.json": "sha256:5e4e61a3721d898ec9dd91c02adbc3e3edbf44f61912f6cd9ce8e64ea98a64aa",
     ".flowguard/behavior_commitment_ledger/model.py": "sha256:74cb7891116f4ea5f2f93807f5f61fa2e04d0485cd499fed8d700267e2c044f9",
@@ -15,7 +15,7 @@
     "tests/test_template_packs.py": "sha256:916e9bc9d026bea2549fcc3e0f13a9d64ee6db16142832e657baec830126c339",
     ".flowguard/worldguard_template_pack_builder.py": "sha256:67219114efdaae7723da52cf4c20f00643fb5dc552d2f3c0c8b9c87646b820e1",
     ".flowguard/worldguard_template_pack_field_lifecycle.md": "sha256:42aefa037aecec06205f49509b37b426b162ae772e2b3a95aa0c148facebd170",
-    "skills/worldguard/SKILL.md": "sha256:bf2e818faf90773e2f3dfcc79b21a3683d4dd5ff336dfabe263886eb7d4ee728"
+    "skills/worldguard/SKILL.md": "sha256:1b22b119d3d02febdfd0a3be401cee065e2929a5856414541d27f7d0dc9f2eef"
   },
   "toolchain_identity": {
     "python_executable": "C:\\Users\\liu_y\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
@@ -27,7 +27,7 @@
     ],
     "pytest_version": "9.0.3"
   },
-  "stdout": "...................                                                      [100%]\n19 passed in 0.58s\n",
+  "stdout": "...................                                                      [100%]\n19 passed in 0.75s\n",
   "stderr": "",
-  "receipt_hash": "sha256:f258fdc2d25dd9ef213c99dbd99b25e4b873aa35603b87b6feeb989c5b969452"
+  "receipt_hash": "sha256:1c0acb29b0cc703446fdc79fa1192ea1ec6a8d81ddfc0b406865aa6cb2511619"
 }

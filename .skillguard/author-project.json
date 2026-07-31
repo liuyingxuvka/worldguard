@@ -13,11 +13,11 @@
       "skill_path": "skills/worldguard"
     }
   ],
-  "manifest_hash": "D329BDA0BFEA101CC630998460A63CABF88A0CFB342464A4DED2FDF69C47A77E",
-  "project_id": "wg",
+  "manifest_hash": "FC7ED39D9EBFD470BAB8BFD0203DD2A62C3359EBD555124A3725ED9EB1345049",
+  "project_id": "WorldGuard",
   "project_prompt_path": "AGENTS.md",
   "repository_role": "skill_maintainer_source",
   "schema_version": "skillguard.project_adoption.v1",
   "skillguard_repository": "https://github.com/liuyingxuvka/SkillGuard",
-  "skillguard_version": "0.6.0"
+  "skillguard_version": "0.7.0"
 }
