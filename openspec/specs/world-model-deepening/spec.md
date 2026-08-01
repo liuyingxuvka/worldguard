@@ -1,7 +1,9 @@
 # world-model-deepening Specification
 
 ## Purpose
-TBD - created by archiving change make-world-model-deepening-iterative. Update Purpose after archive.
+Define task-local predictive model deepening through independent coverage,
+native depth and holdout evidence, explicit gap lineage, and bounded terminal
+decisions.
 ## Requirements
 ### Requirement: Predictions carry task and coverage identity
 
