@@ -21,7 +21,13 @@ EXPECTED_GUARDS = (
     "ConflictGuard",
     "NormGuard",
 )
-EXPECTED_VERSION = "0.7.0"
+EXPECTED_TASK_SHAPES = (
+    "unit_contract",
+    "model_mesh",
+    "task_local_revision",
+    "template_pack",
+)
+EXPECTED_VERSION = "0.7.1"
 PREDICTIVE_GUARDS = {"EventGuard", "CausalGuard"}
 TERMINAL_STATUSES = ("PASS", "FAIL", "GAP", "BOUNDARY_EXCEEDED")
 REQUIRED_ROW_FIELDS = {
@@ -35,6 +41,24 @@ REQUIRED_ROW_FIELDS = {
     "purpose_validator",
     "semantic_executor_id",
     "semantic_registry",
+    "applicability_semantics",
+    "forbidden_semantics",
+    "required_input_fields",
+    "first_native_action",
+    "reference_path",
+    "conditional_references",
+    "deepening_trigger",
+    "claim_boundary",
+}
+REQUIRED_TASK_SHAPE_FIELDS = {
+    "shape_id",
+    "applicability_facts",
+    "forbidden_facts",
+    "required_input_fields",
+    "first_native_action",
+    "reference_path",
+    "conditional_references",
+    "claim_boundary",
 }
 GOVERNED_RUNTIME_SUFFIXES = {".py", ".json", ".yaml", ".yml"}
 
@@ -77,6 +101,106 @@ def check(
     findings: list[dict[str, object]] = []
 
     payload = json.loads(topology_path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != "worldguard.internal_guard_routes.v2":
+        findings.append(
+            {
+                "code": "topology_schema_mismatch",
+                "observed": payload.get("schema_version"),
+            }
+        )
+    selection = payload.get("selection_authority", {})
+    expected_selection = {
+        "task_shape_rule": "exactly_one_from_typed_task_facts",
+        "guard_coverage_rule": "complete_set_from_structured_claim_semantics",
+        "guard_derivation_owner": "worldguard.contracts:derive_required_guards",
+        "caller_target_guards_authoritative": False,
+        "keyword_scoring_authoritative": False,
+        "failure_retry_to_another_guard": False,
+    }
+    if selection != expected_selection:
+        findings.append(
+            {
+                "code": "selection_authority_mismatch",
+                "expected": expected_selection,
+                "observed": selection,
+            }
+        )
+    shapes = payload.get("task_shapes", [])
+    if not isinstance(shapes, list):
+        shapes = []
+        findings.append({"code": "task_shapes_not_list"})
+    declared_shapes = {
+        str(row.get("shape_id")): row
+        for row in shapes
+        if isinstance(row, dict) and row.get("shape_id")
+    }
+    if len(declared_shapes) != len(shapes):
+        findings.append({"code": "duplicate_or_unidentified_task_shape"})
+    if tuple(declared_shapes) != EXPECTED_TASK_SHAPES:
+        findings.append(
+            {
+                "code": "task_shape_inventory_mismatch",
+                "expected": list(EXPECTED_TASK_SHAPES),
+                "observed": list(declared_shapes),
+            }
+        )
+    for shape_id, row in declared_shapes.items():
+        missing_fields = sorted(REQUIRED_TASK_SHAPE_FIELDS - row.keys())
+        if missing_fields:
+            findings.append(
+                {
+                    "code": "task_shape_fields_missing",
+                    "shape_id": shape_id,
+                    "fields": missing_fields,
+                }
+            )
+            continue
+        for field in ("applicability_facts", "required_input_fields"):
+            value = row.get(field)
+            if not isinstance(value, list) or not value:
+                findings.append(
+                    {
+                        "code": "task_shape_list_field_invalid",
+                        "shape_id": shape_id,
+                        "field": field,
+                    }
+                )
+        for field in ("first_native_action", "reference_path", "claim_boundary"):
+            if not str(row.get(field, "")).strip():
+                findings.append(
+                    {
+                        "code": "task_shape_text_field_missing",
+                        "shape_id": shape_id,
+                        "field": field,
+                    }
+                )
+        reference = skill_root / str(row.get("reference_path", ""))
+        if not reference.is_file():
+            findings.append(
+                {
+                    "code": "task_shape_reference_missing",
+                    "shape_id": shape_id,
+                    "path": row.get("reference_path"),
+                }
+            )
+        for conditional in row.get("conditional_references", []):
+            if not isinstance(conditional, dict) or not str(conditional.get("trigger", "")).strip():
+                findings.append(
+                    {
+                        "code": "task_shape_conditional_reference_invalid",
+                        "shape_id": shape_id,
+                    }
+                )
+                continue
+            conditional_path = skill_root / str(conditional.get("path", ""))
+            if not conditional_path.is_file():
+                findings.append(
+                    {
+                        "code": "task_shape_conditional_reference_missing",
+                        "shape_id": shape_id,
+                        "path": conditional.get("path"),
+                    }
+                )
     rows = payload.get("routes", [])
     if not isinstance(rows, list):
         rows = []
@@ -102,6 +226,30 @@ def check(
         findings.append({"code": "public_entrypoint_mismatch", "observed": public})
     if tuple(payload.get("terminal_statuses", ())) != TERMINAL_STATUSES:
         findings.append({"code": "declared_terminal_status_mismatch"})
+
+    prompt_budget = payload.get("prompt_budget", {})
+    entry_max = prompt_budget.get("entry_shell_max_characters")
+    headroom = prompt_budget.get("minimum_reasoning_headroom_characters")
+    if not isinstance(entry_max, int) or entry_max <= 0:
+        findings.append({"code": "entry_prompt_budget_invalid"})
+    else:
+        skill_length = len((skill_root / "SKILL.md").read_text(encoding="utf-8"))
+        if skill_length > entry_max:
+            findings.append(
+                {
+                    "code": "entry_prompt_budget_exceeded",
+                    "observed": skill_length,
+                    "maximum": entry_max,
+                }
+            )
+    if not isinstance(headroom, int) or headroom < 12000:
+        findings.append(
+            {
+                "code": "reasoning_headroom_too_small",
+                "observed": headroom,
+                "minimum": 12000,
+            }
+        )
 
     pyproject = tomllib.loads(
         (repository_root / "pyproject.toml").read_text(encoding="utf-8")
@@ -213,6 +361,7 @@ def check(
         added = True
     try:
         import worldguard as worldguard_package
+        from worldguard.contracts import SEMANTIC_GUARD_ROUTES
         from worldguard.guard_model_contract import GUARD_MODEL_PURPOSES
         from worldguard.guards import GUARD_RUNNERS
         from worldguard.semantic import EXECUTOR_REGISTRY
@@ -288,6 +437,14 @@ def check(
                     EXECUTOR_REGISTRY[guard_id].binding.executor_id
                 ),
                 "semantic_registry": "worldguard.semantic:EXECUTOR_REGISTRY",
+                "applicability_semantics": [
+                    semantic
+                    for semantic, guards in SEMANTIC_GUARD_ROUTES.items()
+                    if guard_id in guards
+                ],
+                "required_input_fields": list(
+                    EXECUTOR_REGISTRY[guard_id].binding.input_fields
+                ),
             }
             for field, expected in expected_values.items():
                 if row.get(field) != expected:
@@ -304,18 +461,75 @@ def check(
                 findings.append(
                     {"code": "prediction_boundary_missing", "guard_id": guard_id}
                 )
+            for field in (
+                "forbidden_semantics",
+                "first_native_action",
+                "reference_path",
+                "deepening_trigger",
+                "claim_boundary",
+            ):
+                value = row.get(field)
+                if field == "forbidden_semantics":
+                    valid = isinstance(value, list) and bool(value)
+                else:
+                    valid = bool(str(value or "").strip())
+                if not valid:
+                    findings.append(
+                        {
+                            "code": "internal_route_admission_field_invalid",
+                            "guard_id": guard_id,
+                            "field": field,
+                        }
+                    )
+            reference = skill_root / str(row.get("reference_path", ""))
+            if not reference.is_file():
+                findings.append(
+                    {
+                        "code": "internal_route_reference_missing",
+                        "guard_id": guard_id,
+                        "path": row.get("reference_path"),
+                    }
+                )
+            conditionals = row.get("conditional_references", [])
+            if not isinstance(conditionals, list):
+                findings.append(
+                    {
+                        "code": "internal_route_conditional_references_invalid",
+                        "guard_id": guard_id,
+                    }
+                )
+            else:
+                for conditional in conditionals:
+                    if not isinstance(conditional, dict) or not str(conditional.get("trigger", "")).strip():
+                        findings.append(
+                            {
+                                "code": "internal_route_conditional_reference_invalid",
+                                "guard_id": guard_id,
+                            }
+                        )
+                        continue
+                    conditional_path = skill_root / str(conditional.get("path", ""))
+                    if not conditional_path.is_file():
+                        findings.append(
+                            {
+                                "code": "internal_route_conditional_reference_missing",
+                                "guard_id": guard_id,
+                                "path": conditional.get("path"),
+                            }
+                        )
     finally:
         if added:
             sys.path.remove(root_text)
 
     return {
-        "schema_version": "worldguard.internal_guard_topology_check.v1",
+        "schema_version": "worldguard.internal_guard_topology_check.v2",
         "status": "pass" if not findings else "fail",
         "ok": not findings,
         "source_version": source_version,
         "public_skill_ids": installed_skill_ids,
         "project_console_ids": sorted(scripts),
         "internal_guard_ids": list(EXPECTED_GUARDS),
+        "task_shape_ids": list(EXPECTED_TASK_SHAPES),
         "findings": findings,
         "claim_boundary": (
             "This target-native check proves the current source and bundled "

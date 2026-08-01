@@ -1,6 +1,6 @@
 {
   "artifacts": [],
-  "check_declarations_hash": "2C556A3A793DBB5044DE1AAB9B8CD14518125BA38DCF2EAAFFDE7234418F6F28",
+  "check_declarations_hash": "FEB9A9FD32808AD8FDC46FD3CA143AD6552D70A8B65F2FAE92BE9BFB8A593593",
   "checks": [
     {
       "args": [
@@ -29,17 +29,18 @@
         "exit_code": 0
       },
       "input_component_ids": [
-        "component:documentation_model:5a00dbe5b09aefdd",
+        "component:documentation_model:2f082b09f980e0e4",
         "component:documentation_model:7987e6f6fd07e802",
         "component:documentation_model:fde634a12011760a",
         "component:runtime_source:353f82848fdb528a",
+        "component:runtime_source:3bf4c5884d608f84",
         "component:runtime_source:3cb7cb2ea3445acf",
         "component:runtime_source:49cf8b8a2b92d634",
-        "component:runtime_source:4fbf5b4f95cd52ec",
         "component:runtime_source:b24a21ec66a2c868",
         "component:runtime_source:b4d0a2706dfa7dbb",
         "component:runtime_source:c60e5f5d88c01d64",
         "component:runtime_source:d1e9ad98c46716a2",
+        "component:runtime_source:d73facaa7546f00b",
         "component:runtime_source:d93d2b04c6979633",
         "component:test_dev:6c12df6a1f88081a",
         "component:test_dev:d9ddc3f4066a1aa4"
@@ -103,7 +104,7 @@
       "member_skill_id": "worldguard",
       "native_route_id": "route:worldguard-claim-derived-depth",
       "owner_declaration_hash": "sha256:e76decbaa5fac298d5ae15e746d8346d6dd28eb297a15042c470bc2526470e81",
-      "owner_input_projection_hash": "sha256:241fd106d02892822c3db3082c9bd727903d61b2d8686499c3f2633207768ad0",
+      "owner_input_projection_hash": "sha256:e7454bd6918484d74b418665ec195d53a1f4935145e809ce95be55859f9fb064",
       "projection_declaration_hash": "sha256:8181c07050b8013b37aeec9e1523923e9e410283244cdd6ae86246e589bfe540",
       "semantic_check_id": "semantic:worldguard:task-local-model-closure",
       "target_input_role_ids": [],
@@ -130,7 +131,7 @@
         "exit_code": 0
       },
       "input_component_ids": [
-        "component:documentation_model:5a00dbe5b09aefdd",
+        "component:documentation_model:2f082b09f980e0e4",
         "component:documentation_model:7987e6f6fd07e802",
         "component:runtime_source:2d8fa8e0ce938a9c",
         "component:runtime_source:49cf8b8a2b92d634",
@@ -184,7 +185,7 @@
       "member_skill_id": "worldguard",
       "native_route_id": "route:worldguard-claim-derived-depth",
       "owner_declaration_hash": "sha256:01fbd2ddce38e32f8974541b5e35cc5108b2ff6d17d0021da5b1377e6bf18d5e",
-      "owner_input_projection_hash": "sha256:6660998fcdddffc5e6c497e91bb1037fb62a8fa660edefb2371411a3bf79d759",
+      "owner_input_projection_hash": "sha256:e00ef0b180c1df1db8d4d6efea371c91f8db8c1ab1557a1f072d1238463a8ff9",
       "projection_declaration_hash": "sha256:ad405ea91c721e48f7f734dd0eb00010602ad7c6eda20b9656fd536f6add009e",
       "semantic_check_id": "semantic:worldguard:fact-revision",
       "target_input_role_ids": [],
@@ -216,7 +217,7 @@
         "exit_code": 0
       },
       "input_component_ids": [
-        "component:documentation_model:5a00dbe5b09aefdd",
+        "component:documentation_model:2f082b09f980e0e4",
         "component:documentation_model:c97e3b87f58490ba",
         "component:runtime_source:3cb7cb2ea3445acf",
         "component:runtime_source:49cf8b8a2b92d634",
@@ -261,7 +262,7 @@
       "member_skill_id": "worldguard",
       "native_route_id": "worldguard.template_pack_builder",
       "owner_declaration_hash": "sha256:7d5b01f371bb6c44775c25c4273391b8e9796c2cf8f7d9f6edd770ab04a25c78",
-      "owner_input_projection_hash": "sha256:2c4272778e743335f06804e259a30c7eea00bbd898e50179a8c366a184e78bfd",
+      "owner_input_projection_hash": "sha256:f228faf7875ca0406963cb9f59bc33e38976f15068013626f67380f5aff1a318",
       "projection_declaration_hash": "sha256:bfc362b93ad5d4d63f4b50f293c104ec7b3e8776c8b0dab390c52000005564f8",
       "semantic_check_id": "semantic:worldguard:template-packs",
       "target_input_role_ids": [],
@@ -300,7 +301,7 @@
       "maintenance_unit_id": "unit:worldguard",
       "member_skill_id": "worldguard",
       "owner_declaration_hash": "sha256:377bf270612af0961a16e0b8549db73aef4ab100db5eecb0b62b16753b88c275",
-      "owner_input_projection_hash": "sha256:169aac9a0f3a63c59266fb3f2b3a57544d2100ef35c7283254e56c52408ffd8e",
+      "owner_input_projection_hash": "sha256:24ac31d13f71c08b53fc0e8c196e2ab36a6eaa1ef63a12bbd61df810c92c258d",
       "projection_declaration_hash": "sha256:292cbc583546c11941bb115675cda2eb8cf3642db31ef039f868be0ce6b0fd43",
       "semantic_check_id": "semantic:worldguard:flowguard-contract-model",
       "target_input_role_ids": [],
@@ -315,7 +316,7 @@
       ],
       "check_id": "check:worldguard:internal-guard-topology",
       "command": "python",
-      "coverage_rationale": "Proves source version 0.7.0, one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
+      "coverage_rationale": "Proves source version 0.7.1, one public WorldGuard skill/console, exact task-shape and seven-runner/semantic-executor inventories, complete admission/expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
       "coverage_scope": "suite",
       "covers_obligation_ids": [
         "obligation:worldguard-internal-guard-topology",
@@ -333,21 +334,23 @@
         "exit_code": 0
       },
       "input_component_ids": [
-        "component:documentation_model:5a00dbe5b09aefdd",
+        "component:documentation_model:2f082b09f980e0e4",
         "component:documentation_model:88e8dd978f214f0b",
         "component:runtime_source:353f82848fdb528a",
         "component:runtime_source:3cb7cb2ea3445acf",
         "component:runtime_source:49cf8b8a2b92d634",
-        "component:runtime_source:9d33f04fd694a9ee",
+        "component:runtime_source:98c794cf5de6d85c",
         "component:runtime_source:a5e799bd169bd8e8",
         "component:runtime_source:b24a21ec66a2c868",
         "component:runtime_source:b4d0a2706dfa7dbb",
         "component:runtime_source:ba7769da05f25c61",
         "component:runtime_source:c60e5f5d88c01d64",
+        "component:runtime_source:cb370d13f02f48eb",
         "component:runtime_source:d1e9ad98c46716a2",
         "component:runtime_source:d93d2b04c6979633",
         "component:runtime_source:dee156e2e571f801",
-        "component:runtime_source:fcb39ee958004b58"
+        "component:runtime_source:fcb39ee958004b58",
+        "component:test_dev:443deeec599130f2"
       ],
       "input_selectors": [
         {
@@ -383,6 +386,10 @@
           "path": "skills/worldguard/scripts/check_internal_guard_topology.py"
         },
         {
+          "kind": "path",
+          "path": "tests/test_internal_guard_topology.py"
+        },
+        {
           "kind": "subtree",
           "path": "skills/worldguard/runtime/worldguard"
         },
@@ -395,10 +402,85 @@
       "maintenance_unit_id": "unit:worldguard",
       "member_skill_id": "worldguard",
       "native_route_id": "route:worldguard-claim-derived-depth",
-      "owner_declaration_hash": "sha256:cef434c3655f6c2db139f53ace80d85261e31928d8fae26ef528f42ecb5b001a",
-      "owner_input_projection_hash": "sha256:3823b0cde13e80b09bf2d22839b961024a1fabbe58b8177e0d4df58c0a82a084",
+      "owner_declaration_hash": "sha256:1196526c6b2bd474899ead54492c75befa4f32ec490247320497b74bb953f00d",
+      "owner_input_projection_hash": "sha256:9ec7849410556eaa7daac1711a383a9139dae953b1aab175a1ebaa86e52b202c",
       "projection_declaration_hash": "sha256:9bf1d093d5cd13e6a98fd8e4fa7e0fa81b735ae6fc2de31c46ed9bec7bcabe86",
       "semantic_check_id": "semantic:worldguard:internal-guard-topology",
+      "target_input_role_ids": [],
+      "timeout_seconds": 180
+    },
+    {
+      "args": [
+        "-m",
+        "pytest",
+        "tests/test_entry_prompt_bundle.py",
+        "-q"
+      ],
+      "check_id": "check:worldguard:entry-prompt-bundle",
+      "command": "python",
+      "coverage_rationale": "Runs target-owned bounded, predictive multi-Guard, mesh, template, ambiguity, unmapped, missing-reference, and budget fixtures for the current prompt load graph.",
+      "coverage_scope": "suite",
+      "covers_obligation_ids": [
+        "obligation:worldguard-task-shape-admission",
+        "obligation:worldguard-complete-guard-derivation",
+        "obligation:worldguard-conditional-reference-loading",
+        "obligation:worldguard-prompt-budget-headroom"
+      ],
+      "cwd_token": "repository_root",
+      "depends_on_check_ids": [],
+      "evidence_class": "hard",
+      "evidence_domain_id": "worldguard:entry-loading",
+      "evidence_subject_id": "subject:check:worldguard:entry-prompt-bundle",
+      "execution_owner_id": "owner:worldguard:entry-prompt-bundle",
+      "expected": {
+        "exit_code": 0
+      },
+      "input_component_ids": [
+        "component:documentation_model:2f082b09f980e0e4",
+        "component:documentation_model:30b37f0ba678202f",
+        "component:runtime_source:3bf4c5884d608f84",
+        "component:runtime_source:906e2a030773b5b5",
+        "component:runtime_source:98c794cf5de6d85c",
+        "component:test_dev:62d002e91e0c9da0"
+      ],
+      "input_selectors": [
+        {
+          "kind": "path",
+          "path": "skills/worldguard/SKILL.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/agents/openai.yaml"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/entry-routing.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/internal-guard-routes.json"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/task-local-model-deepening.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/scripts/check_entry_prompt_bundle.py"
+        },
+        {
+          "kind": "path",
+          "path": "tests/test_entry_prompt_bundle.py"
+        }
+      ],
+      "kind": "command",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "native_route_id": "route:worldguard-claim-derived-depth",
+      "owner_declaration_hash": "sha256:0283c5e8208f120987a69ff303b02d1771ae20172081e8c76b772bcb9db50d35",
+      "owner_input_projection_hash": "sha256:26e933bea718205096adab8b66e736c637cd6552c5050dbebeb0dda029b08c1d",
+      "projection_declaration_hash": "sha256:34300e4e30bced7f33bb41b2a941163f445e71507f8ae784f1f50af561269b79",
+      "semantic_check_id": "semantic:worldguard:entry-prompt-bundle",
       "target_input_role_ids": [],
       "timeout_seconds": 180
     },
@@ -475,7 +557,7 @@
       "member_skill_id": "worldguard",
       "native_route_id": "route:worldguard-claim-derived-depth",
       "owner_declaration_hash": "sha256:1974d2d1adddd7e297f248e642ffd9d6f09b0e714f57c9a0d28303561dd1f819",
-      "owner_input_projection_hash": "sha256:c8ed9bec610ccdfbfc0c07cbe338c547b8fb3472c197fa637f86cebfd4310d0a",
+      "owner_input_projection_hash": "sha256:be671b629b6995499ba9bc9e8aca5d0c47a52b96b2a5478ece60462f895ad42f",
       "projection_declaration_hash": "sha256:7ad5e504f747605c14c050b5d5895d605cc5c0c6a753e4c692d12e446d9784f2",
       "semantic_check_id": "semantic:worldguard:guard-model-contract",
       "target_input_role_ids": [],
@@ -549,14 +631,14 @@
       "member_skill_id": "worldguard",
       "native_route_id": "route:worldguard-claim-derived-depth",
       "owner_declaration_hash": "sha256:a0687a51f8899d5b6cf30fd52a25637cfcbc4003db1466e12b5de1322a496305",
-      "owner_input_projection_hash": "sha256:4d455f79ba52538c6b3a8a2cbba67c137dd45fadcfd879c6663579ee23b8c175",
+      "owner_input_projection_hash": "sha256:111676559f11f639bf3e06a7485058353fbce70124b705ac02e3b9ba59df369a",
       "projection_declaration_hash": "sha256:96d2d754e823cde5e34ab42520e5b79ada235a16b727ddbb6ac6d4ef23a24bb0",
       "semantic_check_id": "semantic:worldguard:native-depth",
       "target_input_role_ids": [],
       "timeout_seconds": 180
     }
   ],
-  "claim_boundary": "WorldGuard owns every domain route, task-local predictive revision, template semantic, fact revision semantic, Guard purpose, protected failure, fixture, oracle, rollout, and prediction. SkillGuard supervises seven exact maintenance checks on one author-side route only; it adds no domain route, compatibility reader, or alternate runtime.",
+  "claim_boundary": "WorldGuard owns every domain route, task-shape and prompt-load decision, task-local predictive revision, template semantic, fact revision semantic, Guard purpose, protected failure, fixture, oracle, rollout, and prediction. SkillGuard supervises eight exact maintenance checks on one author-side route only; it adds no domain route, compatibility reader, or alternate runtime.",
   "closure_profiles": [
     {
       "profile_id": "enforced",
@@ -586,7 +668,11 @@
         "obligation:worldguard-internal-guard-topology",
         "obligation:worldguard-internal-guard-completeness",
         "obligation:worldguard-internal-guard-semantics",
-        "obligation:worldguard-source-version-identity"
+        "obligation:worldguard-source-version-identity",
+        "obligation:worldguard-task-shape-admission",
+        "obligation:worldguard-complete-guard-derivation",
+        "obligation:worldguard-conditional-reference-loading",
+        "obligation:worldguard-prompt-budget-headroom"
       ]
     }
   ],
@@ -674,6 +760,20 @@
         "semantic_check_id": "semantic:worldguard:internal-guard-topology"
       },
       {
+        "check_id": "check:worldguard:entry-prompt-bundle",
+        "covers_obligation_ids": [
+          "obligation:worldguard-complete-guard-derivation",
+          "obligation:worldguard-conditional-reference-loading",
+          "obligation:worldguard-prompt-budget-headroom",
+          "obligation:worldguard-task-shape-admission"
+        ],
+        "evidence_class": "hard",
+        "evidence_domain_id": "worldguard:entry-loading",
+        "execution_owner_id": "owner:worldguard:entry-prompt-bundle",
+        "projection_declaration_hash": "sha256:34300e4e30bced7f33bb41b2a941163f445e71507f8ae784f1f50af561269b79",
+        "semantic_check_id": "semantic:worldguard:entry-prompt-bundle"
+      },
+      {
         "check_id": "check:worldguard:guard-model-contract",
         "covers_obligation_ids": [
           "obligation:worldguard-guard-candidate-purpose-binding",
@@ -724,7 +824,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:contract_schema"
         ],
-        "component_hash": "sha256:ccb091da96edbcf899d26de03e5b0f51cf3f16f8b98f1e7cd6a8b8d06cd6b0f1",
+        "component_hash": "sha256:3049dff122ed0256cc24edc2af75d685b75d863e127ac084dd0ecbf8156883fb",
         "component_id": "component:contract_schema:e0a796c660375a19",
         "consumer_ids": [
           "projection:contract-compile",
@@ -740,9 +840,10 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:documentation_model"
         ],
-        "component_hash": "sha256:03c3a1e54f77119fd121267bc27bcfa2ba83761660495e9820215d255492fab1",
-        "component_id": "component:documentation_model:5a00dbe5b09aefdd",
+        "component_hash": "sha256:30f648882799ed01b7397d331eef3800da1fd572dbeeb56f0e4eebd1a4dc23b8",
+        "component_id": "component:documentation_model:2f082b09f980e0e4",
         "consumer_ids": [
+          "owner:worldguard:entry-prompt-bundle",
           "owner:worldguard:fact-revision",
           "owner:worldguard:internal-guard-topology",
           "owner:worldguard:task-local-model-closure",
@@ -752,6 +853,23 @@
         "install_disposition": "copy",
         "member_paths": [
           "skills/worldguard/SKILL.md"
+        ],
+        "role": "documentation_model"
+      },
+      {
+        "classification_rule_ids": [
+          "skillguard.content_role_classifier.current:documentation_model"
+        ],
+        "component_hash": "sha256:0d21e8ad813f9440aebe71c6f2292a48dd44a170896ec154e8ea24ec91a8f3d5",
+        "component_id": "component:documentation_model:30b37f0ba678202f",
+        "consumer_ids": [
+          "owner:worldguard:entry-prompt-bundle",
+          "projection:installation"
+        ],
+        "install_disposition": "copy",
+        "member_paths": [
+          "skills/worldguard/references/entry-routing.md",
+          "skills/worldguard/references/task-local-model-deepening.md"
         ],
         "role": "documentation_model"
       },
@@ -776,7 +894,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:documentation_model"
         ],
-        "component_hash": "sha256:702b0a4e7b6960da481deb6a8b9aa1dfb972d2eeb0f50fcb5da895aba58185f9",
+        "component_hash": "sha256:aad86de89d80bafa34d21460079214dc26c6455f5a12bb9b0311dcf7ae9ad4b0",
         "component_id": "component:documentation_model:ef2d44ef56cd143f",
         "consumer_ids": [
           "owner:worldguard:flowguard-contract-model",
@@ -794,7 +912,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:documentation_model"
         ],
-        "component_hash": "sha256:a5f6bec4620f9a46406af19e6c32fc6ba92e838ed37881908f50ff0522542810",
+        "component_hash": "sha256:0d5d9923c195be30acf253a094d29213643beaa892fe9f8abb3da3b8ae14ee49",
         "component_id": "component:documentation_model:fde634a12011760a",
         "consumer_ids": [
           "owner:worldguard:guard-model-contract",
@@ -862,7 +980,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:documentation_model"
         ],
-        "component_hash": "sha256:2feeba17defc7cd3a9969241852d1f5abcff87dab9cba2939a9000bbeb8f5bed",
+        "component_hash": "sha256:746a7a1e7e961d7f6079448ac07640c961a6caff3182c247915dfbbdb55d1ac9",
         "component_id": "component:documentation_model:88e8dd978f214f0b",
         "consumer_ids": [
           "owner:worldguard:internal-guard-topology"
@@ -879,7 +997,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:fixture_reference"
         ],
-        "component_hash": "sha256:c235085a72a43ef6638664cfbb2d114c83a77509893a2d1d63b91a35a2ed6a47",
+        "component_hash": "sha256:a75569eec6320980a8b04abfb922e67284087d82eb096597213cd54cd69d42cc",
         "component_id": "component:fixture_reference:623b71cafc801ac6",
         "consumer_ids": [
           "projection:source-maintenance"
@@ -891,6 +1009,56 @@
           "skills/worldguard/.skillguard/fixtures/shallow.json"
         ],
         "role": "fixture_reference"
+      },
+      {
+        "classification_rule_ids": [
+          "skillguard.content_role_classifier.current:runtime_source"
+        ],
+        "component_hash": "sha256:5f077c1f0cee8ba5012814043a509d7f5817f9e06d481ecf0a3c5ac9f557b522",
+        "component_id": "component:runtime_source:98c794cf5de6d85c",
+        "consumer_ids": [
+          "owner:worldguard:entry-prompt-bundle",
+          "owner:worldguard:internal-guard-topology",
+          "projection:installation"
+        ],
+        "install_disposition": "copy",
+        "member_paths": [
+          "skills/worldguard/references/internal-guard-routes.json"
+        ],
+        "role": "runtime_source"
+      },
+      {
+        "classification_rule_ids": [
+          "skillguard.content_role_classifier.current:runtime_source"
+        ],
+        "component_hash": "sha256:1e8b11c2dd89b04017f47402293f2116c8c4a2558cb28601d7748293688a2528",
+        "component_id": "component:runtime_source:3bf4c5884d608f84",
+        "consumer_ids": [
+          "owner:worldguard:entry-prompt-bundle",
+          "owner:worldguard:task-local-model-closure",
+          "projection:installation"
+        ],
+        "install_disposition": "copy",
+        "member_paths": [
+          "skills/worldguard/agents/openai.yaml"
+        ],
+        "role": "runtime_source"
+      },
+      {
+        "classification_rule_ids": [
+          "skillguard.content_role_classifier.current:runtime_source"
+        ],
+        "component_hash": "sha256:b1c51b7d1378bed5fb24c13fe55aaedd8d7734625fcb3e542526e9982a9561dc",
+        "component_id": "component:runtime_source:906e2a030773b5b5",
+        "consumer_ids": [
+          "owner:worldguard:entry-prompt-bundle",
+          "projection:installation"
+        ],
+        "install_disposition": "copy",
+        "member_paths": [
+          "skills/worldguard/scripts/check_entry_prompt_bundle.py"
+        ],
+        "role": "runtime_source"
       },
       {
         "classification_rule_ids": [
@@ -953,7 +1121,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:runtime_source"
         ],
-        "component_hash": "sha256:e952ecd198c73109ca32a2f27b534a7898920bd6f4a87684c6713e973ab38951",
+        "component_hash": "sha256:e8d974fb1d2557a1ae6a060295986742a749f940d7147e24f12adb7f47c159cb",
         "component_id": "component:runtime_source:b24a21ec66a2c868",
         "consumer_ids": [
           "owner:worldguard:fact-revision",
@@ -1032,15 +1200,14 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:runtime_source"
         ],
-        "component_hash": "sha256:a4b00a7691e03d0770c2c824478c1bb148400f39811f7e1ac8896ff080dc1971",
-        "component_id": "component:runtime_source:9d33f04fd694a9ee",
+        "component_hash": "sha256:2b35addb95a0a5b801cb7e6a1cdb00b8b811055889695af06bf7cd44638e33fa",
+        "component_id": "component:runtime_source:cb370d13f02f48eb",
         "consumer_ids": [
           "owner:worldguard:internal-guard-topology",
           "projection:installation"
         ],
         "install_disposition": "copy",
         "member_paths": [
-          "skills/worldguard/references/internal-guard-routes.json",
           "skills/worldguard/scripts/check_internal_guard_topology.py"
         ],
         "role": "runtime_source"
@@ -1065,16 +1232,15 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:runtime_source"
         ],
-        "component_hash": "sha256:99d1caa263264062e2082cf5e3664462bbc1b547833d259f2cb06fd8e97beead",
-        "component_id": "component:runtime_source:4fbf5b4f95cd52ec",
+        "component_hash": "sha256:9356c73064c9a70eef88a038359a720cd5adfaba48b3cbc8f516a30b966cb6de",
+        "component_id": "component:runtime_source:d73facaa7546f00b",
         "consumer_ids": [
           "owner:worldguard:task-local-model-closure",
           "projection:installation"
         ],
         "install_disposition": "copy",
         "member_paths": [
-          "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py",
-          "skills/worldguard/agents/openai.yaml"
+          "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py"
         ],
         "role": "runtime_source"
       },
@@ -1189,7 +1355,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:runtime_source"
         ],
-        "component_hash": "sha256:12026f25c2a47da7652e5d9e260396f4f828280c4ab976d7d4ffd267584fc8cb",
+        "component_hash": "sha256:a28de974b175db3dd5a663bebe0f3cdda0722209374b2016d94a5636bbe9cc00",
         "component_id": "component:runtime_source:ba7769da05f25c61",
         "consumer_ids": [
           "owner:worldguard:internal-guard-topology"
@@ -1211,7 +1377,7 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:runtime_source"
         ],
-        "component_hash": "sha256:5745f358b76569cbecfc4c923a25c6dde2205fae5e48896c0170bda6c71d57fd",
+        "component_hash": "sha256:1c664b13d6bd4b4dff0a7eac69c5b74fa3b929c2d31bc94b5c6083ed033f6e96",
         "component_id": "component:runtime_source:fcb39ee958004b58",
         "consumer_ids": [
           "owner:worldguard:internal-guard-topology",
@@ -1280,6 +1446,21 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:test_dev"
         ],
+        "component_hash": "sha256:dd0f8a3a7ad032141ba58281fc4391633ef8e1cbdfc4590d7564b653b3bef359",
+        "component_id": "component:test_dev:62d002e91e0c9da0",
+        "consumer_ids": [
+          "owner:worldguard:entry-prompt-bundle"
+        ],
+        "install_disposition": "source_only",
+        "member_paths": [
+          "tests/test_entry_prompt_bundle.py"
+        ],
+        "role": "test_dev"
+      },
+      {
+        "classification_rule_ids": [
+          "skillguard.content_role_classifier.current:test_dev"
+        ],
         "component_hash": "sha256:c80a712bcfc9e8d66f9d628a080bc2385fe38d78947ebe0bdcf04a2ae208fef8",
         "component_id": "component:test_dev:d9ddc3f4066a1aa4",
         "consumer_ids": [
@@ -1296,7 +1477,22 @@
         "classification_rule_ids": [
           "skillguard.content_role_classifier.current:test_dev"
         ],
-        "component_hash": "sha256:49e4d3db80d423a36e329b278c4c0d9c94f5c0c1aea456b9c2208ffeb15866ff",
+        "component_hash": "sha256:b3969d53d58dc4b4312374a6e782d298d9d78c74c838fdcdabf9479061de1e57",
+        "component_id": "component:test_dev:443deeec599130f2",
+        "consumer_ids": [
+          "owner:worldguard:internal-guard-topology"
+        ],
+        "install_disposition": "source_only",
+        "member_paths": [
+          "tests/test_internal_guard_topology.py"
+        ],
+        "role": "test_dev"
+      },
+      {
+        "classification_rule_ids": [
+          "skillguard.content_role_classifier.current:test_dev"
+        ],
+        "component_hash": "sha256:e6762c1dc51ae15cfbcd09ccad25a3b74e5cbc3e68e4f483d3c759dea4090991",
         "component_id": "component:test_dev:6c12df6a1f88081a",
         "consumer_ids": [
           "owner:worldguard:task-local-model-closure"
@@ -1323,7 +1519,7 @@
       "owner_cycles": [],
       "unmapped_paths": []
     },
-    "impact_graph_hash": "sha256:3c7fc37c40af1d6afa8987f3f6219c0d2a061aadd6ec14c111eeab1d45ee9320",
+    "impact_graph_hash": "sha256:abdafdd18593d2015b994f7896cb7e6abebffed8f720d658b0722f284aec4b7e",
     "inventory": [
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
@@ -1334,28 +1530,28 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
-        "content_hash": "sha256:f476c499f2f01e9a5f26fdd0e0fefb219d7da8a20686c58f6c326c0263800578",
+        "content_hash": "sha256:d68c98a72718e44c2f9d27606724d1f40e2908807fb01ef15f26739a6c5b1efe",
         "install_disposition": "source_only",
         "path": "CHANGELOG.md",
         "role": "documentation_model"
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
-        "content_hash": "sha256:f4dfdc95b359ea53485bea208d2db715ed620e1346f9fd57aa0320aee658723c",
+        "content_hash": "sha256:52c1dee4252517b3f3dc7874d6def4aac648920557b165349e0a3d7f1190a164",
         "install_disposition": "source_only",
         "path": "README.md",
         "role": "documentation_model"
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:runtime_source",
-        "content_hash": "sha256:967d9afb101346667166f2e76e81910bc190488d7d41d50ca0072e9d92f00e32",
+        "content_hash": "sha256:902311c7bb38fa1658ff403def6158ee7378fe9d6e2e284fa1c38735c31bd30b",
         "install_disposition": "source_only",
         "path": "VERSION",
         "role": "runtime_source"
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:runtime_source",
-        "content_hash": "sha256:8c0a2ac7445723a468bd47f5a81304b167e9a0214f4da5cd53f2045535353c22",
+        "content_hash": "sha256:6b49525a52badbab35cb40db2ffff22609074a7c2cdeea08daf1c4b89dccefe2",
         "install_disposition": "source_only",
         "path": "pyproject.toml",
         "role": "runtime_source"
@@ -1397,14 +1593,14 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:contract_schema",
-        "content_hash": "sha256:c0d709d21fa777ba2f0f30f2bc4e56ce328796464e878d7a597b5f45af5e1926",
+        "content_hash": "sha256:c53228d2b52d2da94974230aa3ca6eff7c820d153b95d48e6fb69e8c6cd9eb0c",
         "install_disposition": "source_only",
         "path": "skills/worldguard/.skillguard/contract-source.json",
         "role": "contract_schema"
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
-        "content_hash": "sha256:9515f128cc73a33a96537ee59f8152ab6eaaaa3b709f9f855c2b8c93c440f7ce",
+        "content_hash": "sha256:0cffc841594ee510867029e8fbdf4759c47ddcc9c2fe07b0f04cbf0cb2e18a31",
         "install_disposition": "copy",
         "path": "skills/worldguard/.skillguard/contract_model.py",
         "role": "documentation_model"
@@ -1418,7 +1614,7 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:fixture_reference",
-        "content_hash": "sha256:1d8cae1a2a5fa8058c8d60f92a1edbeb66d568fc2ceb368a12256c35101755f4",
+        "content_hash": "sha256:290eb4de338cdf9bf99b58c45dc7512bf7ff986daf04b1a48f104f01930857b7",
         "install_disposition": "source_only",
         "path": "skills/worldguard/.skillguard/fixtures/deep.json",
         "role": "fixture_reference"
@@ -1453,14 +1649,14 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
-        "content_hash": "sha256:1b22b119d3d02febdfd0a3be401cee065e2929a5856414541d27f7d0dc9f2eef",
+        "content_hash": "sha256:1bc24b093457c2f0aaef9d5220c004c2b7dac7f672ecbbd0032eab26284df86c",
         "install_disposition": "copy",
         "path": "skills/worldguard/SKILL.md",
         "role": "documentation_model"
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:runtime_source",
-        "content_hash": "sha256:e9a5f054c165037b4b09c4bc2ac23bddda719aedb1fa8899bd607d09143dcfdf",
+        "content_hash": "sha256:139a5a36b4cc941c03e87eb33689395fba54b8a494b0efa335bcc09d62c70f64",
         "install_disposition": "copy",
         "path": "skills/worldguard/agents/openai.yaml",
         "role": "runtime_source"
@@ -1470,6 +1666,13 @@
         "content_hash": "sha256:48555a3fb6027dd20b53e54ff3190eb93f3932bff9ccfcd154ad75dcfaadffaf",
         "install_disposition": "copy",
         "path": "skills/worldguard/references/closure-report.md",
+        "role": "documentation_model"
+      },
+      {
+        "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
+        "content_hash": "sha256:fbea6243653df97fea52c9afcd3b9311b2d9b04b2078812cc00d5005e037c96f",
+        "install_disposition": "copy",
+        "path": "skills/worldguard/references/entry-routing.md",
         "role": "documentation_model"
       },
       {
@@ -1502,7 +1705,7 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:runtime_source",
-        "content_hash": "sha256:63ef6422c67aeaad3750ea422b8701db658ddd76b7fd3ff12133dcade8cb12b6",
+        "content_hash": "sha256:e3e3382668ee2da1eeddb93c37ecc91a03fe398acc5fef617bfabfef4f760bb6",
         "install_disposition": "copy",
         "path": "skills/worldguard/references/internal-guard-routes.json",
         "role": "runtime_source"
@@ -1523,6 +1726,13 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
+        "content_hash": "sha256:7ac90feafa6c087bb4f0611037599b80a3a331e0905aaa66fbca04184ffa49ee",
+        "install_disposition": "copy",
+        "path": "skills/worldguard/references/task-local-model-deepening.md",
+        "role": "documentation_model"
+      },
+      {
+        "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
         "content_hash": "sha256:8055c8c84c35cc084d5469a1362c761bb19801cb842f300d44b8e474a4bcd4c1",
         "install_disposition": "copy",
         "path": "skills/worldguard/references/template-packs.md",
@@ -1530,14 +1740,14 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:documentation_model",
-        "content_hash": "sha256:f1b18820ea01e85af372970f1436b7c5c4d4b6d42567bc165a823629bc79a05a",
+        "content_hash": "sha256:2326b21a1c9ff314d3987a68a0d46d78236e0ff1a669d6182650148aeea63415",
         "install_disposition": "copy",
         "path": "skills/worldguard/references/worldguard-contracts.md",
         "role": "documentation_model"
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:runtime_source",
-        "content_hash": "sha256:0cc91a4b2ee749c1eb4dd76cc05c51c55f1a290dcdf8b7326bfdf9364d1af8a7",
+        "content_hash": "sha256:a5ff4398ba5502c97f1f540c29e7fce3a26c11a151798a27798e0a2b3d36b206",
         "install_disposition": "copy",
         "path": "skills/worldguard/runtime/worldguard/__init__.py",
         "role": "runtime_source"
@@ -1754,7 +1964,14 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:runtime_source",
-        "content_hash": "sha256:3a7d3d80d9803ac9c4c352054e826ae7d44df5938c137074abc559e2d8e01971",
+        "content_hash": "sha256:b4e48bc54b1d9a0073a1f52d8b8b39823b77bae40b2c67301b784645fbad0cd5",
+        "install_disposition": "copy",
+        "path": "skills/worldguard/scripts/check_entry_prompt_bundle.py",
+        "role": "runtime_source"
+      },
+      {
+        "classification_rule_id": "skillguard.content_role_classifier.current:runtime_source",
+        "content_hash": "sha256:0b63bdec5d799be2d51c65f3912e806b6510cf214819d3c71dcf4a7a7af06ced",
         "install_disposition": "copy",
         "path": "skills/worldguard/scripts/check_internal_guard_topology.py",
         "role": "runtime_source"
@@ -1775,6 +1992,13 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:test_dev",
+        "content_hash": "sha256:5bbfaba1ca486b129842d3b5d6959ed8f49d868a5f0c26f482d7836ae991694a",
+        "install_disposition": "source_only",
+        "path": "tests/test_entry_prompt_bundle.py",
+        "role": "test_dev"
+      },
+      {
+        "classification_rule_id": "skillguard.content_role_classifier.current:test_dev",
         "content_hash": "sha256:fc1e34fa660440435a9ffda051e671fd08e7a56988c37c5b172753a26fa68e20",
         "install_disposition": "source_only",
         "path": "tests/test_fact_revision.py",
@@ -1782,14 +2006,21 @@
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:test_dev",
-        "content_hash": "sha256:91034fd0060f3d9f6fb4e5b506865ae9558d36c2ff7e0b1adef667dc9c60a9c4",
+        "content_hash": "sha256:e471d1ed685939fe322e8a3481c4fd7ed823727f50887ba6b9754064eb4942cf",
+        "install_disposition": "source_only",
+        "path": "tests/test_internal_guard_topology.py",
+        "role": "test_dev"
+      },
+      {
+        "classification_rule_id": "skillguard.content_role_classifier.current:test_dev",
+        "content_hash": "sha256:c31ef507b0fcf30ed13e6e794560585d3da0a1ef5b4c845c4e5c65740f1e7e41",
         "install_disposition": "source_only",
         "path": "tests/test_task_local_revision.py",
         "role": "test_dev"
       },
       {
         "classification_rule_id": "skillguard.content_role_classifier.current:runtime_source",
-        "content_hash": "sha256:0cc91a4b2ee749c1eb4dd76cc05c51c55f1a290dcdf8b7326bfdf9364d1af8a7",
+        "content_hash": "sha256:a5ff4398ba5502c97f1f540c29e7fce3a26c11a151798a27798e0a2b3d36b206",
         "install_disposition": "source_only",
         "path": "worldguard/__init__.py",
         "role": "runtime_source"
@@ -2005,7 +2236,7 @@
         "role": "runtime_source"
       }
     ],
-    "inventory_hash": "sha256:4a212c87ba751f0d62a4e68d28a3ce8bc4681c68dd6e0087ff1c8771651b0a08",
+    "inventory_hash": "sha256:0866dad31c06ce1beba78949be8e593d67a54e8a82bf269d1f51a1c7bf86616c",
     "member_root_path": "skills/worldguard",
     "owner_receipt_root_ref": {
       "path_token": "owner_evidence_root",
@@ -2014,12 +2245,60 @@
     "owners": [
       {
         "check_ids": [
+          "check:worldguard:entry-prompt-bundle"
+        ],
+        "depends_on_owner_ids": [],
+        "execution_owner_id": "owner:worldguard:entry-prompt-bundle",
+        "input_component_ids": [
+          "component:documentation_model:2f082b09f980e0e4",
+          "component:documentation_model:30b37f0ba678202f",
+          "component:runtime_source:3bf4c5884d608f84",
+          "component:runtime_source:906e2a030773b5b5",
+          "component:runtime_source:98c794cf5de6d85c",
+          "component:test_dev:62d002e91e0c9da0"
+        ],
+        "input_selectors": [
+          {
+            "kind": "path",
+            "path": "skills/worldguard/SKILL.md"
+          },
+          {
+            "kind": "path",
+            "path": "skills/worldguard/agents/openai.yaml"
+          },
+          {
+            "kind": "path",
+            "path": "skills/worldguard/references/entry-routing.md"
+          },
+          {
+            "kind": "path",
+            "path": "skills/worldguard/references/internal-guard-routes.json"
+          },
+          {
+            "kind": "path",
+            "path": "skills/worldguard/references/task-local-model-deepening.md"
+          },
+          {
+            "kind": "path",
+            "path": "skills/worldguard/scripts/check_entry_prompt_bundle.py"
+          },
+          {
+            "kind": "path",
+            "path": "tests/test_entry_prompt_bundle.py"
+          }
+        ],
+        "owner_declaration_hash": "sha256:0283c5e8208f120987a69ff303b02d1771ae20172081e8c76b772bcb9db50d35",
+        "owner_input_projection_hash": "sha256:26e933bea718205096adab8b66e736c637cd6552c5050dbebeb0dda029b08c1d",
+        "target_input_role_ids": []
+      },
+      {
+        "check_ids": [
           "check:worldguard:fact-revision"
         ],
         "depends_on_owner_ids": [],
         "execution_owner_id": "owner:worldguard:fact-revision",
         "input_component_ids": [
-          "component:documentation_model:5a00dbe5b09aefdd",
+          "component:documentation_model:2f082b09f980e0e4",
           "component:documentation_model:7987e6f6fd07e802",
           "component:runtime_source:2d8fa8e0ce938a9c",
           "component:runtime_source:49cf8b8a2b92d634",
@@ -2069,7 +2348,7 @@
           }
         ],
         "owner_declaration_hash": "sha256:01fbd2ddce38e32f8974541b5e35cc5108b2ff6d17d0021da5b1377e6bf18d5e",
-        "owner_input_projection_hash": "sha256:6660998fcdddffc5e6c497e91bb1037fb62a8fa660edefb2371411a3bf79d759",
+        "owner_input_projection_hash": "sha256:e00ef0b180c1df1db8d4d6efea371c91f8db8c1ab1557a1f072d1238463a8ff9",
         "target_input_role_ids": []
       },
       {
@@ -2088,7 +2367,7 @@
           }
         ],
         "owner_declaration_hash": "sha256:377bf270612af0961a16e0b8549db73aef4ab100db5eecb0b62b16753b88c275",
-        "owner_input_projection_hash": "sha256:169aac9a0f3a63c59266fb3f2b3a57544d2100ef35c7283254e56c52408ffd8e",
+        "owner_input_projection_hash": "sha256:24ac31d13f71c08b53fc0e8c196e2ab36a6eaa1ef63a12bbd61df810c92c258d",
         "target_input_role_ids": []
       },
       {
@@ -2143,7 +2422,7 @@
           }
         ],
         "owner_declaration_hash": "sha256:1974d2d1adddd7e297f248e642ffd9d6f09b0e714f57c9a0d28303561dd1f819",
-        "owner_input_projection_hash": "sha256:c8ed9bec610ccdfbfc0c07cbe338c547b8fb3472c197fa637f86cebfd4310d0a",
+        "owner_input_projection_hash": "sha256:be671b629b6995499ba9bc9e8aca5d0c47a52b96b2a5478ece60462f895ad42f",
         "target_input_role_ids": []
       },
       {
@@ -2153,21 +2432,23 @@
         "depends_on_owner_ids": [],
         "execution_owner_id": "owner:worldguard:internal-guard-topology",
         "input_component_ids": [
-          "component:documentation_model:5a00dbe5b09aefdd",
+          "component:documentation_model:2f082b09f980e0e4",
           "component:documentation_model:88e8dd978f214f0b",
           "component:runtime_source:353f82848fdb528a",
           "component:runtime_source:3cb7cb2ea3445acf",
           "component:runtime_source:49cf8b8a2b92d634",
-          "component:runtime_source:9d33f04fd694a9ee",
+          "component:runtime_source:98c794cf5de6d85c",
           "component:runtime_source:a5e799bd169bd8e8",
           "component:runtime_source:b24a21ec66a2c868",
           "component:runtime_source:b4d0a2706dfa7dbb",
           "component:runtime_source:ba7769da05f25c61",
           "component:runtime_source:c60e5f5d88c01d64",
+          "component:runtime_source:cb370d13f02f48eb",
           "component:runtime_source:d1e9ad98c46716a2",
           "component:runtime_source:d93d2b04c6979633",
           "component:runtime_source:dee156e2e571f801",
-          "component:runtime_source:fcb39ee958004b58"
+          "component:runtime_source:fcb39ee958004b58",
+          "component:test_dev:443deeec599130f2"
         ],
         "input_selectors": [
           {
@@ -2203,6 +2484,10 @@
             "path": "skills/worldguard/scripts/check_internal_guard_topology.py"
           },
           {
+            "kind": "path",
+            "path": "tests/test_internal_guard_topology.py"
+          },
+          {
             "kind": "subtree",
             "path": "skills/worldguard/runtime/worldguard"
           },
@@ -2211,8 +2496,8 @@
             "path": "worldguard"
           }
         ],
-        "owner_declaration_hash": "sha256:cef434c3655f6c2db139f53ace80d85261e31928d8fae26ef528f42ecb5b001a",
-        "owner_input_projection_hash": "sha256:3823b0cde13e80b09bf2d22839b961024a1fabbe58b8177e0d4df58c0a82a084",
+        "owner_declaration_hash": "sha256:1196526c6b2bd474899ead54492c75befa4f32ec490247320497b74bb953f00d",
+        "owner_input_projection_hash": "sha256:9ec7849410556eaa7daac1711a383a9139dae953b1aab175a1ebaa86e52b202c",
         "target_input_role_ids": []
       },
       {
@@ -2250,7 +2535,7 @@
           }
         ],
         "owner_declaration_hash": "sha256:a0687a51f8899d5b6cf30fd52a25637cfcbc4003db1466e12b5de1322a496305",
-        "owner_input_projection_hash": "sha256:4d455f79ba52538c6b3a8a2cbba67c137dd45fadcfd879c6663579ee23b8c175",
+        "owner_input_projection_hash": "sha256:111676559f11f639bf3e06a7485058353fbce70124b705ac02e3b9ba59df369a",
         "target_input_role_ids": []
       },
       {
@@ -2262,17 +2547,18 @@
         ],
         "execution_owner_id": "owner:worldguard:task-local-model-closure",
         "input_component_ids": [
-          "component:documentation_model:5a00dbe5b09aefdd",
+          "component:documentation_model:2f082b09f980e0e4",
           "component:documentation_model:7987e6f6fd07e802",
           "component:documentation_model:fde634a12011760a",
           "component:runtime_source:353f82848fdb528a",
+          "component:runtime_source:3bf4c5884d608f84",
           "component:runtime_source:3cb7cb2ea3445acf",
           "component:runtime_source:49cf8b8a2b92d634",
-          "component:runtime_source:4fbf5b4f95cd52ec",
           "component:runtime_source:b24a21ec66a2c868",
           "component:runtime_source:b4d0a2706dfa7dbb",
           "component:runtime_source:c60e5f5d88c01d64",
           "component:runtime_source:d1e9ad98c46716a2",
+          "component:runtime_source:d73facaa7546f00b",
           "component:runtime_source:d93d2b04c6979633",
           "component:test_dev:6c12df6a1f88081a",
           "component:test_dev:d9ddc3f4066a1aa4"
@@ -2332,7 +2618,7 @@
           }
         ],
         "owner_declaration_hash": "sha256:e76decbaa5fac298d5ae15e746d8346d6dd28eb297a15042c470bc2526470e81",
-        "owner_input_projection_hash": "sha256:241fd106d02892822c3db3082c9bd727903d61b2d8686499c3f2633207768ad0",
+        "owner_input_projection_hash": "sha256:e7454bd6918484d74b418665ec195d53a1f4935145e809ce95be55859f9fb064",
         "target_input_role_ids": []
       },
       {
@@ -2342,7 +2628,7 @@
         "depends_on_owner_ids": [],
         "execution_owner_id": "owner:worldguard:template-packs",
         "input_component_ids": [
-          "component:documentation_model:5a00dbe5b09aefdd",
+          "component:documentation_model:2f082b09f980e0e4",
           "component:documentation_model:c97e3b87f58490ba",
           "component:runtime_source:3cb7cb2ea3445acf",
           "component:runtime_source:49cf8b8a2b92d634",
@@ -2383,7 +2669,7 @@
           }
         ],
         "owner_declaration_hash": "sha256:7d5b01f371bb6c44775c25c4273391b8e9796c2cf8f7d9f6edd770ab04a25c78",
-        "owner_input_projection_hash": "sha256:2c4272778e743335f06804e259a30c7eea00bbd898e50179a8c366a184e78bfd",
+        "owner_input_projection_hash": "sha256:f228faf7875ca0406963cb9f59bc33e38976f15068013626f67380f5aff1a318",
         "target_input_role_ids": []
       }
     ],
@@ -2392,14 +2678,14 @@
     "projection_consumers": [
       {
         "consumer_id": "projection:contract-compile",
-        "consumer_projection_hash": "sha256:a5ccaab8dc3a508276d45c8ce7a9696f12360477b74ccc3cbdb3b6ff6fdf0582",
+        "consumer_projection_hash": "sha256:ce258d82563ad293090f4a010c21438372c0007ff6afc8ad2ea0b73a84d0185d",
         "impact_plan_schema_version": "skillguard.content_impact_plan.current",
         "impact_policy_id": "skillguard.content_impact_policy.current",
         "input_component_ids": [
           "component:contract_schema:e0a796c660375a19",
           "component:documentation_model:ef2d44ef56cd143f"
         ],
-        "input_projection_hash": "sha256:26fcf58707d7b7fced5bfb2f145476334865b7305dafd81b77a4070edbb19c55",
+        "input_projection_hash": "sha256:a8ed6bb2c26cd713e0d45ac345a8f7b50ee4a2cb3d6321528dc079914b2bb1c1",
         "kind": "contract_compile",
         "projection_declaration_hash": "sha256:c44197885a0c9f06667aa7e5fd3b8d01a9c21bdd6170b541f7f8fbcce969a18a"
       },
@@ -2415,12 +2701,13 @@
       },
       {
         "consumer_id": "projection:installation",
-        "consumer_projection_hash": "sha256:cc492c1c1de0ef4113d9042e030ef8b87c8983a28e12355bf4f7d3ec73f6e60c",
+        "consumer_projection_hash": "sha256:6333e203e2b93715037dde4e0c1413ee0ff2f1f68a5467723f0ca9ab87bd5b84",
         "impact_plan_schema_version": "skillguard.content_impact_plan.current",
         "impact_policy_id": "skillguard.content_impact_policy.current",
         "input_component_ids": [
           "component:contract_schema:958533e903648dba",
-          "component:documentation_model:5a00dbe5b09aefdd",
+          "component:documentation_model:2f082b09f980e0e4",
+          "component:documentation_model:30b37f0ba678202f",
           "component:documentation_model:725b1a2ed618dc20",
           "component:documentation_model:7987e6f6fd07e802",
           "component:documentation_model:c97e3b87f58490ba",
@@ -2429,19 +2716,22 @@
           "component:documentation_model:fde634a12011760a",
           "component:runtime_source:193aa99d07e84f06",
           "component:runtime_source:2d8fa8e0ce938a9c",
-          "component:runtime_source:4fbf5b4f95cd52ec",
+          "component:runtime_source:3bf4c5884d608f84",
           "component:runtime_source:7108a08625e74002",
           "component:runtime_source:812054d7872c78d1",
-          "component:runtime_source:9d33f04fd694a9ee",
+          "component:runtime_source:906e2a030773b5b5",
+          "component:runtime_source:98c794cf5de6d85c",
           "component:runtime_source:a5e799bd169bd8e8",
           "component:runtime_source:b24a21ec66a2c868",
           "component:runtime_source:b4d0a2706dfa7dbb",
+          "component:runtime_source:cb370d13f02f48eb",
           "component:runtime_source:d1e9ad98c46716a2",
+          "component:runtime_source:d73facaa7546f00b",
           "component:runtime_source:fbfac7e5005b2104"
         ],
-        "input_projection_hash": "sha256:b1fa81ff1f873fefa7ff2c9424495ef63943bc04e8636d9b1999e368010fb20e",
+        "input_projection_hash": "sha256:881da2a87ef295b57bdcd9cb521bf59ed2ea278a42d380e06be96bf120b6bead",
         "kind": "installation",
-        "projection_declaration_hash": "sha256:c6f189c72f70774e0fae614cba6eb0405159289cd745d3dcde7715522e2fcf15"
+        "projection_declaration_hash": "sha256:021564c689517985e64b59c140684569ada64106bb08601fc7d74ce47423db13"
       },
       {
         "consumer_id": "projection:portfolio",
@@ -2455,14 +2745,14 @@
       },
       {
         "consumer_id": "projection:source-maintenance",
-        "consumer_projection_hash": "sha256:e616cd23d8ca1ca927d26cb42cf2da4f9fa43c11c9dc91932f0859432182777b",
+        "consumer_projection_hash": "sha256:6ddde89d9839d48fed9f8016ea282f4a3f9a4657746c4f99ad29a06cc8aa4e22",
         "impact_plan_schema_version": "skillguard.content_impact_plan.current",
         "impact_policy_id": "skillguard.content_impact_policy.current",
         "input_component_ids": [
           "component:contract_schema:e0a796c660375a19",
           "component:fixture_reference:623b71cafc801ac6"
         ],
-        "input_projection_hash": "sha256:57e1ba0f153b45c180f517772a36fdb82f0bbd92e87dee9660e986f718ee2d90",
+        "input_projection_hash": "sha256:5bd7c3915b8bfb22f985371a2fe7e183f3a59c758dabc014a12dcc854aad690d",
         "kind": "source_maintenance",
         "projection_declaration_hash": "sha256:dc004f5bfac09c546797606fb10dea5f31166718ce7d398b0f66e71bf168a106"
       }
@@ -2470,9 +2760,9 @@
     "schema_version": "skillguard.content_impact_plan.current",
     "unknown_mapping_disposition": "block"
   },
-  "contract_hash": "92D657542285DF9693B1E2BE0BBA27D6B12D65E2FFDBD8E3F45CE708B3755175",
+  "contract_hash": "9C034C766D77C781ABFDE208A81CB31DE3A1C04582A4BC0DD1D70281F83E5CA1",
   "depth_profile": {
-    "claim_boundary": "SkillGuard freezes and reconciles seven exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, task-local model revision, template, fact revision, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths.",
+    "claim_boundary": "SkillGuard freezes and reconciles eight exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, task-local model revision, template, fact revision, entry loading, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths.",
     "enforcement_level": "enforced",
     "integration_mode": "native-integrated",
     "model_deepening_check_id": "check:worldguard:task-local-model-closure",
@@ -2482,6 +2772,7 @@
       "check:worldguard:native-depth",
       "check:worldguard:template-packs",
       "check:worldguard:internal-guard-topology",
+      "check:worldguard:entry-prompt-bundle",
       "check:worldguard:task-local-model-closure",
       "check:worldguard:fact-revision"
     ],
@@ -2498,6 +2789,7 @@
         "check:worldguard:native-depth",
         "check:worldguard:template-packs",
         "check:worldguard:internal-guard-topology",
+        "check:worldguard:entry-prompt-bundle",
         "check:worldguard:task-local-model-closure",
         "check:worldguard:fact-revision"
       ],
@@ -2522,7 +2814,7 @@
   "flowguard_schema_version": "1.0",
   "functions": [
     {
-      "business_intent": "execute the seven exact WorldGuard maintenance validation owners",
+      "business_intent": "execute the eight exact WorldGuard maintenance validation owners",
       "composable_with": [],
       "function_id": "worldguard_claim_derived_depth",
       "owner_id": "worldguard.maintenance_validation",
@@ -2903,6 +3195,62 @@
       "required_check_ids": [
         "check:worldguard:fact-revision"
       ]
+    },
+    {
+      "evidence_classes": [
+        "hard"
+      ],
+      "invariant_id": "worldguard_public_task_shape_is_exactly_fact_derived",
+      "obligation_id": "obligation:worldguard-task-shape-admission",
+      "owner_step_ids": [
+        "step:verify-worldguard-entry-prompt-bundle"
+      ],
+      "required": true,
+      "required_check_ids": [
+        "check:worldguard:entry-prompt-bundle"
+      ]
+    },
+    {
+      "evidence_classes": [
+        "hard"
+      ],
+      "invariant_id": "worldguard_claim_semantics_derive_the_complete_guard_set",
+      "obligation_id": "obligation:worldguard-complete-guard-derivation",
+      "owner_step_ids": [
+        "step:verify-worldguard-entry-prompt-bundle"
+      ],
+      "required": true,
+      "required_check_ids": [
+        "check:worldguard:entry-prompt-bundle"
+      ]
+    },
+    {
+      "evidence_classes": [
+        "hard"
+      ],
+      "invariant_id": "worldguard_selected_shape_and_guards_load_only_mandatory_references",
+      "obligation_id": "obligation:worldguard-conditional-reference-loading",
+      "owner_step_ids": [
+        "step:verify-worldguard-entry-prompt-bundle"
+      ],
+      "required": true,
+      "required_check_ids": [
+        "check:worldguard:entry-prompt-bundle"
+      ]
+    },
+    {
+      "evidence_classes": [
+        "hard"
+      ],
+      "invariant_id": "worldguard_prompt_bundle_preserves_reasoning_headroom",
+      "obligation_id": "obligation:worldguard-prompt-budget-headroom",
+      "owner_step_ids": [
+        "step:verify-worldguard-entry-prompt-bundle"
+      ],
+      "required": true,
+      "required_check_ids": [
+        "check:worldguard:entry-prompt-bundle"
+      ]
     }
   ],
   "parent_model_id": "worldguard-claim-derived-semantic-coverage",
@@ -2919,6 +3267,7 @@
       "step_ids": [
         "step:derive-world-coverage-universe",
         "step:verify-worldguard-internal-topology",
+        "step:verify-worldguard-entry-prompt-bundle",
         "step:verify-world-guard-model-contract",
         "step:execute-world-semantic-depth",
         "step:worldguard-template-pack-builder:execute",
@@ -2933,34 +3282,39 @@
   "schema_version": "skillguard.compiled_contract.v2",
   "skill_id": "worldguard",
   "source_fingerprints": {
-    "binding": "C0D709D21FA777BA2F0F30F2BC4E56CE328796464E878D7A597B5F45AF5E1926",
-    "entrypoint": "1B22B119D3D02FEBDFD0A3BE401CEE065E2929A5856414541D27F7D0DC9F2EEF",
+    "binding": "C53228D2B52D2DA94974230AA3CA6EFF7C820D153B95D48E6FB69E8C6CD9EB0C",
+    "entrypoint": "1BC24B093457C2F0AAEF9D5220C004C2B7DAC7F672ECBBD0032EAB26284DF86C",
     "implementation:.flowguard/run_claim_derived_coverage_checks.py": "6F4A2D14BD988D15D369A5B19C8E22E845F8D2454444235AC36246774B43D674",
-    "implementation:CHANGELOG.md": "F476C499F2F01E9A5F26FDD0E0FEFB219D7DA8A20686C58F6C326C0263800578",
-    "implementation:README.md": "F4DFDC95B359EA53485BEA208D2DB715ED620E1346F9FD57AA0320AEE658723C",
-    "implementation:VERSION": "967D9AFB101346667166F2E76E81910BC190488D7D41D50CA0072E9D92F00E32",
-    "implementation:pyproject.toml": "8C0A2AC7445723A468BD47F5A81304B167E9A0214F4DA5CD53F2045535353C22",
+    "implementation:CHANGELOG.md": "D68C98A72718E44C2F9D27606724D1F40E2908807FB01EF15F26739A6C5B1EFE",
+    "implementation:README.md": "52C1DEE4252517B3F3DC7874D6DEF4AAC648920557B165349E0A3D7F1190A164",
+    "implementation:VERSION": "902311C7BB38FA1658FF403DEF6158EE7378FE9D6E2E284FA1C38735C31BD30B",
+    "implementation:pyproject.toml": "6B49525A52BADBAB35CB40DB2FFFF22609074A7C2CDEEA08DAF1C4B89DCCEFE2",
     "implementation:skills/worldguard/.skillguard/checks/check_fact_revision.py": "34321288355A810A8FB54B5E91E9DACEB0762731CC9266BD09A90AC94B113B1E",
     "implementation:skills/worldguard/.skillguard/checks/check_guard_model_contract.py": "8E2A4EEBED3908DF72055C9A7914E13B1B5E64607AEEEB2C24B16C4E4ADD6AFA",
     "implementation:skills/worldguard/.skillguard/checks/check_task_local_model_closure.py": "4479496FAFAA42D4246A99471DD11C1344EDAEF08BA20FD28830B73D62CA1546",
     "implementation:skills/worldguard/.skillguard/checks/check_template_packs.py": "555B3EE5DC15D380D870CE9D676238ECE858EAE8DDDC9BEE0468C8350BC1DB0E",
     "implementation:skills/worldguard/.skillguard/checks/emit_native_depth_evidence.py": "A1052CF493E6B70848ACECFBF9127AE5D624345D56E392D622701CB027635DC5",
-    "implementation:skills/worldguard/.skillguard/contract_model.py": "9515F128CC73A33A96537EE59F8152AB6EAAAA3B709F9F855C2B8C93C440F7CE",
-    "implementation:skills/worldguard/SKILL.md": "1B22B119D3D02FEBDFD0A3BE401CEE065E2929A5856414541D27F7D0DC9F2EEF",
-    "implementation:skills/worldguard/agents/openai.yaml": "E9A5F054C165037B4B09C4BC2AC23BDDDA719AEDB1FA8899BD607D09143DCFDF",
+    "implementation:skills/worldguard/.skillguard/contract_model.py": "0CFFC841594EE510867029E8FBDF4759C47DDCC9C2FE07B0F04CBF0CB2E18A31",
+    "implementation:skills/worldguard/SKILL.md": "1BC24B093457C2F0AAEF9D5220C004C2B7DAC7F672ECBBD0032EAB26284DF86C",
+    "implementation:skills/worldguard/agents/openai.yaml": "139A5A36B4CC941C03E87EB33689395FBA54B8A494B0EFA335BCC09D62C70F64",
     "implementation:skills/worldguard/references/closure-report.md": "48555A3FB6027DD20B53E54FF3190EB93F3932BFF9CCFCD154AD75DCFAADFFAF",
+    "implementation:skills/worldguard/references/entry-routing.md": "FBEA6243653DF97FEA52C9AFCD3B9311B2D9B04B2078812CC00D5005E037C96F",
     "implementation:skills/worldguard/references/fact-revision.md": "E3423E54A931C52A7F155D6C9DB54911CEE6C197647019E142CB924FFDBE280B",
     "implementation:skills/worldguard/references/guard-model-contract.md": "C944F1DE5191357E9C32C845F500F39F73770F261FF15176EB777B1F411CEDE5",
-    "implementation:skills/worldguard/references/internal-guard-routes.json": "63EF6422C67AEAAD3750EA422B8701DB658DDD76B7FD3FF12133DCADE8CB12B6",
+    "implementation:skills/worldguard/references/internal-guard-routes.json": "E3E3382668EE2DA1EEDDB93C37ECC91A03FE398ACC5FEF617BFABFEF4F760BB6",
+    "implementation:skills/worldguard/references/task-local-model-deepening.md": "7AC90FEAFA6C087BB4F0611037599B80A3A331E0905AAA66FBCA04184FFA49EE",
     "implementation:skills/worldguard/references/template-packs.md": "8055C8C84C35CC084D5469A1362C761BB19801CB842F300D44B8E474A4BCD4C1",
-    "implementation:skills/worldguard/references/worldguard-contracts.md": "F1B18820EA01E85AF372970F1436B7C5C4D4B6D42567BC165A823629BC79A05A",
-    "implementation:skills/worldguard/runtime/worldguard": "1E9AC2282366B8B5AD504B0D49F784B6F0577FD92A0F4B888EF52AAE7B9EAE97",
-    "implementation:skills/worldguard/scripts/check_internal_guard_topology.py": "3A7D3D80D9803AC9C4C352054E826AE7D44DF5938C137074ABC559E2D8E01971",
+    "implementation:skills/worldguard/references/worldguard-contracts.md": "2326B21A1C9FF314D3987A68A0D46D78236E0FF1A669D6182650148AEEA63415",
+    "implementation:skills/worldguard/runtime/worldguard": "2E926D5A861B22CC306C63D9CD731D4F3E17F30B85CC580971123E926F7655CF",
+    "implementation:skills/worldguard/scripts/check_entry_prompt_bundle.py": "B4E48BC54B1D9A0073A1F52D8B8B39823B77BAE40B2C67301B784645FBAD0CD5",
+    "implementation:skills/worldguard/scripts/check_internal_guard_topology.py": "0B63BDEC5D799BE2D51C65F3912E806B6510CF214819D3C71DCF4A7A7AF06CED",
+    "implementation:tests/test_entry_prompt_bundle.py": "5BBFABA1CA486B129842D3B5D6959ED8F49D868A5F0C26F482D7836AE991694A",
     "implementation:tests/test_fact_revision.py": "FC1E34FA660440435A9FFDA051E671FD08E7A56988C37C5B172753A26FA68E20",
-    "implementation:tests/test_task_local_revision.py": "91034FD0060F3D9F6FB4E5B506865AE9558D36C2FF7E0B1ADEF667DC9C60A9C4",
-    "implementation:worldguard": "1E9AC2282366B8B5AD504B0D49F784B6F0577FD92A0F4B888EF52AAE7B9EAE97",
-    "model": "9515F128CC73A33A96537EE59F8152AB6EAAAA3B709F9F855C2B8C93C440F7CE",
-    "model_export": "E81787862A9F32381DBD6E8E4600656A047A11C9E48616DAF4FE9728304B1016"
+    "implementation:tests/test_internal_guard_topology.py": "E471D1ED685939FE322E8A3481C4FD7ED823727F50887BA6B9754064EB4942CF",
+    "implementation:tests/test_task_local_revision.py": "C31EF507B0FCF30ED13E6E794560585D3DA0A1EF5B4C845C4E5C65740F1E7E41",
+    "implementation:worldguard": "2E926D5A861B22CC306C63D9CD731D4F3E17F30B85CC580971123E926F7655CF",
+    "model": "0CFFC841594EE510867029E8FBDF4759C47DDCC9C2FE07B0F04CBF0CB2E18A31",
+    "model_export": "23477E049B4B84473B3EB8FFAC121A87EDEDA4D54BF9F5CE8AD294E0B73A7130"
   },
   "steps": [
     {
@@ -3008,6 +3362,27 @@
       "binding": {
         "action": {
           "kind": "verifier",
+          "summary": "Verify exact task-shape admission, complete claim-derived Guard coverage, conditional reference loading, and prompt headroom."
+        },
+        "check_ids": [
+          "check:worldguard:entry-prompt-bundle"
+        ],
+        "output_artifact_ids": []
+      },
+      "owner_id": "worldguard.entry_prompt_bundle",
+      "prerequisite_step_ids": [
+        "step:verify-worldguard-internal-topology"
+      ],
+      "required": true,
+      "route_id": "route:worldguard-claim-derived-depth",
+      "step_id": "step:verify-worldguard-entry-prompt-bundle",
+      "terminal_kind": ""
+    },
+    {
+      "action_kind": "verifier",
+      "binding": {
+        "action": {
+          "kind": "verifier",
           "summary": "Verify Guard purposes, the protected failure universe, native oracles, and pre-proof candidate bindings."
         },
         "check_ids": [
@@ -3017,7 +3392,7 @@
       },
       "owner_id": "worldguard.guard_model_contract",
       "prerequisite_step_ids": [
-        "step:verify-worldguard-internal-topology"
+        "step:verify-worldguard-entry-prompt-bundle"
       ],
       "required": true,
       "route_id": "route:worldguard-claim-derived-depth",

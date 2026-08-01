@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.7.1 - 2026-08-01
+
+- Contracted the always-loaded WorldGuard prompt into one task-shape entry and
+  conditional route references while preserving all seven internal Guards and
+  complete multi-Guard claim-derived coverage.
+- Added machine-checkable task-shape and Guard capsules, prompt load-graph and
+  budget checks, and explicit predictive deepening without understanding
+  levels, keyword authority, caller-subset authority, retry, or fallback.
+- Moved the existing evidence-derived task-local deepening protocol behind the
+  EventGuard/CausalGuard predictive trigger and repaired the governed OpenSpec
+  input to its stable main specification.
+
 ## v0.7.0 - 2026-07-31
 
 - Replaced former shallow task-local prediction/revision shapes with one strict

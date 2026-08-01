@@ -22,8 +22,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_worldguard_prompt_requires_exact_per_obligation_evidence() -> None:
     raw_prompt = (ROOT / "skills/worldguard/SKILL.md").read_text(encoding="utf-8")
+    contracts = (ROOT / "skills/worldguard/references/worldguard-contracts.md").read_text(encoding="utf-8")
     assert "\n+Keep only" not in raw_prompt
-    prompt = " ".join(raw_prompt.split())
+    assert "[references/worldguard-contracts.md](references/worldguard-contracts.md)" in raw_prompt
+    prompt = " ".join(contracts.split())
     assert "not proof of an individual WorldGuard obligation" in prompt
     assert "`evidence_ref`" in prompt
     assert "lowercase content hash" in prompt
@@ -518,6 +520,8 @@ def test_current_generic_skill_contract_supervises_target_checks_without_domain_
         "check:worldguard:template-packs",
         "check:worldguard:internal-guard-topology",
         "check:worldguard:fact-revision",
+        "check:worldguard:task-local-model-closure",
+        "check:worldguard:entry-prompt-bundle",
     }
     assert set(checks) == native_ids
     assert source["depth_profile"]["target_skill_id"] == "worldguard"

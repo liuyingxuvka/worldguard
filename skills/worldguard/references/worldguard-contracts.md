@@ -112,6 +112,8 @@ Required canonical fields:
 
 For `FAIL`, `GAP`, and `BOUNDARY_EXCEEDED`, require at least one concrete evidence field: missing slots, boundary trace, errors, or counterexamples.
 
+An aggregate or suite-level result is not proof of an individual WorldGuard obligation. Each obligation must retain its own typed `evidence_ref`, and every content-addressed evidence reference must use the exact lowercase content hash produced by its current native owner.
+
 ## LedgerEntry
 
 Required canonical fields:

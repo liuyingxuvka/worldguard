@@ -48,6 +48,17 @@
       "output_artifact_ids": []
     },
     {
+      "step_id": "step:verify-worldguard-entry-prompt-bundle",
+      "action": {
+        "kind": "verifier",
+        "summary": "Verify exact task-shape admission, complete claim-derived Guard coverage, conditional reference loading, and prompt headroom."
+      },
+      "check_ids": [
+        "check:worldguard:entry-prompt-bundle"
+      ],
+      "output_artifact_ids": []
+    },
+    {
       "step_id": "step:verify-world-guard-model-contract",
       "action": {
         "kind": "verifier",
@@ -406,6 +417,10 @@
         },
         {
           "kind": "path",
+          "path": "tests/test_internal_guard_topology.py"
+        },
+        {
+          "kind": "path",
           "path": ".flowguard/run_claim_derived_coverage_checks.py"
         },
         {
@@ -420,10 +435,73 @@
       "expected": {
         "exit_code": 0
       },
-      "coverage_rationale": "Proves source version 0.7.0, one public WorldGuard skill/console, exact seven-runner and seven-semantic-executor inventories, complete expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
+      "coverage_rationale": "Proves source version 0.7.1, one public WorldGuard skill/console, exact task-shape and seven-runner/semantic-executor inventories, complete admission/expectation/prediction-response-validation-terminal bindings, and byte-identical authoritative and bundled runtimes.",
       "maintenance_unit_id": "unit:worldguard",
       "member_skill_id": "worldguard",
       "evidence_subject_id": "subject:check:worldguard:internal-guard-topology"
+    },
+    {
+      "evidence_class": "hard",
+      "timeout_seconds": 180,
+      "coverage_scope": "suite",
+      "evidence_domain_id": "worldguard:entry-loading",
+      "check_id": "check:worldguard:entry-prompt-bundle",
+      "kind": "command",
+      "command": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "tests/test_entry_prompt_bundle.py",
+        "-q"
+      ],
+      "cwd_token": "repository_root",
+      "covers_obligation_ids": [
+        "obligation:worldguard-task-shape-admission",
+        "obligation:worldguard-complete-guard-derivation",
+        "obligation:worldguard-conditional-reference-loading",
+        "obligation:worldguard-prompt-budget-headroom"
+      ],
+      "depends_on_check_ids": [],
+      "execution_owner_id": "owner:worldguard:entry-prompt-bundle",
+      "semantic_check_id": "semantic:worldguard:entry-prompt-bundle",
+      "native_route_id": "route:worldguard-claim-derived-depth",
+      "input_selectors": [
+        {
+          "kind": "path",
+          "path": "skills/worldguard/SKILL.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/agents/openai.yaml"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/internal-guard-routes.json"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/entry-routing.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/references/task-local-model-deepening.md"
+        },
+        {
+          "kind": "path",
+          "path": "skills/worldguard/scripts/check_entry_prompt_bundle.py"
+        },
+        {
+          "kind": "path",
+          "path": "tests/test_entry_prompt_bundle.py"
+        }
+      ],
+      "expected": {
+        "exit_code": 0
+      },
+      "coverage_rationale": "Runs target-owned bounded, predictive multi-Guard, mesh, template, ambiguity, unmapped, missing-reference, and budget fixtures for the current prompt load graph.",
+      "maintenance_unit_id": "unit:worldguard",
+      "member_skill_id": "worldguard",
+      "evidence_subject_id": "subject:check:worldguard:entry-prompt-bundle"
     },
     {
       "evidence_class": "hard",
@@ -580,7 +658,11 @@
         "obligation:worldguard-internal-guard-topology",
         "obligation:worldguard-internal-guard-completeness",
         "obligation:worldguard-internal-guard-semantics",
-        "obligation:worldguard-source-version-identity"
+        "obligation:worldguard-source-version-identity",
+        "obligation:worldguard-task-shape-admission",
+        "obligation:worldguard-complete-guard-derivation",
+        "obligation:worldguard-conditional-reference-loading",
+        "obligation:worldguard-prompt-budget-headroom"
       ]
     }
   ],
@@ -604,9 +686,14 @@
     "skills/worldguard/references/template-packs.md",
     "skills/worldguard/references/worldguard-contracts.md",
     "skills/worldguard/references/internal-guard-routes.json",
+    "skills/worldguard/references/entry-routing.md",
+    "skills/worldguard/references/task-local-model-deepening.md",
+    "skills/worldguard/scripts/check_entry_prompt_bundle.py",
     "skills/worldguard/scripts/check_internal_guard_topology.py",
     "skills/worldguard/references/closure-report.md",
     "tests/test_fact_revision.py",
+    "tests/test_entry_prompt_bundle.py",
+    "tests/test_internal_guard_topology.py",
     "tests/test_task_local_revision.py",
     "worldguard"
   ],
@@ -650,6 +737,12 @@
       "required": true
     },
     {
+      "binding_id": "native-check:worldguard-entry-prompt-bundle",
+      "native_check_id": "check:worldguard:entry-prompt-bundle",
+      "evidence_source": "skills/worldguard/scripts/check_entry_prompt_bundle.py",
+      "required": true
+    },
+    {
       "binding_id": "native-check:worldguard-task-local-model-closure",
       "native_check_id": "check:worldguard:task-local-model-closure",
       "evidence_source": "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py",
@@ -677,6 +770,7 @@
       "check:worldguard:native-depth",
       "check:worldguard:template-packs",
       "check:worldguard:internal-guard-topology",
+      "check:worldguard:entry-prompt-bundle",
       "check:worldguard:task-local-model-closure",
       "check:worldguard:fact-revision"
     ],
@@ -704,13 +798,14 @@
         "check:worldguard:native-depth",
         "check:worldguard:template-packs",
         "check:worldguard:internal-guard-topology",
+        "check:worldguard:entry-prompt-bundle",
         "check:worldguard:task-local-model-closure",
         "check:worldguard:fact-revision"
       ]
     },
-    "claim_boundary": "SkillGuard freezes and reconciles seven exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, task-local model revision, template, fact revision, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths."
+    "claim_boundary": "SkillGuard freezes and reconciles eight exact WorldGuard maintenance checks on one author-side route. Domain investigation, semantic rollout, task-local model revision, template, fact revision, entry loading, and seven internal Guard routes remain target-owned and are not duplicated as SkillGuard execution paths."
   },
-  "claim_boundary": "WorldGuard owns every domain route, task-local predictive revision, template semantic, fact revision semantic, Guard purpose, protected failure, fixture, oracle, rollout, and prediction. SkillGuard supervises seven exact maintenance checks on one author-side route only; it adds no domain route, compatibility reader, or alternate runtime.",
+  "claim_boundary": "WorldGuard owns every domain route, task-shape and prompt-load decision, task-local predictive revision, template semantic, fact revision semantic, Guard purpose, protected failure, fixture, oracle, rollout, and prediction. SkillGuard supervises eight exact maintenance checks on one author-side route only; it adds no domain route, compatibility reader, or alternate runtime.",
   "repository_role": "skill_maintainer_source",
   "maintenance_unit_id": "unit:worldguard",
   "member_skill_ids": [

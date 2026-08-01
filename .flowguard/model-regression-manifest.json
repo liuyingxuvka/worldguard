@@ -10,7 +10,7 @@
     "skills/worldguard/.skillguard/contract-source.json",
     "skills/worldguard/.skillguard/contract_model.py",
     "tests/test_task_local_revision.py",
-    "openspec/changes/make-world-model-deepening-iterative/**/*.md",
+    "openspec/specs/world-model-deepening/spec.md",
     ".flowguard/worldguard_field_lifecycle.md",
     "README.md",
     "CHANGELOG.md",
@@ -25,6 +25,14 @@
     "skills/worldguard/runtime/worldguard/__init__.py",
     "skills/worldguard/runtime/worldguard/cli.py",
     "skills/worldguard/SKILL.md",
+    "skills/worldguard/agents/openai.yaml",
+    "skills/worldguard/references/internal-guard-routes.json",
+    "skills/worldguard/references/entry-routing.md",
+    "skills/worldguard/references/task-local-model-deepening.md",
+    "skills/worldguard/scripts/check_entry_prompt_bundle.py",
+    "skills/worldguard/scripts/check_internal_guard_topology.py",
+    "tests/test_entry_prompt_bundle.py",
+    "tests/test_internal_guard_topology.py",
     "skills/worldguard/references/fact-revision.md",
     "skills/worldguard/.skillguard/checks/check_fact_revision.py",
     "tests/test_fact_revision.py",
@@ -78,6 +86,11 @@
         "skills/worldguard/runtime/worldguard/cli.py",
         "skills/worldguard/SKILL.md",
         "skills/worldguard/agents/openai.yaml",
+        "skills/worldguard/references/internal-guard-routes.json",
+        "skills/worldguard/references/entry-routing.md",
+        "skills/worldguard/references/task-local-model-deepening.md",
+        "skills/worldguard/scripts/check_entry_prompt_bundle.py",
+        "skills/worldguard/scripts/check_internal_guard_topology.py",
         "skills/worldguard/references/worldguard-contracts.md",
         "skills/worldguard/references/fact-revision.md",
         "skills/worldguard/.skillguard/checks/check_task_local_model_closure.py",
@@ -85,7 +98,9 @@
         "skills/worldguard/.skillguard/contract_model.py",
         "tests/test_task_local_revision.py",
         "tests/test_fact_revision.py",
-        "openspec/changes/make-world-model-deepening-iterative/**/*.md",
+        "tests/test_entry_prompt_bundle.py",
+        "tests/test_internal_guard_topology.py",
+        "openspec/specs/world-model-deepening/spec.md",
         ".flowguard/worldguard_field_lifecycle.md",
         "README.md",
         "CHANGELOG.md",
@@ -99,7 +114,7 @@
       "model_kind": "executable_workflow",
       "purpose_closure": {
         "schema_version": "flowguard.model_purpose_closure.v1",
-        "model_instance_id": "regression:task_local_revision:0.7.0",
+        "model_instance_id": "regression:task_local_revision:0.7.1",
         "reusable_model_type_id": "task_local_revision",
         "task_intent_id": "worldguard-regression:strict-task-local-predictive-depth",
         "declaration_phase": "before_candidate",
@@ -159,8 +174,8 @@
         ],
         "model_sha256": "sha256:dca76bc35d021a65bfd520fc264d3d4d315275fb782f0bc481ae4cea9e607a9a",
         "runner_sha256": "sha256:6318e4cf7cdacca7abfe3e3effd6f9f9915c29cdc959f9d31ceae2af67740923",
-        "declaration_fingerprint": "sha256:7d0f76277160232488d8a201bf5a1e895117dc24f25791d804f7f284d8ee5f27",
-        "closure_fingerprint": "sha256:a6c0fd2a84f41d068bbd3a564f5968785b35bd5577356812a3f605a011cc263b"
+        "declaration_fingerprint": "sha256:89bfa2b7ae954f34144b0132e00760164426b2261c9f929ffc61afa34e3af559",
+        "closure_fingerprint": "sha256:f4c4d18dd20c242c2dbcf1c69fac2d10ba3ff631c759a87840729aa491d2743b"
       }
     },
     {
@@ -195,7 +210,7 @@
       "model_kind": "executable_workflow",
       "purpose_closure": {
         "schema_version": "flowguard.model_purpose_closure.v1",
-        "model_instance_id": "regression:fact_revision:0.7.0",
+        "model_instance_id": "regression:fact_revision:0.7.1",
         "reusable_model_type_id": "fact_revision",
         "task_intent_id": "worldguard-regression:task-local-fact-revision-handoff",
         "declaration_phase": "before_candidate",
@@ -249,8 +264,8 @@
         ],
         "model_sha256": "sha256:d0e25f54a0cc2d0197bc5327af58c4fed4ef628720931ea7683ee57035514103",
         "runner_sha256": "sha256:89cd62bde9cbc83b5692a1c8be7d2ed6521d5ee5e07d0a4fded48171b2d05298",
-        "declaration_fingerprint": "sha256:c99070b2202618788407289c8b491702f67865006769a2f379d623996de449d7",
-        "closure_fingerprint": "sha256:c1dd9f4da82ecb0439860cecdd9232fcafedbbc09b2c08d3ef25fb6a614f82fd"
+        "declaration_fingerprint": "sha256:ea513ad13c722ec30ed0143431eee7fab73cdda66ec202925cb7c3060d0a6851",
+        "closure_fingerprint": "sha256:808eeb26f2034c112ece496820c8e68dd60d6fe591daae456747a7fd44521018"
       }
     },
     {

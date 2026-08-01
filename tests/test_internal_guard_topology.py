@@ -39,8 +39,14 @@ def test_current_worldguard_has_one_entry_and_seven_internal_routes():
     assert report["ok"], report["findings"]
     assert report["public_skill_ids"] == ["worldguard"]
     assert report["project_console_ids"] == ["worldguard"]
-    assert report["source_version"] == "0.7.0"
+    assert report["source_version"] == "0.7.1"
     assert len(report["internal_guard_ids"]) == 7
+    assert report["task_shape_ids"] == [
+        "unit_contract",
+        "model_mesh",
+        "task_local_revision",
+        "template_pack",
+    ]
 
 
 def test_source_version_identity_drift_is_rejected(monkeypatch):
@@ -86,6 +92,53 @@ def test_non_predictive_guard_cannot_claim_predictive_mode(tmp_path: Path):
         and finding.get("field") == "prediction_mode"
         for finding in report["findings"]
     )
+
+
+def test_missing_route_admission_field_is_rejected(tmp_path: Path):
+    payload = _payload()
+    del payload["routes"][0]["first_native_action"]
+    topology = tmp_path / "topology.json"
+    topology.write_text(json.dumps(payload), encoding="utf-8")
+
+    report = MODULE.check(ROOT, topology_path=topology)
+
+    assert not report["ok"]
+    assert any(
+        finding["code"] == "internal_route_fields_missing"
+        and finding.get("guard_id") == "EventGuard"
+        and "first_native_action" in finding.get("fields", [])
+        for finding in report["findings"]
+    )
+
+
+def test_missing_task_shape_reference_is_rejected(tmp_path: Path):
+    payload = _payload()
+    payload["task_shapes"][0]["reference_path"] = "references/not-present.md"
+    topology = tmp_path / "topology.json"
+    topology.write_text(json.dumps(payload), encoding="utf-8")
+
+    report = MODULE.check(ROOT, topology_path=topology)
+
+    assert not report["ok"]
+    assert any(
+        finding["code"] == "task_shape_reference_missing"
+        and finding.get("shape_id") == "unit_contract"
+        for finding in report["findings"]
+    )
+
+
+def test_keyword_scoring_cannot_become_route_authority(tmp_path: Path):
+    payload = _payload()
+    payload["selection_authority"]["keyword_scoring_authoritative"] = True
+    topology = tmp_path / "topology.json"
+    topology.write_text(json.dumps(payload), encoding="utf-8")
+
+    report = MODULE.check(ROOT, topology_path=topology)
+
+    assert not report["ok"]
+    assert "selection_authority_mismatch" in {
+        finding["code"] for finding in report["findings"]
+    }
 
 
 def test_retired_runtime_authority_path_is_rejected(tmp_path: Path):
